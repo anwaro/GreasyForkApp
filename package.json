@@ -1,0 +1,13 @@
+{
+  "name": "@greasy-fork-app/source",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {},
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "@nx/js": "19.8.11",
+    "@nx/workspace": "19.8.11",
+    "nx": "19.8.11"
+  }
+}
