@@ -1,0 +1,41 @@
+{
+  "name": "youtube-speed-slider",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/youtube-speed-slider/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "development",
+      "options": {
+        "platform": "browser",
+        "outputPath": "scripts/youtube-speed-slider",
+        "format": [
+          "cjs"
+        ],
+        "bundle": true,
+        "main": "apps/youtube-speed-slider/src/main.ts",
+        "tsConfig": "apps/youtube-speed-slider/tsconfig.app.json",
+        "assets": [
+          "apps/youtube-speed-slider/src/assets"
+        ],
+        "generatePackageJson": false,
+        "deleteOutputPath": false,
+        "esbuildConfig": "./apps/youtube-speed-slider/esbuild.config.dev.js"
+      },
+      "configurations": {
+        "development": {
+          "outputFileName": "dev",
+          "watch": true
+        },
+        "production": {
+          "esbuildConfig": "./apps/youtube-speed-slider/esbuild.config.prod.js"
+        }
+      }
+    }
+  }
+}
