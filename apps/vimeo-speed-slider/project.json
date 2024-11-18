@@ -1,0 +1,41 @@
+{
+  "name": "vimeo-speed-slider",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/vimeo-speed-slider/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "development",
+      "options": {
+        "platform": "browser",
+        "outputPath": "scripts/vimeo-speed-slider",
+        "format": [
+          "cjs"
+        ],
+        "bundle": true,
+        "main": "apps/vimeo-speed-slider/src/main.ts",
+        "tsConfig": "apps/vimeo-speed-slider/tsconfig.app.json",
+        "assets": [
+          "apps/vimeo-speed-slider/src/assets"
+        ],
+        "generatePackageJson": false,
+        "deleteOutputPath": false,
+        "esbuildConfig": "./apps/vimeo-speed-slider/esbuild.config.dev.js"
+      },
+      "configurations": {
+        "development": {
+          "outputFileName": "dev",
+          "watch": true
+        },
+        "production": {
+          "esbuildConfig": "./apps/vimeo-speed-slider/esbuild.config.prod.js"
+        }
+      }
+    }
+  }
+}
