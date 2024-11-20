@@ -21,5 +21,4 @@ Link to github: [github](https://github.com/anwaro/GreasyForkApp/apps/youtube-sp
 
 ## Preview
 
-![Preview](https://raw.githubusercontent.com/anwaro/Youtube-Speed-Slider/master/image/yt.png)
 ![Preview](https://raw.githubusercontent.com/anwaro/GreasyForkApp/master/github/youtube-speed-slider/youtube.png)

@@ -1,0 +1,41 @@
+{
+  "name": "gitlab-plus",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/gitlab-plus/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "development",
+      "options": {
+        "platform": "browser",
+        "outputPath": "scripts/gitlab-plus",
+        "format": [
+          "cjs"
+        ],
+        "bundle": true,
+        "main": "apps/gitlab-plus/src/main.ts",
+        "tsConfig": "apps/gitlab-plus/tsconfig.app.json",
+        "assets": [
+          "apps/gitlab-plus/src/assets"
+        ],
+        "generatePackageJson": false,
+        "deleteOutputPath": false,
+        "esbuildConfig": "./tools/esbuild.config.js"
+      },
+      "configurations": {
+        "development": {
+          "outputFileName": "dev",
+          "watch": true
+        },
+        "production": {
+          "esbuildConfig": "./apps/gitlab-plus/esbuild.config.prod.js"
+        }
+      }
+    }
+  }
+}

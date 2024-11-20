@@ -1,4 +1,69 @@
 import { Component } from '@ui/Component';
+import { SvgComponent } from '@ui/SvgComponent';
+
+const svgTags = [
+  'animate',
+  'animateMotion',
+  'animateTransform',
+  'circle',
+  'clipPath',
+  'defs',
+  'desc',
+  'ellipse',
+  'feBlend',
+  'feColorMatrix',
+  'feComponentTransfer',
+  'feComposite',
+  'feConvolveMatrix',
+  'feDiffuseLighting',
+  'feDisplacementMap',
+  'feDistantLight',
+  'feDropShadow',
+  'feFlood',
+  'feFuncA',
+  'feFuncB',
+  'feFuncG',
+  'feFuncR',
+  'feGaussianBlur',
+  'feImage',
+  'feMerge',
+  'feMergeNode',
+  'feMorphology',
+  'feOffset',
+  'fePointLight',
+  'feSpecularLighting',
+  'feSpotLight',
+  'feTile',
+  'feTurbulence',
+  'filter',
+  'foreignObject',
+  'g',
+  'image',
+  'line',
+  'linearGradient',
+  'marker',
+  'mask',
+  'metadata',
+  'mpath',
+  'path',
+  'pattern',
+  'polygon',
+  'polyline',
+  'radialGradient',
+  'rect',
+  'set',
+  'stop',
+  'svg',
+  'switch',
+  'symbol',
+  'text',
+  'textPath',
+  'tspan',
+  'use',
+  'view',
+];
+
+const commonTags = ['a', 'script', 'style', 'title'];
 
 type HtmlAttr<K extends keyof HTMLElementTagNameMap> = Partial<
   Record<keyof HTMLElementTagNameMap[K], unknown>
@@ -31,7 +96,10 @@ type SvgAttr<K extends keyof SVGElementTagNameMap> = Partial<
 type SvgEvents<E extends keyof SVGElementEventMap = keyof SVGElementEventMap> =
   Partial<Record<E, (this: HTMLElement, ev: SVGElementEventMap[E]) => void>>;
 
-export type SvgItem = SvgData | SVGElement;
+export type SvgItem =
+  | SvgData
+  | SVGElement
+  | SvgComponent<keyof SVGElementTagNameMap>;
 
 export type SvgData<
   K extends keyof SVGElementTagNameMap = keyof SVGElementTagNameMap
@@ -49,18 +117,19 @@ export class Dom {
     element: HTMLElement | SVGElement,
     children: HtmlData['children']
   ) {
-    if (typeof children === 'string') {
-      element.innerHTML = children;
-    } else if (children) {
+    if (children) {
       element.append(
         ...Dom.array(children).map((item) => {
+          if (typeof item === 'string') {
+            return document.createTextNode(item);
+          }
           if (item instanceof HTMLElement || item instanceof SVGElement) {
             return item;
           }
-          if (item instanceof Component) {
+          if (item instanceof Component || item instanceof SvgComponent) {
             return item.getElement();
           }
-          if (Dom.isSvgItem(item)) {
+          if (Dom.isSvgItem(item, element)) {
             return Dom.createSvg(item);
           }
           return Dom.create(item);
@@ -168,15 +237,14 @@ export class Dom {
     }
   }
 
-  static isSvgItem(item: SvgData | HtmlData): item is SvgData {
-    try {
-      const element = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        item.tag
-      );
-      return element.namespaceURI === 'http://www.w3.org/2000/svg';
-    } catch (error) {
-      return false;
+  static isSvgItem(
+    item: SvgData | HtmlData,
+    parent: HTMLElement | SVGElement
+  ): item is SvgData {
+    if (commonTags.includes(item.tag)) {
+      return parent instanceof SVGElement;
     }
+
+    return svgTags.includes(item.tag);
   }
 }
