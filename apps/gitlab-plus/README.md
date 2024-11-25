@@ -14,12 +14,12 @@ Link to github: [Github](https://github.com/anwaro/GreasyForkApp/apps/gitlab-plu
   or [Tampermonkey](https://addons.opera.com/pl/extensions/details/tampermonkey-beta/?display=en)
 - **Safari** [Tampermonkey](https://tampermonkey.net/)
 
-| Feature              | Example                                                                                                                                                                                                                                            |
-|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Issue preview        | ![Preview](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/issue-preview.png)                                                                                                                                       |
-| Image preview        | ![Preview](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/image-preview.png)                                                                                                                                       |
-| Related issue search | ![Preview](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/related-issue-autocomplete.png)                                                                                                                          |
-| Create related issue | ![Preview](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/create-related-issue-1.png) </br> ![Preview](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/ccreate-related-issue-2.png) |
+| Feature              | Example                                                                                                                                                                                                                                           |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Issue preview        | ![Preview](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/issue-preview.png)                                                                                                                                      |
+| Image preview        | ![Preview](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/image-preview.png)                                                                                                                                      |
+| Related issue search | ![Preview](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/related-issue-autocomplete.png)                                                                                                                         |
+| Create related issue | ![Preview](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/create-related-issue-1.png) </br> ![Preview](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/create-related-issue-2.png) |
 
 
 

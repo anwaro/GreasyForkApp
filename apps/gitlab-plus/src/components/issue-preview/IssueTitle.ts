@@ -6,7 +6,7 @@ import { Dom } from '@ui/Dom';
 export default class IssueTitle extends IssueBlock {
   constructor(issue: Issue) {
     super(
-      issue.title,
+      `#${issue.iid} ${issue.title}`,
       Dom.element('div', '', [
         new StatusComponent(issue.state === 'opened'),
         {

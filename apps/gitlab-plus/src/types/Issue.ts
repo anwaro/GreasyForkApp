@@ -74,6 +74,7 @@ export interface Project {
 
 export interface Issue {
   id: string;
+  iid: string;
   title: string;
   description: string;
   createdAt: string;

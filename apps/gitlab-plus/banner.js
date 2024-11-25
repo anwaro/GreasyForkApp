@@ -1,7 +1,7 @@
 const banner = `// ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2024-11-20
+// @version      2024-11-25
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*

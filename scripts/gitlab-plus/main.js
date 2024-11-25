@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2024-11-20
+// @version      2024-11-25
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -291,14 +291,18 @@ var IssueBlock = class extends Component {
 };
 
 // apps/gitlab-plus/src/components/common/IconComponent.ts
+var buildId =
+  '236e3b687d786d9dfe4709143a94d4c53b8d5a1f235775401e5825148297fa84';
 var IconComponent = class extends SvgComponent {
   constructor(icon, size = 's12', ...cls) {
+    const svgSprite =
+      unsafeWindow.gon?.sprite_icons || `/assets/icons-${buildId}.svg`;
     super('svg', {
       classes: ['gl-icon gl-fill-current', size, ...cls].join(' '),
       children: {
         tag: 'use',
         attrs: {
-          href: `/assets/icons-236e3b687d786d9dfe4709143a94d4c53b8d5a1f235775401e5825148297fa84.svg#${icon}`,
+          href: `${svgSprite}#${icon}`,
         },
       },
     });
@@ -328,7 +332,7 @@ var StatusComponent = class extends Component {
 var IssueTitle = class extends IssueBlock {
   constructor(issue) {
     super(
-      issue.title,
+      `#${issue.iid} ${issue.title}`,
       Dom.element('div', '', [
         new StatusComponent(issue.state === 'opened'),
         {
