@@ -4,6 +4,7 @@ import { IssueProvider } from '../providers/IssueProvider';
 import { IssueLink, IssueLinkType } from '../helpers/IssueLink';
 import { IconComponent } from './common/IconComponent';
 import { Dom } from '@ui/Dom';
+import { debounce } from '@utils/debounce';
 
 export default class RelatedIssuesAutocompleteModal {
   private readyClass = 'glp-input-ready';
@@ -14,7 +15,7 @@ export default class RelatedIssuesAutocompleteModal {
   private link: IssueLinkType | undefined;
 
   constructor() {
-    this.search = this.issueProvider.debounce(this.load.bind(this));
+    this.search = debounce(this.load.bind(this));
     this.link = IssueLink.parseLink(window.location.href);
     this.autocompleteModal = new AutocompleteModal<IssueAutocomplete>(
       this.onSelect.bind(this),
@@ -81,7 +82,7 @@ export default class RelatedIssuesAutocompleteModal {
       tag: 'div',
       classes: 'gl-flex gl-gap-x-2 gl-py-2',
       children: [
-        new IconComponent('issue-type-issue', 's16').getElement(),
+        new IconComponent('issue-type-issue', 's16'),
         { tag: 'small', children: item.iid },
         { tag: 'span', classes: 'gl-flex gl-flex-wrap', children: item.title },
       ],

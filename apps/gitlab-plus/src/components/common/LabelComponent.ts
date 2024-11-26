@@ -49,7 +49,7 @@ export class LabelComponent extends Component<'span'> {
           children: {
             tag: 'span',
             classes: 'gl-button-text',
-            children: new IconComponent('close-xs').getElement(),
+            children: new IconComponent('close-xs'),
           },
         })
       );

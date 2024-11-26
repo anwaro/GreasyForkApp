@@ -10,9 +10,7 @@ export default class IssueLabels extends IssueBlock {
       Dom.create({
         tag: 'div',
         classes: 'issuable-show-labels',
-        children: issue.labels.nodes.map((label) =>
-          new LabelComponent(label).getElement()
-        ),
+        children: issue.labels.nodes.map((label) => new LabelComponent(label)),
       })
     );
   }

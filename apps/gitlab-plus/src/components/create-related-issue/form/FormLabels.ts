@@ -1,6 +1,5 @@
 import Dropdown from '../../common/form/Dropdown';
 import { LabelsProvider } from '../../../providers/LabelsProvider';
-import { RecentProvider } from '../../../providers/RecentProvider';
 import { Label } from '../../../types/Label';
 import { IssueLinkType } from '../../../helpers/IssueLink';
 import { LabelComponent } from '../../common/LabelComponent';
@@ -8,11 +7,9 @@ import { Dom } from '@ui/Dom';
 
 export default class FormLabel extends Dropdown<Label> {
   private labels = new LabelsProvider();
-  private recent = new RecentProvider<Label>('labels');
-  private searchLabels: (search: string) => void;
 
   constructor(private link: IssueLinkType) {
-    super('Labels', true);
+    super('Labels', 'labels', true);
     this.extra.classList.add(
       'gl-mt-1',
       'gl-pb-2',
@@ -20,26 +17,18 @@ export default class FormLabel extends Dropdown<Label> {
       'gl-flex-wrap',
       'gl-gap-2'
     );
-    this.searchLabels = this.labels.debounce(this.load.bind(this));
     this.load();
   }
 
-  async load(name = '') {
-    const labels = await this.labels.getLabels(this.link.projectPath, name);
-    this.updateItems(labels.data.workspace.labels.nodes, this.recent.get());
-  }
-
-  getValue() {
-    if (this.value) {
-      this.recent.add(...this.value);
-    }
-    return this.value;
+  async load(search = '') {
+    const labels = await this.labels.getLabels(this.link.projectPath, search);
+    this.updateItems(labels.data.workspace.labels.nodes, search);
   }
 
   renderItem(item: Label) {
     return Dom.create({
       tag: 'div',
-      classes: 'gl-flex gl-break-anywhere gl-pb-2 gl-pl-4 gl-pt-3',
+      classes: 'gl-flex gl-flex-1 gl-break-anywhere gl-pb-3 gl-pl-4 gl-pt-3',
       children: [
         {
           tag: 'span',
@@ -79,9 +68,5 @@ export default class FormLabel extends Dropdown<Label> {
         new LabelComponent(item, () => this.onSelect(item)).getElement()
       )
     );
-  }
-
-  filter(search: string): void {
-    this.searchLabels(search);
   }
 }

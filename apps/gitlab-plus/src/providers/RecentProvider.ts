@@ -24,4 +24,13 @@ export class RecentProvider<T extends Item> {
       'lifetime'
     );
   }
+
+  remove(...items: T[]) {
+    const itemsId = items.map((i) => i.id);
+    this.cache.set(
+      this.key,
+      this.get().filter((el) => !itemsId.includes(el.id)),
+      'lifetime'
+    );
+  }
 }

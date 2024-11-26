@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2024-11-25
+// @version      2024-11-26
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -220,7 +220,7 @@ var Dom = class _Dom {
 
   static applyClass(element, classes) {
     if (classes) {
-      element.setAttribute('class', classes);
+      element.classList.add(...classes.split(' '));
     }
   }
 
@@ -427,7 +427,7 @@ var LabelComponent = class extends Component {
           children: {
             tag: 'span',
             classes: 'gl-button-text',
-            children: new IconComponent('close-xs').getElement(),
+            children: new IconComponent('close-xs'),
           },
         })
       );
@@ -462,9 +462,7 @@ var IssueLabels = class extends IssueBlock {
       Dom.create({
         tag: 'div',
         classes: 'issuable-show-labels',
-        children: issue.labels.nodes.map((label) =>
-          new LabelComponent(label).getElement()
-        ),
+        children: issue.labels.nodes.map((label) => new LabelComponent(label)),
       })
     );
   }
@@ -510,20 +508,24 @@ var MergeRequestComponent = class extends Component {
       },
       classes: `item-body `,
       children: [
-        Dom.element('div', 'item-title gl-flex gl-min-w-0 gl-gap-3', [
-          new IconComponent(
-            iconMap[mr.state] || 'empty',
-            's16',
-            'merge-request-status',
-            mr.state
-          ).getElement(),
-          {
-            tag: 'span',
-            classes: 'gl-text-gray-500',
-            children: `!${mr.iid}`,
-          },
-          new UserComponent(mr.author, 's16'),
-        ]),
+        {
+          tag: 'div',
+          classes: 'item-title gl-flex gl-min-w-0 gl-gap-3',
+          children: [
+            new IconComponent(
+              iconMap[mr.state] || 'empty',
+              's16',
+              'merge-request-status',
+              mr.state
+            ),
+            {
+              tag: 'span',
+              classes: 'gl-text-gray-500',
+              children: `!${mr.iid}`,
+            },
+            new UserComponent(mr.author, 's16'),
+          ],
+        },
         {
           tag: 'div',
           classes: 'item-title sortable-link',
@@ -755,14 +757,6 @@ var GitlabProvider = class {
       headers['X-CSRF-Token'] = csrf;
     }
     return headers;
-  }
-
-  debounce(callback, wait = 300) {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = window.setTimeout(() => callback(...args), wait);
-    };
   }
 };
 
@@ -1114,36 +1108,9 @@ var IssueProvider = class extends GitlabProvider {
   }
 };
 
-// apps/gitlab-plus/src/services/IssuePreview.ts
-var IssuePreview = class {
-  constructor() {
-    this.modal = new IssuePreviewModal();
-    this.issue = new IssueProvider();
-  }
-
-  init() {
-    this.intendHover(
-      (element) => IssueLink.validateLink(element.href),
-      this.onHover.bind(this),
-      this.onLeave.bind(this)
-    );
-  }
-
-  async onHover(event) {
-    const link = IssueLink.parseLink(event.target.href);
-    if (link) {
-      this.modal.show(event);
-      const issue = await this.issue.getIssue(link.projectPath, link.issue);
-      this.modal.updateContent(issue.data.project.issue);
-      this.modal.fixPosition(event);
-    }
-  }
-
-  onLeave() {
-    this.modal.hide();
-  }
-
-  intendHover(validate, mouseover, mouseleave, timeout = 500) {
+// libs/share/src/ui/Events.ts
+var Events = class {
+  static intendHover(validate, mouseover, mouseleave, timeout = 500) {
     let hover = false;
     let id = 0;
     const onHover = (event) => {
@@ -1169,6 +1136,36 @@ var IssuePreview = class {
       }, timeout);
     };
     document.body.addEventListener('mouseover', onHover);
+  }
+};
+
+// apps/gitlab-plus/src/services/IssuePreview.ts
+var IssuePreview = class {
+  constructor() {
+    this.modal = new IssuePreviewModal();
+    this.issue = new IssueProvider();
+  }
+
+  init() {
+    Events.intendHover(
+      (element) => IssueLink.validateLink(element.href),
+      this.onHover.bind(this),
+      this.onLeave.bind(this)
+    );
+  }
+
+  async onHover(event) {
+    const link = IssueLink.parseLink(event.target.href);
+    if (link) {
+      this.modal.show(event);
+      const issue = await this.issue.getIssue(link.projectPath, link.issue);
+      this.modal.updateContent(issue.data.project.issue);
+      this.modal.fixPosition(event);
+    }
+  }
+
+  onLeave() {
+    this.modal.hide();
   }
 };
 
@@ -1252,17 +1249,18 @@ var ImagePreview = class {
 
 // apps/gitlab-plus/src/components/common/CloseButton.ts
 var CloseButton = class extends Component {
-  constructor(onClick) {
+  constructor(onClick, title = 'Close') {
     super('button', {
       classes:
         'btn js-issue-item-remove-button gl-mr-2 btn-default btn-sm gl-button btn-default-tertiary btn-icon',
       attrs: {
         type: 'button',
+        title,
       },
       events: {
         click: onClick,
       },
-      children: [new IconComponent('close-xs', 's16').getElement()],
+      children: new IconComponent('close-xs', 's16'),
     });
   }
 };
@@ -1329,6 +1327,15 @@ var FormTitle = class extends Field {
   }
 };
 
+// libs/share/src/utils/debounce.ts
+function debounce(callback, wait = 300) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = window.setTimeout(() => callback(...args), wait);
+  };
+}
+
 // apps/gitlab-plus/src/components/common/form/DropdownSearch.ts
 var DropdownSearch = class extends Component {
   constructor(onChange) {
@@ -1345,11 +1352,7 @@ var DropdownSearch = class extends Component {
       tag: 'div',
       classes: 'gl-listbox-search gl-listbox-topmost',
       children: [
-        new IconComponent(
-          'search',
-          's16',
-          'gl-search-box-by-type-search-icon'
-        ).getElement(),
+        new IconComponent('search', 's16', 'gl-search-box-by-type-search-icon'),
         this.input,
         {
           tag: 'div',
@@ -1358,18 +1361,19 @@ var DropdownSearch = class extends Component {
           children: new CloseButton(() => {
             this.input.value = '';
             this.onChange('');
-          }).getElement(),
+          }, 'Clear input'),
         },
       ],
     });
   }
 
   getSearchInput() {
+    const search = debounce(this.onChange.bind(this));
     return Dom.create({
       tag: 'input',
       classes: 'gl-listbox-search-input',
       events: {
-        input: () => this.onChange(this.input.value),
+        input: () => search(this.input.value),
       },
     });
   }
@@ -1377,13 +1381,14 @@ var DropdownSearch = class extends Component {
 
 // apps/gitlab-plus/src/components/common/form/DropdownList.ts
 var DropdownList = class extends Component {
-  constructor(renderItem, onClick) {
+  constructor(renderItem, onClick, removeFromRecent = void 0) {
     super('div', {
       classes:
         'gl-new-dropdown-contents gl-new-dropdown-contents-with-scrim-overlay bottom-scrim-visible gl-new-dropdown-contents',
     });
     this.renderItem = renderItem;
     this.onClick = onClick;
+    this.removeFromRecent = removeFromRecent;
     this.list = Dom.element('ul', 'gl-mb-0 gl-pl-0');
     this.element.append(this.list);
   }
@@ -1400,7 +1405,7 @@ var DropdownList = class extends Component {
         })
       );
       this.list.append(
-        ...recently.map((item) => this.listItem(item, selected))
+        ...recently.map((item) => this.listItem(item, selected, true))
       );
     }
     if (items.length) {
@@ -1424,7 +1429,7 @@ var DropdownList = class extends Component {
     }
   }
 
-  listItem(item, selected) {
+  listItem(item, selected, removeItem = false) {
     return Dom.create({
       tag: 'li',
       classes: 'gl-new-dropdown-item',
@@ -1434,7 +1439,11 @@ var DropdownList = class extends Component {
       children: {
         tag: 'span',
         classes: 'gl-new-dropdown-item-content',
-        children: [this.renderCheck(item, selected), this.renderItem(item)],
+        children: [
+          this.renderCheck(item, selected),
+          this.renderItem(item),
+          ...(removeItem ? [this.renderRemove(item)] : []),
+        ],
       },
     });
   }
@@ -1443,7 +1452,15 @@ var DropdownList = class extends Component {
     const selectedIds = selected.map((i) => i.id);
     return new IconComponent(
       selectedIds.includes(item.id) ? 'mobile-issue-close' : ''
-    ).getElement();
+    );
+  }
+
+  renderRemove(item) {
+    return new CloseButton((e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.removeFromRecent && this.removeFromRecent(item);
+    }, 'Remove from recently used');
   }
 };
 
@@ -1530,9 +1547,39 @@ var DropdownModal = class extends Component {
   }
 };
 
+// apps/gitlab-plus/src/providers/RecentProvider.ts
+var RecentProvider = class {
+  constructor(key) {
+    this.cache = new Cache('glp-');
+    this.key = `recent-${key}`;
+  }
+
+  get() {
+    return this.cache.get(this.key) || [];
+  }
+
+  add(...items) {
+    const itemsId = items.map((i) => i.id);
+    this.cache.set(
+      this.key,
+      [...items, ...this.get().filter((el) => !itemsId.includes(el.id))],
+      'lifetime'
+    );
+  }
+
+  remove(...items) {
+    const itemsId = items.map((i) => i.id);
+    this.cache.set(
+      this.key,
+      this.get().filter((el) => !itemsId.includes(el.id)),
+      'lifetime'
+    );
+  }
+};
+
 // apps/gitlab-plus/src/components/common/form/Dropdown.ts
 var Dropdown = class extends Field {
-  constructor(title, isMultiselect = false) {
+  constructor(title, key, isMultiselect = false) {
     const container = Dom.element(
       'div',
       'gl-relative gl-w-full gl-new-dropdown !gl-block'
@@ -1543,10 +1590,12 @@ var Dropdown = class extends Field {
     this.items = [];
     this.recently = [];
     this.extra = Dom.element('div');
-    this.search = new DropdownSearch(this.filter.bind(this));
+    this.recent = new RecentProvider(key);
+    this.search = new DropdownSearch(this.load.bind(this));
     this.list = new DropdownList(
       this.renderItem.bind(this),
-      this.onSelect.bind(this)
+      this.onSelect.bind(this),
+      this.removeFromRecent.bind(this)
     );
     this.modal = new DropdownModal(
       this.search.getElement(),
@@ -1566,11 +1615,10 @@ var Dropdown = class extends Field {
     this.list.render(this.items, this.recently, this.value);
   }
 
-  updateItems(items, recently = []) {
-    const recentlyIds = recently.map((i) => i.id);
-    this.recently = recently;
-    this.items = items.filter((i) => !recentlyIds.includes(i.id));
-    this.list.render(this.items, this.recently, this.value);
+  updateItems(items, search = '') {
+    this.searchTerm = search;
+    this.items = items;
+    this.render();
   }
 
   onSelect(item) {
@@ -1585,15 +1633,40 @@ var Dropdown = class extends Field {
       this.modal.setVisible(false);
     }
     this.button.render(this.value);
-    this.list.render(this.items, this.recently, this.value);
+    this.render();
     this.onChange();
   }
 
   reset() {
     this.value = [];
     this.button.render(this.value);
-    this.list.render(this.items, this.recently, this.value);
+    this.render();
     this.onChange();
+  }
+
+  persistRecent() {
+    this.recent.add(...this.value);
+    this.render();
+  }
+
+  removeFromRecent(item) {
+    this.recent.remove(item);
+    this.render();
+  }
+
+  getValue() {
+    return this.value;
+  }
+
+  render() {
+    const recent = this.recent.get();
+    const recentlyIds = recent.map((i) => i.id);
+    const itemsIds = this.items.map((i) => i.id);
+    const itemsToRender = this.items.filter((i) => !recentlyIds.includes(i.id));
+    const recentItemsToRender = this.searchTerm.length
+      ? recent.filter((i) => itemsIds.includes(i.id))
+      : recent;
+    this.list.render(itemsToRender, recentItemsToRender, this.value);
   }
 };
 
@@ -1646,35 +1719,12 @@ var ProjectsProvider = class extends GitlabProvider {
   }
 };
 
-// apps/gitlab-plus/src/providers/RecentProvider.ts
-var RecentProvider = class {
-  constructor(key) {
-    this.cache = new Cache('glp-');
-    this.key = `recent-${key}`;
-  }
-
-  get() {
-    return this.cache.get(this.key) || [];
-  }
-
-  add(...items) {
-    const itemsId = items.map((i) => i.id);
-    this.cache.set(
-      this.key,
-      [...items, ...this.get().filter((el) => !itemsId.includes(el.id))],
-      'lifetime'
-    );
-  }
-};
-
 // apps/gitlab-plus/src/components/create-related-issue/form/FormProject.ts
 var FormProject = class extends Dropdown {
   constructor(link) {
-    super('Project');
+    super('Project', 'projects');
     this.link = link;
     this.projects = new ProjectsProvider();
-    this.recent = new RecentProvider('projects');
-    this.searchProjects = this.projects.debounce(this.load.bind(this));
     this.load();
   }
 
@@ -1683,15 +1733,7 @@ var FormProject = class extends Dropdown {
       this.link.workspacePath,
       search
     );
-    this.updateItems(projects.data.group.projects.nodes, this.recent.get());
-  }
-
-  getValue() {
-    const [value] = this.value;
-    if (value) {
-      this.recent.add(value);
-    }
-    return value;
+    this.updateItems(projects.data.group.projects.nodes, search);
   }
 
   renderItem(item) {
@@ -1742,10 +1784,6 @@ var FormProject = class extends Dropdown {
   }
 
   onChange() {}
-
-  filter(search) {
-    this.searchProjects(search);
-  }
 };
 
 // apps/gitlab-plus/src/providers/LabelsProvider.ts
@@ -1766,10 +1804,9 @@ var LabelsProvider = class extends GitlabProvider {
 // apps/gitlab-plus/src/components/create-related-issue/form/FormLabels.ts
 var FormLabel = class extends Dropdown {
   constructor(link) {
-    super('Labels', true);
+    super('Labels', 'labels', true);
     this.link = link;
     this.labels = new LabelsProvider();
-    this.recent = new RecentProvider('labels');
     this.extra.classList.add(
       'gl-mt-1',
       'gl-pb-2',
@@ -1777,26 +1814,18 @@ var FormLabel = class extends Dropdown {
       'gl-flex-wrap',
       'gl-gap-2'
     );
-    this.searchLabels = this.labels.debounce(this.load.bind(this));
     this.load();
   }
 
-  async load(name = '') {
-    const labels = await this.labels.getLabels(this.link.projectPath, name);
-    this.updateItems(labels.data.workspace.labels.nodes, this.recent.get());
-  }
-
-  getValue() {
-    if (this.value) {
-      this.recent.add(...this.value);
-    }
-    return this.value;
+  async load(search = '') {
+    const labels = await this.labels.getLabels(this.link.projectPath, search);
+    this.updateItems(labels.data.workspace.labels.nodes, search);
   }
 
   renderItem(item) {
     return Dom.create({
       tag: 'div',
-      classes: 'gl-flex gl-break-anywhere gl-pb-2 gl-pl-4 gl-pt-3',
+      classes: 'gl-flex gl-flex-1 gl-break-anywhere gl-pb-3 gl-pl-4 gl-pt-3',
       children: [
         {
           tag: 'span',
@@ -1836,10 +1865,6 @@ var FormLabel = class extends Dropdown {
         new LabelComponent(item, () => this.onSelect(item)).getElement()
       )
     );
-  }
-
-  filter(search) {
-    this.searchLabels(search);
   }
 };
 
@@ -1896,31 +1921,18 @@ var MilestonesProvider = class extends GitlabProvider {
 // apps/gitlab-plus/src/components/create-related-issue/form/FormMilestone.ts
 var FormMilestone = class extends Dropdown {
   constructor(link) {
-    super('Milestone');
+    super('Milestone', 'milestones');
     this.link = link;
     this.milestones = new MilestonesProvider();
-    this.recent = new RecentProvider('milestones');
-    this.searchMilestones = this.milestones.debounce(this.load.bind(this));
     this.load();
   }
 
-  async load(title = '') {
+  async load(search = '') {
     const milestones = await this.milestones.getMilestones(
       this.link.projectPath,
-      title
+      search
     );
-    this.updateItems(
-      milestones.data.workspace.attributes.nodes,
-      this.recent.get()
-    );
-  }
-
-  getValue() {
-    const [value] = this.value;
-    if (value) {
-      this.recent.add(value);
-    }
-    return value;
+    this.updateItems(milestones.data.workspace.attributes.nodes, search);
   }
 
   renderItem(item) {
@@ -1949,10 +1961,6 @@ var FormMilestone = class extends Dropdown {
   }
 
   onChange() {}
-
-  filter(search) {
-    this.searchMilestones(search);
-  }
 };
 
 // apps/gitlab-plus/src/providers/query/iteration.ts
@@ -2009,18 +2017,16 @@ var IterationsProvider = class extends GitlabProvider {
 // apps/gitlab-plus/src/components/create-related-issue/form/FormIteration.ts
 var FormIteration = class extends Dropdown {
   constructor(link) {
-    super('Iteration');
+    super('Iteration', 'iterations');
     this.link = link;
     this.iterations = new IterationsProvider();
-    this.recent = new RecentProvider('iterations');
-    this.searchIterations = this.iterations.debounce(this.load.bind(this));
     this.load();
   }
 
-  async load(title = '') {
+  async load(search = '') {
     const response = await this.iterations.getIterations(
       this.link.workspacePath,
-      title
+      search
     );
     const iterationsNamed = response.data.workspace.attributes.nodes
       .map((iteration) => ({
@@ -2028,15 +2034,7 @@ var FormIteration = class extends Dropdown {
         name: this.iterationName(iteration),
       }))
       .toSorted((a, b) => a.name.localeCompare(b.name));
-    this.updateItems(iterationsNamed, this.recent.get());
-  }
-
-  getValue() {
-    const [value] = this.value;
-    if (value) {
-      this.recent.add(value);
-    }
-    return value;
+    this.updateItems(iterationsNamed, search);
   }
 
   iterationName(iteration) {
@@ -2071,10 +2069,6 @@ var FormIteration = class extends Dropdown {
   }
 
   onChange() {}
-
-  filter(search) {
-    this.searchIterations(search);
-  }
 };
 
 // apps/gitlab-plus/src/providers/UsersProvider.ts
@@ -2095,28 +2089,18 @@ var UsersProvider = class extends GitlabProvider {
 // apps/gitlab-plus/src/components/create-related-issue/form/FormAssignees.ts
 var FormAssignees = class extends Dropdown {
   constructor(link) {
-    super('Assignees');
+    super('Assignees', 'assignees', true);
     this.link = link;
-    this.recent = new RecentProvider('assignees');
     this.assignees = new UsersProvider();
     this.load('');
-    this.searchUser = this.assignees.debounce(this.load.bind(this));
   }
 
-  async load(serach) {
+  async load(search) {
     const response = await this.assignees.getUsers(
       this.link.projectPath,
-      serach
+      search
     );
-    this.updateItems(response.data.workspace.users, this.recent.get());
-  }
-
-  getValue() {
-    const [value] = this.value;
-    if (value) {
-      this.recent.add(value);
-    }
-    return value;
+    this.updateItems(response.data.workspace.users, search);
   }
 
   renderItem(item) {
@@ -2162,10 +2146,6 @@ var FormAssignees = class extends Dropdown {
   }
 
   onChange() {}
-
-  filter(search) {
-    this.searchUser(search);
-  }
 };
 
 // apps/gitlab-plus/src/components/create-related-issue/form/FormRelation.ts
@@ -2239,10 +2219,10 @@ var CreateRelatedIssueModalContent = class extends Component {
     this.relation = new FormRelation();
     this.element.append(
       this.title.getElement(),
-      this.row(this.project.getElement(), this.milestone.getElement()),
-      this.row(this.iteration.getElement(), this.assignees.getElement()),
-      this.row(this.labels.getElement()),
-      this.row(this.relation.getElement()),
+      this.row([this.project, this.milestone]),
+      this.row([this.iteration, this.assignees]),
+      this.row(this.labels),
+      this.row(this.relation),
       Dom.create({
         tag: 'button',
         classes: 'btn btn-confirm btn-sm gl-button',
@@ -2261,7 +2241,7 @@ var CreateRelatedIssueModalContent = class extends Component {
     );
   }
 
-  row(...items) {
+  row(items) {
     return Dom.create({
       tag: 'div',
       classes: 'gl-flex gl-gap-x-3',
@@ -2287,6 +2267,7 @@ var CreateRelatedIssueModalContent = class extends Component {
       return;
     }
     const response = await this.issueProvider.createIssue(data);
+    this.persistRecently();
     if (this.relation.value) {
       await this.issueProvider.createIssueRelation({
         issueId: response.data.createIssuable.issuable.iid,
@@ -2301,7 +2282,7 @@ var CreateRelatedIssueModalContent = class extends Component {
   }
 
   getFormValue() {
-    const project = this.project.getValue();
+    const [project] = this.project.getValue();
     if (!project) {
       return;
     }
@@ -2309,22 +2290,30 @@ var CreateRelatedIssueModalContent = class extends Component {
       title: this.title.value,
       projectPath: project.fullPath,
     };
-    const milestone = this.milestone.getValue();
+    const [milestone] = this.milestone.getValue();
     if (milestone) {
       data['milestoneId'] = milestone.id;
     }
-    const iteration = this.iteration.getValue();
+    const [iteration] = this.iteration.getValue();
     if (iteration) {
       data['iterationId'] = iteration.id;
       data['iterationCadenceId'] = iteration.iterationCadence.id;
     }
     const assignees = this.assignees.getValue();
     if (assignees) {
-      data['assigneeIds'] = [assignees.id];
+      data['assigneeIds'] = assignees.map((a) => a.id);
     }
     const labels = this.labels.getValue();
     data['labelIds'] = labels.map((label) => label.id);
     return data;
+  }
+
+  persistRecently() {
+    this.project.persistRecent();
+    this.milestone.persistRecent();
+    this.iteration.persistRecent();
+    this.assignees.persistRecent();
+    this.labels.persistRecent();
   }
 };
 
@@ -2446,7 +2435,7 @@ var RelatedIssuesAutocompleteModal = class {
     this.readyClass = 'glp-input-ready';
     this.input = Dom.element('input');
     this.issueProvider = new IssueProvider();
-    this.search = this.issueProvider.debounce(this.load.bind(this));
+    this.search = debounce(this.load.bind(this));
     this.link = IssueLink.parseLink(window.location.href);
     this.autocompleteModal = new AutocompleteModal(
       this.onSelect.bind(this),
@@ -2510,7 +2499,7 @@ var RelatedIssuesAutocompleteModal = class {
       tag: 'div',
       classes: 'gl-flex gl-gap-x-2 gl-py-2',
       children: [
-        new IconComponent('issue-type-issue', 's16').getElement(),
+        new IconComponent('issue-type-issue', 's16'),
         { tag: 'small', children: item.iid },
         { tag: 'span', classes: 'gl-flex gl-flex-wrap', children: item.title },
       ],
@@ -2570,6 +2559,139 @@ var ClearCacheService = class {
   }
 };
 
+// libs/share/src/ui/Observer.ts
+var Observer = class {
+  stop() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
+  start(element, callback, options) {
+    this.stop();
+    this.observer = new MutationObserver(callback);
+    this.observer.observe(
+      element,
+      options || {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        characterData: true,
+        attributeOldValue: true,
+        characterDataOldValue: true,
+      }
+    );
+  }
+};
+
+// apps/gitlab-plus/src/services/SortIssue.ts
+var sortWeight = {
+  ['ownIssue' /* ownIssue */]: 10,
+  ['ownUserStory' /* ownUserStory */]: 8,
+  ['userStory' /* userStory */]: 6,
+  ['issue' /* issue */]: 4,
+  ['unknown' /* unknown */]: 2,
+  ['label' /* label */]: 0,
+};
+var SortIssue = class {
+  init() {
+    const observer = new Observer();
+    const userName = this.userName();
+    const board = document.querySelector('.boards-list');
+    if (!userName || !board) {
+      return;
+    }
+    observer.start(board, () => this.run(userName));
+  }
+
+  run(userName) {
+    console.log([...document.querySelectorAll('.board-list')]);
+    [...document.querySelectorAll('.board-list:not(.glp-ready)')].forEach(
+      (board) => this.initBoard(board, userName)
+    );
+  }
+
+  initBoard(board, userName) {
+    Dom.applyClass(board, 'glp-ready');
+    Dom.applyStyles(board, {
+      flexDirection: 'column',
+      display: 'flex',
+    });
+    const observer = new Observer();
+    observer.start(board, () => this.sortBoard(board, userName), {
+      childList: true,
+    });
+  }
+
+  sortBoard(board, userName) {
+    const children = [...board.children].map((element) => ({
+      element,
+      type: this.childType(element, userName),
+    }));
+    if (!this.shouldSort(children)) {
+      return;
+    }
+    this.sortChildren(children).forEach(({ element }, index) => {
+      const order =
+        index !== children.length - 1 ? index + 1 : children.length + 100;
+      element.style.order = `${order}`;
+    });
+  }
+
+  childType(child, userName) {
+    if (child instanceof HTMLDivElement) {
+      return 'label' /* label */;
+    }
+    const title = child.querySelector('[data-testid="board-card-title-link"]');
+    if (!title) {
+      return 'unknown' /* unknown */;
+    }
+    const isOwn = [...child.querySelectorAll('.gl-avatar-link img')].some(
+      (img) => img.alt.includes(userName)
+    );
+    const isUserStory = [...child.querySelectorAll('.gl-label')].some((span) =>
+      span.innerText.includes('User Story')
+    );
+    if (isUserStory && isOwn) {
+      return 'ownUserStory' /* ownUserStory */;
+    }
+    if (isOwn) {
+      return 'ownIssue' /* ownIssue */;
+    }
+    if (isUserStory) {
+      return 'userStory' /* userStory */;
+    }
+    return 'issue' /* issue */;
+  }
+
+  userName() {
+    const element = document.querySelector(
+      '.user-bar-dropdown-toggle .gl-button-text .gl-sr-only'
+    );
+    const testText = ' user\u2019s menu';
+    if (element && element.innerText.includes(testText)) {
+      return element.innerText.replace(testText, '');
+    }
+    return void 0;
+  }
+
+  sortChildren(items) {
+    return items.toSorted((a, b) => {
+      return Math.sign(sortWeight[b.type] - sortWeight[a.type]);
+    });
+  }
+
+  shouldSort(items) {
+    return items.some((item) => {
+      return [
+        'ownIssue' /* ownIssue */,
+        'ownUserStory' /* ownUserStory */,
+        'userStory' /* userStory */,
+      ].includes(item.type);
+    });
+  }
+};
+
 // apps/gitlab-plus/src/main.ts
 [
   ClearCacheService,
@@ -2577,4 +2699,5 @@ var ClearCacheService = class {
   IssuePreview,
   CreateRelatedIssue,
   RelatedIssueAutocomplete,
+  // SortIssue,
 ].forEach((Service) => new Service().init());

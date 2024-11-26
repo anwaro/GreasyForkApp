@@ -1,6 +1,7 @@
 import { IconComponent } from '../IconComponent';
 import { Component } from '@ui/Component';
 import { Dom } from '@ui/Dom';
+import { CloseButton } from '../CloseButton';
 
 export type DropdownItem = { id: string | number };
 
@@ -9,7 +10,8 @@ export class DropdownList<D extends DropdownItem> extends Component<'div'> {
 
   constructor(
     private renderItem: (item: D) => HTMLElement,
-    private onClick: (item: D) => void
+    private onClick: (item: D) => void,
+    private removeFromRecent: ((item: D) => void) | undefined = undefined
   ) {
     super('div', {
       classes:
@@ -31,7 +33,7 @@ export class DropdownList<D extends DropdownItem> extends Component<'div'> {
         })
       );
       this.list.append(
-        ...recently.map((item) => this.listItem(item, selected))
+        ...recently.map((item) => this.listItem(item, selected, true))
       );
     }
 
@@ -58,7 +60,7 @@ export class DropdownList<D extends DropdownItem> extends Component<'div'> {
     }
   }
 
-  listItem(item: D, selected: D[]) {
+  listItem(item: D, selected: D[], removeItem = false) {
     return Dom.create({
       tag: 'li',
       classes: 'gl-new-dropdown-item',
@@ -68,7 +70,11 @@ export class DropdownList<D extends DropdownItem> extends Component<'div'> {
       children: {
         tag: 'span',
         classes: 'gl-new-dropdown-item-content',
-        children: [this.renderCheck(item, selected), this.renderItem(item)],
+        children: [
+          this.renderCheck(item, selected),
+          this.renderItem(item),
+          ...(removeItem ? [this.renderRemove(item)] : []),
+        ],
       },
     });
   }
@@ -77,6 +83,14 @@ export class DropdownList<D extends DropdownItem> extends Component<'div'> {
     const selectedIds = selected.map((i) => i.id);
     return new IconComponent(
       selectedIds.includes(item.id) ? 'mobile-issue-close' : ''
-    ).getElement();
+    );
+  }
+
+  renderRemove(item: D) {
+    return new CloseButton((e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.removeFromRecent && this.removeFromRecent(item);
+    }, 'Remove from recently used');
   }
 }

@@ -2,7 +2,7 @@ import { Service } from '../types/Service';
 import CreateRelatedIssueModal from '../components/CreateRelatedIssueModal';
 import CreateButton from '../components/create-related-issue/CreateButton';
 
-export default class CreateRelatedIssue implements Service {
+export class CreateRelatedIssue implements Service {
   private modal = new CreateRelatedIssueModal();
   private addButton = new CreateButton();
 

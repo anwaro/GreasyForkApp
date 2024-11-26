@@ -2,6 +2,7 @@ import { IconComponent } from '../IconComponent';
 import { CloseButton } from '../CloseButton';
 import { Component } from '@ui/Component';
 import { Dom } from '@ui/Dom';
+import { debounce } from '@utils/debounce';
 
 export class DropdownSearch extends Component<'div'> {
   private readonly input: HTMLInputElement;
@@ -20,11 +21,7 @@ export class DropdownSearch extends Component<'div'> {
       tag: 'div',
       classes: 'gl-listbox-search gl-listbox-topmost',
       children: [
-        new IconComponent(
-          'search',
-          's16',
-          'gl-search-box-by-type-search-icon'
-        ).getElement(),
+        new IconComponent('search', 's16', 'gl-search-box-by-type-search-icon'),
         this.input,
         {
           tag: 'div',
@@ -33,18 +30,20 @@ export class DropdownSearch extends Component<'div'> {
           children: new CloseButton(() => {
             this.input.value = '';
             this.onChange('');
-          }).getElement(),
+          }, 'Clear input'),
         },
       ],
     });
   }
 
   private getSearchInput() {
+    const search = debounce(this.onChange.bind(this));
+
     return Dom.create({
       tag: 'input',
       classes: 'gl-listbox-search-input',
       events: {
-        input: () => this.onChange(this.input.value),
+        input: () => search(this.input.value),
       },
     });
   }

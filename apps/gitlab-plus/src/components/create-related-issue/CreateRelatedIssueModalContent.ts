@@ -12,7 +12,7 @@ import FormIteration from './form/FormIteration';
 import FormAssignees from './form/FormAssignees';
 import FormRelation from './form/FormRelation';
 import { Component } from '@ui/Component';
-import { Dom } from '@ui/Dom';
+import { Dom, HtmlData } from '@ui/Dom';
 
 export default class CreateRelatedIssueModalContent extends Component<'form'> {
   private issueProvider = new IssueProvider();
@@ -39,10 +39,10 @@ export default class CreateRelatedIssueModalContent extends Component<'form'> {
 
     this.element.append(
       this.title.getElement(),
-      this.row(this.project.getElement(), this.milestone.getElement()),
-      this.row(this.iteration.getElement(), this.assignees.getElement()),
-      this.row(this.labels.getElement()),
-      this.row(this.relation.getElement()),
+      this.row([this.project, this.milestone]),
+      this.row([this.iteration, this.assignees]),
+      this.row(this.labels),
+      this.row(this.relation),
       Dom.create({
         tag: 'button',
         classes: 'btn btn-confirm btn-sm gl-button',
@@ -61,7 +61,7 @@ export default class CreateRelatedIssueModalContent extends Component<'form'> {
     );
   }
 
-  row(...items: HTMLElement[]) {
+  row(items: HtmlData<'div'>['children']) {
     return Dom.create({
       tag: 'div',
       classes: 'gl-flex gl-gap-x-3',
@@ -87,6 +87,7 @@ export default class CreateRelatedIssueModalContent extends Component<'form'> {
       return;
     }
     const response = await this.issueProvider.createIssue(data);
+    this.persistRecently();
     if (this.relation.value) {
       await this.issueProvider.createIssueRelation({
         issueId: response.data.createIssuable.issuable.iid,
@@ -101,7 +102,7 @@ export default class CreateRelatedIssueModalContent extends Component<'form'> {
   }
 
   getFormValue() {
-    const project = this.project.getValue();
+    const [project] = this.project.getValue();
     if (!project) {
       return;
     }
@@ -111,12 +112,12 @@ export default class CreateRelatedIssueModalContent extends Component<'form'> {
       projectPath: project.fullPath,
     };
 
-    const milestone = this.milestone.getValue();
+    const [milestone] = this.milestone.getValue();
     if (milestone) {
       data['milestoneId'] = milestone.id;
     }
 
-    const iteration = this.iteration.getValue();
+    const [iteration] = this.iteration.getValue();
     if (iteration) {
       data['iterationId'] = iteration.id;
       data['iterationCadenceId'] = iteration.iterationCadence.id;
@@ -124,11 +125,19 @@ export default class CreateRelatedIssueModalContent extends Component<'form'> {
 
     const assignees = this.assignees.getValue();
     if (assignees) {
-      data['assigneeIds'] = [assignees.id];
+      data['assigneeIds'] = assignees.map((a) => a.id);
     }
     const labels = this.labels.getValue();
     data['labelIds'] = labels.map((label) => label.id);
 
     return data;
+  }
+
+  private persistRecently() {
+    this.project.persistRecent();
+    this.milestone.persistRecent();
+    this.iteration.persistRecent();
+    this.assignees.persistRecent();
+    this.labels.persistRecent();
   }
 }

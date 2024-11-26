@@ -1,19 +1,15 @@
 import Dropdown from '../../common/form/Dropdown';
 import { ProjectsProvider } from '../../../providers/ProjectsProvider';
-import { RecentProvider } from '../../../providers/RecentProvider';
 import { Project } from '../../../types/Project';
 import { IssueLinkType } from '../../../helpers/IssueLink';
 import { Dom } from '@ui/Dom';
 
 export default class FormProject extends Dropdown<Project> {
   private projects = new ProjectsProvider();
-  private recent = new RecentProvider<Project>('projects');
-  private searchProjects: (search: string) => void;
 
   constructor(private link: IssueLinkType) {
-    super('Project');
+    super('Project', 'projects');
 
-    this.searchProjects = this.projects.debounce(this.load.bind(this));
     this.load();
   }
 
@@ -22,15 +18,7 @@ export default class FormProject extends Dropdown<Project> {
       this.link.workspacePath,
       search
     );
-    this.updateItems(projects.data.group.projects.nodes, this.recent.get());
-  }
-
-  getValue() {
-    const [value] = this.value;
-    if (value) {
-      this.recent.add(value);
-    }
-    return value;
+    this.updateItems(projects.data.group.projects.nodes, search);
   }
 
   renderItem(item: Project) {
@@ -83,8 +71,4 @@ export default class FormProject extends Dropdown<Project> {
   }
 
   onChange() {}
-
-  filter(search: string): void {
-    this.searchProjects(search);
-  }
 }

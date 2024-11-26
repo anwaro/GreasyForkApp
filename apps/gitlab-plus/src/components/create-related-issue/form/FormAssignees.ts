@@ -1,36 +1,24 @@
 import Dropdown from '../../common/form/Dropdown';
 import { UsersProvider } from '../../../providers/UsersProvider';
-import { RecentProvider } from '../../../providers/RecentProvider';
 import { IssueLinkType } from '../../../helpers/IssueLink';
 import { User } from '../../../types/User';
 import { Dom } from '@ui/Dom';
 
 export default class FormAssignees extends Dropdown<User> {
-  private recent = new RecentProvider<User>('assignees');
   private assignees = new UsersProvider();
-  private searchUser: (search: string) => void;
 
   constructor(private link: IssueLinkType) {
-    super('Assignees');
+    super('Assignees', 'assignees', true);
     this.load('');
-    this.searchUser = this.assignees.debounce(this.load.bind(this));
   }
 
-  async load(serach: string) {
+  async load(search: string) {
     const response = await this.assignees.getUsers(
       this.link.projectPath,
-      serach
+      search
     );
 
-    this.updateItems(response.data.workspace.users, this.recent.get());
-  }
-
-  getValue() {
-    const [value] = this.value;
-    if (value) {
-      this.recent.add(value);
-    }
-    return value;
+    this.updateItems(response.data.workspace.users, search);
   }
 
   renderItem(item: User) {
@@ -78,8 +66,4 @@ export default class FormAssignees extends Dropdown<User> {
   }
 
   onChange() {}
-
-  filter(search: string) {
-    this.searchUser(search);
-  }
 }

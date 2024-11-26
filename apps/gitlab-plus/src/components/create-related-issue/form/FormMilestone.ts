@@ -1,40 +1,25 @@
 import Dropdown from '../../common/form/Dropdown';
 import { MilestonesProvider } from '../../../providers/MilestonesProvider';
-import { RecentProvider } from '../../../providers/RecentProvider';
 import { IssueLinkType } from '../../../helpers/IssueLink';
 import { Milestone } from '../../../types/Milestone';
 import { Dom } from '@ui/Dom';
 
 export default class FormMilestone extends Dropdown<Milestone> {
   private milestones = new MilestonesProvider();
-  private recent = new RecentProvider<Milestone>('milestones');
-  private searchMilestones: (search: string) => void;
 
   constructor(private link: IssueLinkType) {
-    super('Milestone');
-    this.searchMilestones = this.milestones.debounce(this.load.bind(this));
+    super('Milestone', 'milestones');
 
     this.load();
   }
 
-  async load(title = '') {
+  async load(search = '') {
     const milestones = await this.milestones.getMilestones(
       this.link.projectPath,
-      title
+      search
     );
 
-    this.updateItems(
-      milestones.data.workspace.attributes.nodes,
-      this.recent.get()
-    );
-  }
-
-  getValue() {
-    const [value] = this.value;
-    if (value) {
-      this.recent.add(value);
-    }
-    return value;
+    this.updateItems(milestones.data.workspace.attributes.nodes, search);
   }
 
   renderItem(item: Milestone) {
@@ -63,8 +48,4 @@ export default class FormMilestone extends Dropdown<Milestone> {
   }
 
   onChange() {}
-
-  filter(search: string) {
-    this.searchMilestones(search);
-  }
 }

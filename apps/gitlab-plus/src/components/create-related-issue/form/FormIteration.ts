@@ -1,6 +1,5 @@
 import Dropdown from '../../common/form/Dropdown';
 import { IterationsProvider } from '../../../providers/IterationsProvider';
-import { RecentProvider } from '../../../providers/RecentProvider';
 import { IssueLinkType } from '../../../helpers/IssueLink';
 import { Iteration } from '../../../types/Iteration';
 import { Dom } from '@ui/Dom';
@@ -9,20 +8,17 @@ type IterationNamed = Iteration & { name: string };
 
 export default class FormIteration extends Dropdown<IterationNamed> {
   private iterations = new IterationsProvider();
-  private recent = new RecentProvider<IterationNamed>('iterations');
-  private searchIterations: (search: string) => void;
 
   constructor(private link: IssueLinkType) {
-    super('Iteration');
+    super('Iteration', 'iterations');
 
-    this.searchIterations = this.iterations.debounce(this.load.bind(this));
     this.load();
   }
 
-  async load(title: string = '') {
+  async load(search: string = '') {
     const response = await this.iterations.getIterations(
       this.link.workspacePath,
-      title
+      search
     );
     const iterationsNamed = response.data.workspace.attributes.nodes
       .map((iteration) => ({
@@ -31,15 +27,7 @@ export default class FormIteration extends Dropdown<IterationNamed> {
       }))
       .toSorted((a, b) => a.name.localeCompare(b.name));
 
-    this.updateItems(iterationsNamed, this.recent.get());
-  }
-
-  getValue() {
-    const [value] = this.value;
-    if (value) {
-      this.recent.add(value);
-    }
-    return value;
+    this.updateItems(iterationsNamed, search);
   }
 
   iterationName(iteration: Iteration) {
@@ -75,8 +63,4 @@ export default class FormIteration extends Dropdown<IterationNamed> {
   }
 
   onChange() {}
-
-  filter(search: string): void {
-    this.searchIterations(search);
-  }
 }

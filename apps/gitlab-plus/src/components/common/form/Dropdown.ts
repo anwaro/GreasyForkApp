@@ -4,11 +4,14 @@ import { DropdownItem, DropdownList } from './DropdownList';
 import { DropdownButton } from './DropdownButton';
 import { DropdownModal } from './DropdownModal';
 import { Dom } from '@ui/Dom';
+import { RecentProvider } from '../../../providers/RecentProvider';
 
 export default abstract class Dropdown<D extends DropdownItem> extends Field {
   protected value: D[] = [];
   protected items: D[] = [];
   protected recently: D[] = [];
+  private recent: RecentProvider<D>;
+  private searchTerm: string;
 
   protected extra = Dom.element('div');
   private button: DropdownButton<D>;
@@ -16,17 +19,18 @@ export default abstract class Dropdown<D extends DropdownItem> extends Field {
   private search: DropdownSearch;
   private list: DropdownList<D>;
 
-  constructor(title: string, private isMultiselect = false) {
+  constructor(title: string, key: string, private isMultiselect = false) {
     const container = Dom.element(
       'div',
       'gl-relative gl-w-full gl-new-dropdown !gl-block'
     );
     super(title, container);
-
-    this.search = new DropdownSearch(this.filter.bind(this));
+    this.recent = new RecentProvider<D>(key);
+    this.search = new DropdownSearch(this.load.bind(this));
     this.list = new DropdownList(
       this.renderItem.bind(this),
-      this.onSelect.bind(this)
+      this.onSelect.bind(this),
+      this.removeFromRecent.bind(this)
     );
     this.modal = new DropdownModal(
       this.search.getElement(),
@@ -55,13 +59,12 @@ export default abstract class Dropdown<D extends DropdownItem> extends Field {
 
   abstract onChange(): void;
 
-  abstract filter(search: string): void;
+  abstract load(search: string): Promise<void>;
 
-  updateItems(items: D[], recently: D[] = []) {
-    const recentlyIds = recently.map((i) => i.id);
-    this.recently = recently;
-    this.items = items.filter((i) => !recentlyIds.includes(i.id));
-    this.list.render(this.items, this.recently, this.value);
+  updateItems(items: D[], search = '') {
+    this.searchTerm = search;
+    this.items = items;
+    this.render();
   }
 
   onSelect(item: D) {
@@ -76,14 +79,40 @@ export default abstract class Dropdown<D extends DropdownItem> extends Field {
       this.modal.setVisible(false);
     }
     this.button.render(this.value);
-    this.list.render(this.items, this.recently, this.value);
+    this.render();
     this.onChange();
   }
 
   reset() {
     this.value = [];
     this.button.render(this.value);
-    this.list.render(this.items, this.recently, this.value);
+    this.render();
     this.onChange();
+  }
+
+  persistRecent() {
+    this.recent.add(...this.value);
+    this.render();
+  }
+
+  removeFromRecent(item: D) {
+    this.recent.remove(item);
+    this.render();
+  }
+
+  getValue() {
+    return this.value;
+  }
+
+  private render() {
+    const recent = this.recent.get();
+    const recentlyIds = recent.map((i) => i.id);
+    const itemsIds = this.items.map((i) => i.id);
+
+    const itemsToRender = this.items.filter((i) => !recentlyIds.includes(i.id));
+    const recentItemsToRender = this.searchTerm.length
+      ? recent.filter((i) => itemsIds.includes(i.id))
+      : recent;
+    this.list.render(itemsToRender, recentItemsToRender, this.value);
   }
 }
