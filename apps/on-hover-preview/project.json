@@ -1,0 +1,41 @@
+{
+  "name": "on-hover-preview",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/on-hover-preview/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "development",
+      "options": {
+        "platform": "browser",
+        "outputPath": "scripts/on-hover-preview",
+        "format": [
+          "cjs"
+        ],
+        "bundle": true,
+        "main": "apps/on-hover-preview/src/main.ts",
+        "tsConfig": "apps/on-hover-preview/tsconfig.app.json",
+        "assets": [
+          "apps/on-hover-preview/src/assets"
+        ],
+        "generatePackageJson": false,
+        "deleteOutputPath": false,
+        "esbuildConfig": "./apps/on-hover-preview/esbuild.config.dev.js"
+      },
+      "configurations": {
+        "development": {
+          "outputFileName": "dev",
+          "watch": true
+        },
+        "production": {
+          "esbuildConfig": "./apps/on-hover-preview/esbuild.config.prod.js"
+        }
+      }
+    }
+  }
+}
