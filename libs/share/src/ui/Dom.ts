@@ -233,7 +233,7 @@ export class Dom {
 
   static applyClass(element: HTMLElement | SVGElement, classes?: string) {
     if (classes) {
-      element.classList.add(...classes.split(' '));
+      element.classList.add(...classes.split(' ').filter(Boolean));
     }
   }
 

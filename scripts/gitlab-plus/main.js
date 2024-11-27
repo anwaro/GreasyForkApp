@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2024-11-26
+// @version      2024-11-27
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -18,7 +18,7 @@ var image_preview_default =
 
 // css:apps/gitlab-plus/src/styles/issue-preview.css
 var issue_preview_default =
-  "@keyframes loader-animation{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}.glp-issue-preview-modal{position:absolute;display:flex;padding:15px;background-color:var(--gl-background-color-default,var(--gl-color-neutral-0,#fff));border:1px solid var(--gl-border-color-default);border-radius:.25rem;width:300px;min-height:300px;z-index:99999;visibility:hidden;opacity:0;pointer-events:none;transition:all .3s ease-out;transition-property:visibility,opacity,transform;}.glp-issue-preview-modal.glp-modal-visible{visibility:visible;opacity:1;}.glp-issue-preview-modal .glp-issue-modal-inner{display:flex;flex-direction:column;max-width:100%;}.glp-issue-preview-modal .glp-block{padding:.75rem 0 1rem;border-bottom-style:solid;border-bottom-color:var(--gl-border-color-subtle,var(--gl-color-neutral-50,#ececef));border-bottom-width:1px;width:100%;}.glp-issue-preview-modal .assignee-grid{margin-top:4px;gap:4px}.glp-modal-loader{position:absolute;width:40px;height:40px;transform:translate(-50%,-50%);left:50%;top:50%;}.glp-modal-loader.glp-modal-loader-inner{position:absolute;width:40px;height:40px;background-color:var(--gl-background-color-subtle,var(--gl-color-neutral-10,#fbfafd));animation:linear 1s infinite loader-animation;border-radius:50%;}.glp-modal-loader.glp-modal-loader-inner::after{content:'';position:absolute;background-color:#fff;border-radius:50%;top:5px;left:50%;width:5px;height:5px;transform:translateX(-50%);}";
+  "@keyframes loader-animation{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}.glp-issue-preview-modal{position:fixed;display:flex;padding:0 15px;background-color:var(--gl-background-color-default,var(--gl-color-neutral-0,#fff));border:1px solid var(--gl-border-color-default);border-radius:.25rem;width:300px;min-height:300px;z-index:99999;visibility:hidden;top:0;left:0;opacity:0;pointer-events:none;transition:all .3s ease-out;transition-property:visibility,opacity,transform;}.glp-issue-preview-modal.glp-modal-visible{visibility:visible;opacity:1;}.glp-issue-preview-modal .glp-issue-modal-inner{display:flex;flex-direction:column;max-width:100%;}.glp-issue-preview-modal .glp-block{padding:.5rem 0 .5rem;border-bottom-style:solid;border-bottom-color:var(--gl-border-color-subtle,var(--gl-color-neutral-50,#ececef));border-bottom-width:1px;width:100%;}.glp-issue-preview-modal .assignee-grid{margin-top:4px;gap:4px}.glp-modal-loader{position:absolute;width:40px;height:40px;transform:translate(-50%,-50%);left:50%;top:50%;}.glp-modal-loader.glp-modal-loader-inner{position:absolute;width:40px;height:40px;background-color:var(--gl-background-color-subtle,var(--gl-color-neutral-10,#fbfafd));animation:linear 1s infinite loader-animation;border-radius:50%;}.glp-modal-loader.glp-modal-loader-inner::after{content:'';position:absolute;background-color:#fff;border-radius:50%;top:5px;left:50%;width:5px;height:5px;transform:translateX(-50%);}";
 
 // libs/share/src/ui/GlobalStyle.ts
 var GlobalStyle = class {
@@ -220,7 +220,7 @@ var Dom = class _Dom {
 
   static applyClass(element, classes) {
     if (classes) {
-      element.classList.add(...classes.split(' '));
+      element.classList.add(...classes.split(' ').filter(Boolean));
     }
   }
 
@@ -332,9 +332,21 @@ var StatusComponent = class extends Component {
 var IssueTitle = class extends IssueBlock {
   constructor(issue) {
     super(
-      `#${issue.iid} ${issue.title}`,
+      issue.title,
       Dom.element('div', '', [
-        new StatusComponent(issue.state === 'opened'),
+        {
+          tag: 'div',
+          classes: 'gl-flex',
+          children: [
+            new IconComponent('issue-type-issue', 's16', 'gl-mr-2'),
+            {
+              tag: 'span',
+              classes: 'gl-text-sm gl-text-secondary gl-mr-4',
+              children: `#${issue.iid}`,
+            },
+            new StatusComponent(issue.state === 'opened'),
+          ],
+        },
         {
           tag: 'div',
           styles: { maxHeight: '100px' },
@@ -471,25 +483,47 @@ var IssueLabels = class extends IssueBlock {
 // apps/gitlab-plus/src/components/issue-preview/IssueMilestone.ts
 var IssueMilestone = class extends IssueBlock {
   constructor(issue) {
-    super('Milestone', issue.milestone ? issue.milestone.title : '');
+    super(
+      'Milestone',
+      issue.milestone
+        ? [
+            new IconComponent('milestone', 's16', 'gl-mr-2'),
+            { tag: 'span', children: issue.milestone.title },
+          ]
+        : ''
+    );
   }
 };
 
 // apps/gitlab-plus/src/components/issue-preview/IssueIteration.ts
-var IssueIteration = class extends IssueBlock {
+var IssueIteration = class _IssueIteration extends IssueBlock {
   constructor(issue) {
     super(
       'Iteration',
       issue.iteration
         ? [
-            issue.iteration.iterationCadence.title,
-            ': ',
-            new Date(issue.iteration.startDate).toLocaleDateString(),
-            ' - ',
-            new Date(issue.iteration.dueDate).toLocaleDateString(),
-          ].join('')
+            new IconComponent('iteration', 's16', 'gl-mr-2'),
+            {
+              tag: 'span',
+              children: _IssueIteration.label(
+                issue.iteration.iterationCadence.title,
+                issue.iteration.startDate,
+                issue.iteration.dueDate
+              ),
+            },
+          ]
         : ''
     );
+  }
+
+  static label(title, start, end) {
+    const date = (date2) => {
+      return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }).format(new Date(date2));
+    };
+    return [title, ': ', date(start), ' - ', date(end)].join('');
   }
 };
 
@@ -585,17 +619,17 @@ var IssuePreviewModal = class extends Component {
 
   show(event) {
     this.element.appendChild(this.loader.getElement());
-    this.element.style.left = `${event.pageX + 10}px`;
-    this.element.style.top = `${event.pageY + 10}px`;
-    this.element.style.transform = 'translateY(0px)';
+    Dom.applyStyles(this.element, {
+      left: `${event.pageX + 10}px`,
+      top: `${event.pageY + 10}px`,
+      transform: 'translateY(0px)',
+    });
     this.element.classList.add(this.visibleClassName);
   }
 
-  fixPosition(event) {
-    const dY =
-      event.screenY +
-      this.element.getBoundingClientRect().height -
-      window.innerHeight;
+  fixPosition() {
+    const { height, top } = this.element.getBoundingClientRect();
+    const dY = height + top - window.innerHeight;
     if (dY > 0) {
       this.element.style.transform = `translateY(-${dY + 15}px)`;
     }
@@ -1155,12 +1189,16 @@ var IssuePreview = class {
   }
 
   async onHover(event) {
-    const link = IssueLink.parseLink(event.target.href);
+    const anchor = event.target;
+    const link = IssueLink.parseLink(anchor.href);
     if (link) {
+      anchor.title = '';
       this.modal.show(event);
       const issue = await this.issue.getIssue(link.projectPath, link.issue);
       this.modal.updateContent(issue.data.project.issue);
-      this.modal.fixPosition(event);
+      setTimeout(() => {
+        this.modal.fixPosition();
+      }, 200);
     }
   }
 
@@ -2556,139 +2594,6 @@ var ClearCacheService = class {
   init() {
     this.cache.clearInvalid();
     window.setInterval(this.cache.clearInvalid.bind(this.cache), 60 * 1e3);
-  }
-};
-
-// libs/share/src/ui/Observer.ts
-var Observer = class {
-  stop() {
-    if (this.observer) {
-      this.observer.disconnect();
-    }
-  }
-
-  start(element, callback, options) {
-    this.stop();
-    this.observer = new MutationObserver(callback);
-    this.observer.observe(
-      element,
-      options || {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        characterData: true,
-        attributeOldValue: true,
-        characterDataOldValue: true,
-      }
-    );
-  }
-};
-
-// apps/gitlab-plus/src/services/SortIssue.ts
-var sortWeight = {
-  ['ownIssue' /* ownIssue */]: 10,
-  ['ownUserStory' /* ownUserStory */]: 8,
-  ['userStory' /* userStory */]: 6,
-  ['issue' /* issue */]: 4,
-  ['unknown' /* unknown */]: 2,
-  ['label' /* label */]: 0,
-};
-var SortIssue = class {
-  init() {
-    const observer = new Observer();
-    const userName = this.userName();
-    const board = document.querySelector('.boards-list');
-    if (!userName || !board) {
-      return;
-    }
-    observer.start(board, () => this.run(userName));
-  }
-
-  run(userName) {
-    console.log([...document.querySelectorAll('.board-list')]);
-    [...document.querySelectorAll('.board-list:not(.glp-ready)')].forEach(
-      (board) => this.initBoard(board, userName)
-    );
-  }
-
-  initBoard(board, userName) {
-    Dom.applyClass(board, 'glp-ready');
-    Dom.applyStyles(board, {
-      flexDirection: 'column',
-      display: 'flex',
-    });
-    const observer = new Observer();
-    observer.start(board, () => this.sortBoard(board, userName), {
-      childList: true,
-    });
-  }
-
-  sortBoard(board, userName) {
-    const children = [...board.children].map((element) => ({
-      element,
-      type: this.childType(element, userName),
-    }));
-    if (!this.shouldSort(children)) {
-      return;
-    }
-    this.sortChildren(children).forEach(({ element }, index) => {
-      const order =
-        index !== children.length - 1 ? index + 1 : children.length + 100;
-      element.style.order = `${order}`;
-    });
-  }
-
-  childType(child, userName) {
-    if (child instanceof HTMLDivElement) {
-      return 'label' /* label */;
-    }
-    const title = child.querySelector('[data-testid="board-card-title-link"]');
-    if (!title) {
-      return 'unknown' /* unknown */;
-    }
-    const isOwn = [...child.querySelectorAll('.gl-avatar-link img')].some(
-      (img) => img.alt.includes(userName)
-    );
-    const isUserStory = [...child.querySelectorAll('.gl-label')].some((span) =>
-      span.innerText.includes('User Story')
-    );
-    if (isUserStory && isOwn) {
-      return 'ownUserStory' /* ownUserStory */;
-    }
-    if (isOwn) {
-      return 'ownIssue' /* ownIssue */;
-    }
-    if (isUserStory) {
-      return 'userStory' /* userStory */;
-    }
-    return 'issue' /* issue */;
-  }
-
-  userName() {
-    const element = document.querySelector(
-      '.user-bar-dropdown-toggle .gl-button-text .gl-sr-only'
-    );
-    const testText = ' user\u2019s menu';
-    if (element && element.innerText.includes(testText)) {
-      return element.innerText.replace(testText, '');
-    }
-    return void 0;
-  }
-
-  sortChildren(items) {
-    return items.toSorted((a, b) => {
-      return Math.sign(sortWeight[b.type] - sortWeight[a.type]);
-    });
-  }
-
-  shouldSort(items) {
-    return items.some((item) => {
-      return [
-        'ownIssue' /* ownIssue */,
-        'ownUserStory' /* ownUserStory */,
-        'userStory' /* userStory */,
-      ].includes(item.type);
-    });
   }
 };
 

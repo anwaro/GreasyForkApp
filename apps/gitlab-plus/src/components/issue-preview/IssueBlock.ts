@@ -1,11 +1,8 @@
 import { Component } from '@ui/Component';
+import { HtmlData } from '@ui/Dom';
 
 export default class IssueBlock extends Component<'div'> {
-  constructor(
-    title: string = '',
-    content: HTMLElement[] | HTMLElement | string,
-    classes = ''
-  ) {
+  constructor(title: string = '', content: HtmlData['children'], classes = '') {
     super('div', {
       classes: 'glp-block',
       children: [

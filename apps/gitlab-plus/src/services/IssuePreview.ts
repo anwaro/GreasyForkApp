@@ -17,12 +17,16 @@ export default class IssuePreview implements Service {
   }
 
   async onHover(event: HTMLElementEventMap['mouseenter']) {
-    const link = IssueLink.parseLink((event.target as HTMLAnchorElement).href);
+    const anchor = event.target as HTMLAnchorElement;
+    const link = IssueLink.parseLink(anchor.href);
     if (link) {
+      anchor.title = '';
       this.modal.show(event);
       const issue = await this.issue.getIssue(link.projectPath, link.issue);
       this.modal.updateContent(issue.data.project.issue);
-      this.modal.fixPosition(event);
+      setTimeout(() => {
+        this.modal.fixPosition();
+      }, 200);
     }
   }
 

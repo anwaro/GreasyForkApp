@@ -8,6 +8,8 @@ export type IconNames =
   | 'merge-request-close'
   | 'merge-request'
   | 'empty'
+  | 'milestone'
+  | 'iteration'
   | 'chevron-lg-down'
   | 'search'
   | 'issue-type-issue'
