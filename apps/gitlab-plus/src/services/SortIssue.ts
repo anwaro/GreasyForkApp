@@ -32,7 +32,6 @@ export class SortIssue implements Service {
   }
 
   private run(userName: string) {
-    console.log([...document.querySelectorAll('.board-list')]);
     [...document.querySelectorAll('.board-list:not(.glp-ready)')].forEach(
       (board) => this.initBoard(board as HTMLDivElement, userName)
     );
@@ -40,10 +39,6 @@ export class SortIssue implements Service {
 
   private initBoard(board: HTMLDivElement, userName: string) {
     Dom.applyClass(board, 'glp-ready');
-    Dom.applyStyles(board, {
-      flexDirection: 'column',
-      display: 'flex',
-    });
 
     const observer = new Observer();
     observer.start(board, () => this.sortBoard(board, userName), {
@@ -52,6 +47,10 @@ export class SortIssue implements Service {
   }
 
   private sortBoard(board: HTMLDivElement, userName: string) {
+    Dom.applyStyles(board, {
+      flexDirection: 'column',
+      display: 'flex',
+    });
     const children = [...board.children].map((element) => ({
       element: element as HTMLElement,
       type: this.childType(element as HTMLElement, userName),
@@ -116,11 +115,7 @@ export class SortIssue implements Service {
 
   private shouldSort(items: { element: HTMLElement; type: ChildType }[]) {
     return items.some((item) => {
-      return [
-        ChildType.ownIssue,
-        ChildType.ownUserStory,
-        ChildType.userStory,
-      ].includes(item.type);
+      return [ChildType.ownIssue, ChildType.ownUserStory].includes(item.type);
     });
   }
 }

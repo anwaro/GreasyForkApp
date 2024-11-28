@@ -2,7 +2,7 @@ import { IconComponent } from './common/IconComponent';
 import { Component } from '@ui/Component';
 import { Dom } from '@ui/Dom';
 
-export default class ImagePreviewModal extends Component<'div'> {
+export class ImagePreviewModal extends Component<'div'> {
   private image = Dom.element('img', 'glp-modal-img');
   private visibleClassName = 'glp-modal-visible';
 

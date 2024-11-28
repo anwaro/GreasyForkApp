@@ -20,6 +20,10 @@ export class UserComponent extends Component<'div'> {
           tag: 'span',
           classes: 'gl-ml-3',
           children: user.name,
+          styles: {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          },
         },
       ],
     });

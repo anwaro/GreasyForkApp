@@ -1,9 +1,9 @@
 import { Issue } from '../../types/Issue';
-import IssueBlock from './IssueBlock';
+import { IssueBlock } from './IssueBlock';
 import { LabelComponent } from '../common/LabelComponent';
 import { Dom } from '@ui/Dom';
 
-export default class IssueLabels extends IssueBlock {
+export class IssueLabels extends IssueBlock {
   constructor(issue: Issue) {
     super(
       'Labels',
@@ -11,7 +11,9 @@ export default class IssueLabels extends IssueBlock {
         tag: 'div',
         classes: 'issuable-show-labels',
         children: issue.labels.nodes.map((label) => new LabelComponent(label)),
-      })
+      }),
+      '',
+      !!issue.labels.nodes.length
     );
   }
 }

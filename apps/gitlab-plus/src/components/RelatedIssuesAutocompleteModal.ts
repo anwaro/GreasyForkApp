@@ -1,4 +1,4 @@
-import AutocompleteModal from './related-issue-autocomplete/AutocompleteModal';
+import { AutocompleteModal } from './related-issue-autocomplete/AutocompleteModal';
 import { IssueAutocomplete } from '../types/Issue';
 import { IssueProvider } from '../providers/IssueProvider';
 import { IssueLink, IssueLinkType } from '../helpers/IssueLink';
@@ -6,7 +6,7 @@ import { IconComponent } from './common/IconComponent';
 import { Dom } from '@ui/Dom';
 import { debounce } from '@utils/debounce';
 
-export default class RelatedIssuesAutocompleteModal {
+export class RelatedIssuesAutocompleteModal {
   private readyClass = 'glp-input-ready';
   private input = Dom.element('input');
   private autocompleteModal: AutocompleteModal<IssueAutocomplete>;

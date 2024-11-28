@@ -1,10 +1,10 @@
-import IssueBlock from './IssueBlock';
+import { IssueBlock } from './IssueBlock';
 import { Issue } from '../../types/Issue';
 import { StatusComponent } from '../common/StatusComponent';
 import { Dom } from '@ui/Dom';
 import { IconComponent } from '../common/IconComponent';
 
-export default class IssueTitle extends IssueBlock {
+export class IssueTitle extends IssueBlock {
   constructor(issue: Issue) {
     super(
       issue.title,

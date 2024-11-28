@@ -1,20 +1,17 @@
 import { IssueLink, IssueLinkType } from '../../helpers/IssueLink';
-import {
-  CreateIssueInput,
-  CreateIssueLinkInput,
-  IssueProvider,
-} from '../../providers/IssueProvider';
-import FormTitle from './form/FormTitle';
-import FormProject from './form/FormProject';
-import FormLabel from './form/FormLabels';
-import FormMilestone from './form/FormMilestone';
-import FormIteration from './form/FormIteration';
-import FormAssignees from './form/FormAssignees';
-import FormRelation from './form/FormRelation';
+import { IssueProvider } from '../../providers/IssueProvider';
+import { FormTitle } from './form/FormTitle';
+import { FormProject } from './form/FormProject';
+import { FormLabel } from './form/FormLabels';
+import { FormMilestone } from './form/FormMilestone';
+import { FormIteration } from './form/FormIteration';
+import { FormAssignees } from './form/FormAssignees';
+import { FormRelation } from './form/FormRelation';
 import { Component } from '@ui/Component';
 import { Dom, HtmlData } from '@ui/Dom';
+import { CreateIssueInput, IssueRelation } from '../../types/Issue';
 
-export default class CreateRelatedIssueModalContent extends Component<'form'> {
+export class CreateRelatedIssueModalContent extends Component<'form'> {
   private issueProvider = new IssueProvider();
   private title: FormTitle;
   private project: FormProject;
@@ -94,7 +91,7 @@ export default class CreateRelatedIssueModalContent extends Component<'form'> {
         projectId: response.data.createIssuable.issuable.projectId,
         targetProjectId: link.projectPath.replace(/\//g, '%2F'),
         targetIssueIid: link.issue,
-        linkType: this.relation.value as CreateIssueLinkInput['linkType'],
+        linkType: this.relation.value as IssueRelation,
       });
     }
     this.onClose();

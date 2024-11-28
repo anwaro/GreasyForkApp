@@ -1,7 +1,7 @@
 import { Field } from '../../common/form/Field';
 import { Dom } from '@ui/Dom';
 
-export default class FormTitle extends Field {
+export class FormTitle extends Field {
   public value = '';
 
   constructor() {

@@ -6,7 +6,7 @@ import { Dom } from '@ui/Dom';
 
 type IterationNamed = Iteration & { name: string };
 
-export default class FormIteration extends Dropdown<IterationNamed> {
+export class FormIteration extends Dropdown<IterationNamed> {
   private iterations = new IterationsProvider();
 
   constructor(private link: IssueLinkType) {

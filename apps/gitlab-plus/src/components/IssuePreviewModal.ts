@@ -1,32 +1,41 @@
-import IssueLoader from './issue-preview/IssueLoader';
-import { Issue } from '../types/Issue';
+import { IssueWithRelated } from '../types/Issue';
 import { IssueModalContent } from './issue-preview/IssueModalContent';
 import { Component } from '@ui/Component';
 import { Dom } from '@ui/Dom';
+import { GitlabLoader } from './common/GitlabLoader';
 
-export default class IssuePreviewModal extends Component<'div'> {
-  private loader = new IssueLoader();
+export class IssuePreviewModal extends Component<'div'> {
   private content = new IssueModalContent();
   private visibleClassName = 'glp-modal-visible';
 
   constructor() {
-    super('div', { classes: 'glp-issue-preview-modal' });
+    super('div', {
+      classes: 'glp-issue-preview-modal',
+      children: IssuePreviewModal.loader(),
+    });
     this.mount(document.body);
   }
 
+  static loader() {
+    return Dom.create({
+      tag: 'div',
+      classes: 'gl-flex gl-flex-1 gl-items-center gl-justify-center',
+      children: new GitlabLoader('2em'),
+    });
+  }
+
   show(event: HTMLElementEventMap['mouseenter']) {
-    this.element.appendChild(this.loader.getElement());
     Dom.applyStyles(this.element, {
-      left: `${event.pageX + 10}px`,
-      top: `${event.pageY + 10}px`,
+      left: `${event.clientX + 10}px`,
+      top: `${event.clientY + 10}px`,
       transform: 'translateY(0px)',
     });
     this.element.classList.add(this.visibleClassName);
   }
 
   fixPosition() {
-    const { height, top } = this.element.getBoundingClientRect();
-    const dY = height + top - window.innerHeight;
+    const rect = this.element.getBoundingClientRect();
+    const dY = rect.height + rect.top - window.innerHeight;
 
     if (dY > 0) {
       this.element.style.transform = `translateY(-${dY + 15}px)`;
@@ -35,10 +44,13 @@ export default class IssuePreviewModal extends Component<'div'> {
 
   hide() {
     this.element.classList.remove(this.visibleClassName);
-    this.element.replaceChildren();
+    this.element.replaceChildren(IssuePreviewModal.loader());
+    Dom.applyStyles(this.element, {
+      transform: 'translateY(0px)',
+    });
   }
 
-  updateContent(issue: Issue) {
+  updateContent(issue: IssueWithRelated) {
     this.content.update(issue);
     this.element.replaceChildren(this.content.getElement());
   }

@@ -5,7 +5,7 @@ import { IssueLinkType } from '../../../helpers/IssueLink';
 import { LabelComponent } from '../../common/LabelComponent';
 import { Dom } from '@ui/Dom';
 
-export default class FormLabel extends Dropdown<Label> {
+export class FormLabel extends Dropdown<Label> {
   private labels = new LabelsProvider();
 
   constructor(private link: IssueLinkType) {

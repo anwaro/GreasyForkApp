@@ -1,28 +1,13 @@
 import { GitlabProvider } from './GitlabProvider';
 import { issueMutation, issueQuery, issuesQuery } from './query/issue';
 import {
+  CreateIssueInput,
+  CreateIssueLinkInput,
   CreateIssueResponse,
   IssueResponse,
   IssuesResponse,
+  RelatedIssue,
 } from '../types/Issue';
-
-export type CreateIssueInput = {
-  title: string;
-  projectPath: string;
-  assigneeIds?: string[];
-  milestoneId?: string;
-  iterationCadenceId?: string;
-  iterationId?: string;
-  labelIds?: (string | number)[];
-};
-
-export type CreateIssueLinkInput = {
-  projectId: string | number;
-  issueId: string | number;
-  targetProjectId: string;
-  targetIssueIid: string;
-  linkType: 'relates_to' | 'blocks' | 'is_blocked_by';
-};
 
 export class IssueProvider extends GitlabProvider {
   async getIssue(projectId: string, issueId: string) {
@@ -74,5 +59,17 @@ export class IssueProvider extends GitlabProvider {
       .replace(':LINK_TYPE', input.linkType);
 
     return await this.post(path, {});
+  }
+
+  async getIssueLinks(projectId: string, issueId: string) {
+    const path = 'projects/:PROJECT_ID/issues/:ISSUE_ID/links'
+      .replace(':PROJECT_ID', `${projectId}`)
+      .replace(':ISSUE_ID', `${issueId}`);
+
+    return await this.getCached<RelatedIssue[]>(
+      `issue-${projectId}-${issueId}-links`,
+      path,
+      2
+    );
   }
 }

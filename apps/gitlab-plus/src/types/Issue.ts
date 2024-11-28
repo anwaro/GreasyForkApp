@@ -3,6 +3,26 @@ import { Label } from './Label';
 import { Nodes } from './response';
 import { Iteration } from './Iteration';
 
+export type IssueRelation = 'relates_to' | 'blocks' | 'is_blocked_by';
+
+export type CreateIssueInput = {
+  title: string;
+  projectPath: string;
+  assigneeIds?: string[];
+  milestoneId?: string;
+  iterationCadenceId?: string;
+  iterationId?: string;
+  labelIds?: (string | number)[];
+};
+
+export type CreateIssueLinkInput = {
+  projectId: string | number;
+  issueId: string | number;
+  targetProjectId: string;
+  targetIssueIid: string;
+  linkType: IssueRelation;
+};
+
 export interface CreateIssueResponse {
   data: IssueData;
 }
@@ -137,3 +157,20 @@ export interface IssueAutocomplete {
   };
   __typename: string;
 }
+
+export type RelatedIssue = {
+  id: number;
+  iid: number;
+  projectId: number;
+  title: string;
+  description: string;
+  state: string;
+  createdAt: string;
+  updatedAt: string;
+  closedAt: string;
+  closedBy: string;
+  linkType: IssueRelation;
+  author: User;
+};
+
+export type IssueWithRelated = Issue & { relatedIssues: RelatedIssue[] };

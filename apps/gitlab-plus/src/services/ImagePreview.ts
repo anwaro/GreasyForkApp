@@ -1,7 +1,7 @@
 import { Service } from '../types/Service';
-import ImagePreviewModal from '../components/ImagePreviewModal';
+import { ImagePreviewModal } from '../components/ImagePreviewModal';
 
-export default class ImagePreview implements Service {
+export class ImagePreview implements Service {
   private modal = new ImagePreviewModal();
 
   public init() {

@@ -4,7 +4,7 @@ import { IssueLinkType } from '../../../helpers/IssueLink';
 import { Milestone } from '../../../types/Milestone';
 import { Dom } from '@ui/Dom';
 
-export default class FormMilestone extends Dropdown<Milestone> {
+export class FormMilestone extends Dropdown<Milestone> {
   private milestones = new MilestonesProvider();
 
   constructor(private link: IssueLinkType) {

@@ -1,10 +1,10 @@
 import { Service } from '../types/Service';
-import IssuePreviewModal from '../components/IssuePreviewModal';
+import { IssuePreviewModal } from '../components/IssuePreviewModal';
 import { IssueLink } from '../helpers/IssueLink';
 import { IssueProvider } from '../providers/IssueProvider';
 import { Events } from '@ui/Events';
 
-export default class IssuePreview implements Service {
+export class IssuePreview implements Service {
   private modal = new IssuePreviewModal();
   private issue = new IssueProvider();
 
@@ -19,15 +19,18 @@ export default class IssuePreview implements Service {
   async onHover(event: HTMLElementEventMap['mouseenter']) {
     const anchor = event.target as HTMLAnchorElement;
     const link = IssueLink.parseLink(anchor.href);
-    if (link) {
-      anchor.title = '';
-      this.modal.show(event);
-      const issue = await this.issue.getIssue(link.projectPath, link.issue);
-      this.modal.updateContent(issue.data.project.issue);
-      setTimeout(() => {
-        this.modal.fixPosition();
-      }, 200);
+    if (!link) {
+      return;
     }
+    anchor.title = '';
+    this.modal.show(event);
+    const response = await this.issue.getIssue(link.projectPath, link.issue);
+    const relatedIssues = await this.issue.getIssueLinks(
+      response.data.project.id.replace(/\D/g, ''),
+      response.data.project.issue.iid
+    );
+    this.modal.updateContent({ ...response.data.project.issue, relatedIssues });
+    setTimeout(this.modal.fixPosition.bind(this.modal), 300);
   }
 
   onLeave() {

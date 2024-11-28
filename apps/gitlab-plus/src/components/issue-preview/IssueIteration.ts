@@ -1,8 +1,8 @@
-import IssueBlock from './IssueBlock';
+import { IssueBlock } from './IssueBlock';
 import { Issue } from '../../types/Issue';
 import { IconComponent } from '../common/IconComponent';
 
-export default class IssueIteration extends IssueBlock {
+export class IssueIteration extends IssueBlock {
   constructor(issue: Issue) {
     super(
       'Iteration',
@@ -12,13 +12,15 @@ export default class IssueIteration extends IssueBlock {
             {
               tag: 'span',
               children: IssueIteration.label(
-                issue.iteration.iterationCadence.title,
+                issue.iteration?.iterationCadence?.title,
                 issue.iteration.startDate,
                 issue.iteration.dueDate
               ),
             },
           ]
-        : ''
+        : '',
+      '',
+      !!issue.iteration
     );
   }
 

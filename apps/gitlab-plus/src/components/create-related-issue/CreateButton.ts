@@ -1,6 +1,6 @@
 import { Component } from '@ui/Component';
 
-export default class CreateButton extends Component<'button'> {
+export class CreateButton extends Component<'button'> {
   constructor() {
     super('button', {
       classes: 'btn btn-default btn-sm gl-button',

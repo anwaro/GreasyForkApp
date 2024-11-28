@@ -1,7 +1,7 @@
 import { Service } from '../types/Service';
 import { Cache } from '@store/Cache';
 
-export default class ClearCacheService implements Service {
+export class ClearCacheService implements Service {
   private cache = new Cache('glp-');
 
   public init() {

@@ -1,10 +1,10 @@
-import CreateRelatedIssueModalHeader from './create-related-issue/CreateRelatedIssueModalHeader';
-import CreateRelatedIssueModalContent from './create-related-issue/CreateRelatedIssueModalContent';
+import { CreateRelatedIssueModalHeader } from './create-related-issue/CreateRelatedIssueModalHeader';
+import { CreateRelatedIssueModalContent } from './create-related-issue/CreateRelatedIssueModalContent';
 import { IssueLink } from '../helpers/IssueLink';
 import { Component } from '@ui/Component';
 import { Dom } from '@ui/Dom';
 
-export default class CreateRelatedIssueModal extends Component<'div'> {
+export class CreateRelatedIssueModal extends Component<'div'> {
   private visibleClassName = 'glp-modal-visible';
 
   constructor() {

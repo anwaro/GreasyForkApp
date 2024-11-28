@@ -1,7 +1,7 @@
 import { Service } from '../types/Service';
-import RelatedIssuesAutocompleteModal from '../components/RelatedIssuesAutocompleteModal';
+import { RelatedIssuesAutocompleteModal } from '../components/RelatedIssuesAutocompleteModal';
 
-export default class RelatedIssueAutocomplete implements Service {
+export class RelatedIssueAutocomplete implements Service {
   private modal = new RelatedIssuesAutocompleteModal();
   private ready = false;
 

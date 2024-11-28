@@ -4,7 +4,7 @@ import { Project } from '../../../types/Project';
 import { IssueLinkType } from '../../../helpers/IssueLink';
 import { Dom } from '@ui/Dom';
 
-export default class FormProject extends Dropdown<Project> {
+export class FormProject extends Dropdown<Project> {
   private projects = new ProjectsProvider();
 
   constructor(private link: IssueLinkType) {

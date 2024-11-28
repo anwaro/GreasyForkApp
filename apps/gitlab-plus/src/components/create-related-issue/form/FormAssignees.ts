@@ -4,7 +4,7 @@ import { IssueLinkType } from '../../../helpers/IssueLink';
 import { User } from '../../../types/User';
 import { Dom } from '@ui/Dom';
 
-export default class FormAssignees extends Dropdown<User> {
+export class FormAssignees extends Dropdown<User> {
   private assignees = new UsersProvider();
 
   constructor(private link: IssueLinkType) {

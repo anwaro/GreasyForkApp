@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2024-11-27
+// @version      2024-11-28
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -18,7 +18,7 @@ var image_preview_default =
 
 // css:apps/gitlab-plus/src/styles/issue-preview.css
 var issue_preview_default =
-  "@keyframes loader-animation{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}.glp-issue-preview-modal{position:fixed;display:flex;padding:0 15px;background-color:var(--gl-background-color-default,var(--gl-color-neutral-0,#fff));border:1px solid var(--gl-border-color-default);border-radius:.25rem;width:300px;min-height:300px;z-index:99999;visibility:hidden;top:0;left:0;opacity:0;pointer-events:none;transition:all .3s ease-out;transition-property:visibility,opacity,transform;}.glp-issue-preview-modal.glp-modal-visible{visibility:visible;opacity:1;}.glp-issue-preview-modal .glp-issue-modal-inner{display:flex;flex-direction:column;max-width:100%;}.glp-issue-preview-modal .glp-block{padding:.5rem 0 .5rem;border-bottom-style:solid;border-bottom-color:var(--gl-border-color-subtle,var(--gl-color-neutral-50,#ececef));border-bottom-width:1px;width:100%;}.glp-issue-preview-modal .assignee-grid{margin-top:4px;gap:4px}.glp-modal-loader{position:absolute;width:40px;height:40px;transform:translate(-50%,-50%);left:50%;top:50%;}.glp-modal-loader.glp-modal-loader-inner{position:absolute;width:40px;height:40px;background-color:var(--gl-background-color-subtle,var(--gl-color-neutral-10,#fbfafd));animation:linear 1s infinite loader-animation;border-radius:50%;}.glp-modal-loader.glp-modal-loader-inner::after{content:'';position:absolute;background-color:#fff;border-radius:50%;top:5px;left:50%;width:5px;height:5px;transform:translateX(-50%);}";
+  '.glp-issue-preview-modal{position:fixed;display:flex;padding:0 15px;background-color:var(--gl-background-color-default,var(--gl-color-neutral-0,#fff));border:1px solid var(--gl-border-color-default);border-radius:.25rem;width:300px;min-height:300px;z-index:99999;visibility:hidden;top:0;left:0;opacity:0;pointer-events:none;transition:all .2s ease-out;transition-property:visibility,opacity,transform;}.glp-issue-preview-modal.glp-modal-visible{visibility:visible;opacity:1;}.glp-issue-preview-modal .glp-issue-modal-inner{display:flex;flex-direction:column;max-width:100%;}.glp-issue-preview-modal .glp-block{padding:.5rem 0 .5rem;border-bottom-style:solid;border-bottom-color:var(--gl-border-color-subtle,var(--gl-color-neutral-50,#ececef));border-bottom-width:1px;width:100%;}.glp-issue-preview-modal .assignee-grid{margin-top:4px;gap:4px}';
 
 // libs/share/src/ui/GlobalStyle.ts
 var GlobalStyle = class {
@@ -255,22 +255,9 @@ var Component = class {
   }
 };
 
-// apps/gitlab-plus/src/components/issue-preview/IssueLoader.ts
-var IssueLoader = class extends Component {
-  constructor() {
-    super('div', {
-      classes: 'glp-modal-loader',
-      children: {
-        tag: 'div',
-        classes: 'glp-modal-loader-inner',
-      },
-    });
-  }
-};
-
 // apps/gitlab-plus/src/components/issue-preview/IssueBlock.ts
 var IssueBlock = class extends Component {
-  constructor(title = '', content, classes = '') {
+  constructor(title = '', content, classes = '', shouldRender = true) {
     super('div', {
       classes: 'glp-block',
       children: [
@@ -287,6 +274,7 @@ var IssueBlock = class extends Component {
         },
       ],
     });
+    this.shouldRender = shouldRender;
   }
 };
 
@@ -376,6 +364,10 @@ var UserComponent = class extends Component {
           tag: 'span',
           classes: 'gl-ml-3',
           children: user.name,
+          styles: {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          },
         },
       ],
     });
@@ -390,7 +382,8 @@ var IssueAssignee = class extends IssueBlock {
       issue.assignees.nodes.map((assignee) =>
         new UserComponent(assignee).getElement()
       ),
-      'gl-flex gl-flex-col gl-gap-3'
+      'gl-flex gl-flex-col gl-gap-3',
+      !!issue.assignees.nodes.length
     );
   }
 };
@@ -475,7 +468,9 @@ var IssueLabels = class extends IssueBlock {
         tag: 'div',
         classes: 'issuable-show-labels',
         children: issue.labels.nodes.map((label) => new LabelComponent(label)),
-      })
+      }),
+      '',
+      !!issue.labels.nodes.length
     );
   }
 };
@@ -490,7 +485,9 @@ var IssueMilestone = class extends IssueBlock {
             new IconComponent('milestone', 's16', 'gl-mr-2'),
             { tag: 'span', children: issue.milestone.title },
           ]
-        : ''
+        : '',
+      '',
+      !!issue.milestone
     );
   }
 };
@@ -506,13 +503,15 @@ var IssueIteration = class _IssueIteration extends IssueBlock {
             {
               tag: 'span',
               children: _IssueIteration.label(
-                issue.iteration.iterationCadence.title,
+                issue.iteration?.iterationCadence?.title,
                 issue.iteration.startDate,
                 issue.iteration.dueDate
               ),
             },
           ]
-        : ''
+        : '',
+      '',
+      !!issue.iteration
     );
   }
 
@@ -581,8 +580,77 @@ var IssueMergeRequests = class extends IssueBlock {
       'Merge requests',
       issue.relatedMergeRequests.nodes.map((mr) =>
         new MergeRequestComponent(mr).getElement()
-      )
+      ),
+      '',
+      !!issue.relatedMergeRequests.nodes.length
     );
+  }
+};
+
+// apps/gitlab-plus/src/components/issue-preview/IssueRelatedIssue.ts
+var relationMap = {
+  relates_to: 'Related to:',
+  blocks: 'Blocks:',
+  is_blocked_by: 'Is blocked by:',
+};
+var IssueRelatedIssue = class _IssueRelatedIssue extends IssueBlock {
+  constructor(issue) {
+    super(
+      '',
+      _IssueRelatedIssue.content(issue.relatedIssues),
+      '',
+      !!issue.relatedIssues.length
+    );
+  }
+
+  static content(issues) {
+    const groups = issues.reduce(
+      (acc, issue) => ({
+        ...acc,
+        [issue.linkType]: [...acc[issue.linkType], issue],
+      }),
+      {
+        relates_to: [],
+        blocks: [],
+        is_blocked_by: [],
+      }
+    );
+    return Object.entries(groups)
+      .filter(([_, issues2]) => issues2.length)
+      .map(([key, issues2]) =>
+        _IssueRelatedIssue.group(relationMap[key], issues2)
+      );
+  }
+
+  static group(title, issues) {
+    return Dom.create({
+      tag: 'div',
+      styles: {
+        marginTop: '10px',
+      },
+      classes: `item-body `,
+      children: [
+        {
+          tag: 'div',
+          classes: 'item-title gl-flex gl-min-w-0 gl-gap-3',
+          children: {
+            tag: 'span',
+            children: title,
+          },
+        },
+        ...issues.map((issue) =>
+          Dom.create({
+            tag: 'div',
+            classes: 'item-title sortable-link',
+            styles: {
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            },
+            children: `#${issue.iid} ${issue.title}`,
+          })
+        ),
+      ],
+    });
   }
 };
 
@@ -600,36 +668,70 @@ var IssueModalContent = class extends Component {
       IssueMilestone,
       IssueIteration,
       IssueMergeRequests,
+      IssueRelatedIssue,
     ];
     this.element.replaceChildren(
-      ...components.map((Component2) => new Component2(issue).getElement())
+      ...components
+        .map((IssueComponent) => new IssueComponent(issue))
+        .filter((block) => block.shouldRender)
+        .map((block) => block.getElement())
     );
   }
 };
 
+// apps/gitlab-plus/src/components/common/GitlabLoader.ts
+var GitlabLoader = class extends Component {
+  constructor(size = '1em') {
+    super('span', {
+      classes: 'gl-spinner-container',
+      attrs: {
+        role: 'status',
+      },
+      children: {
+        tag: 'span',
+        classes:
+          'gl-spinner gl-spinner-sm gl-spinner-dark !gl-align-text-bottom',
+        styles: {
+          width: size,
+          height: size,
+        },
+      },
+    });
+  }
+};
+
 // apps/gitlab-plus/src/components/IssuePreviewModal.ts
-var IssuePreviewModal = class extends Component {
+var IssuePreviewModal = class _IssuePreviewModal extends Component {
   constructor() {
-    super('div', { classes: 'glp-issue-preview-modal' });
-    this.loader = new IssueLoader();
+    super('div', {
+      classes: 'glp-issue-preview-modal',
+      children: _IssuePreviewModal.loader(),
+    });
     this.content = new IssueModalContent();
     this.visibleClassName = 'glp-modal-visible';
     this.mount(document.body);
   }
 
+  static loader() {
+    return Dom.create({
+      tag: 'div',
+      classes: 'gl-flex gl-flex-1 gl-items-center gl-justify-center',
+      children: new GitlabLoader('2em'),
+    });
+  }
+
   show(event) {
-    this.element.appendChild(this.loader.getElement());
     Dom.applyStyles(this.element, {
-      left: `${event.pageX + 10}px`,
-      top: `${event.pageY + 10}px`,
+      left: `${event.clientX + 10}px`,
+      top: `${event.clientY + 10}px`,
       transform: 'translateY(0px)',
     });
     this.element.classList.add(this.visibleClassName);
   }
 
   fixPosition() {
-    const { height, top } = this.element.getBoundingClientRect();
-    const dY = height + top - window.innerHeight;
+    const rect = this.element.getBoundingClientRect();
+    const dY = rect.height + rect.top - window.innerHeight;
     if (dY > 0) {
       this.element.style.transform = `translateY(-${dY + 15}px)`;
     }
@@ -637,7 +739,10 @@ var IssuePreviewModal = class extends Component {
 
   hide() {
     this.element.classList.remove(this.visibleClassName);
-    this.element.replaceChildren();
+    this.element.replaceChildren(_IssuePreviewModal.loader());
+    Dom.applyStyles(this.element, {
+      transform: 'translateY(0px)',
+    });
   }
 
   updateContent(issue) {
@@ -738,12 +843,44 @@ var Cache = class {
   }
 };
 
+// libs/share/src/utils/camelizeKeys.ts
+function camelizeKeys(data) {
+  if (!data || ['string', 'number', 'boolean'].includes(typeof data)) {
+    return data;
+  }
+  if (Array.isArray(data)) {
+    return data.map(camelizeKeys);
+  }
+  const camelize = (key) => {
+    const _key = key.replace(/[\-_\s]+(.)?/g, (_, chr) =>
+      chr ? chr.toUpperCase() : ''
+    );
+    return _key.substring(0, 1).toLowerCase() + _key.substring(1);
+  };
+  return Object.entries(data).reduce(
+    (result, [key, value]) => ({
+      ...result,
+      [camelize(key)]: camelizeKeys(value),
+    }),
+    {}
+  );
+}
+
 // apps/gitlab-plus/src/providers/GitlabProvider.ts
 var GitlabProvider = class {
   constructor() {
-    this.cache = new Cache('gpl-');
+    this.cache = new Cache('glp-');
     this.url = 'https://gitlab.com/api/v4/';
     this.graphqlApi = 'https://gitlab.com/api/graphql';
+  }
+
+  async get(path) {
+    const response = await fetch(`${this.url}${path}`, {
+      method: 'GET',
+      headers: this.headers(),
+    });
+    const data = await response.json();
+    return camelizeKeys(data);
   }
 
   async post(path, body) {
@@ -752,7 +889,8 @@ var GitlabProvider = class {
       body: JSON.stringify(body),
       headers: this.headers(),
     });
-    return response.json();
+    const data = await response.json();
+    return camelizeKeys(data);
   }
 
   async query(query, variables) {
@@ -765,11 +903,19 @@ var GitlabProvider = class {
   }
 
   async queryCached(key, query, variables, minutes) {
+    return this.cached(key, () => this.query(query, variables), minutes);
+  }
+
+  async getCached(key, path, minutes) {
+    return this.cached(key, () => this.get(path), minutes);
+  }
+
+  async cached(key, getValue, minutes) {
     const cacheValue = this.cache.get(key);
     if (cacheValue) {
       return cacheValue;
     }
-    const value = await this.query(query, variables);
+    const value = await getValue();
     this.cache.set(key, value, minutes);
     return value;
   }
@@ -1140,6 +1286,13 @@ var IssueProvider = class extends GitlabProvider {
       .replace(':LINK_TYPE', input.linkType);
     return await this.post(path, {});
   }
+
+  async getIssueLinks(projectId, issueId) {
+    const path = 'projects/:PROJECT_ID/issues/:ISSUE_ID/links'
+      .replace(':PROJECT_ID', `${projectId}`)
+      .replace(':ISSUE_ID', `${issueId}`);
+    return await this.getCached(`issue-${projectId}-${issueId}-links`, path, 2);
+  }
 };
 
 // libs/share/src/ui/Events.ts
@@ -1191,15 +1344,18 @@ var IssuePreview = class {
   async onHover(event) {
     const anchor = event.target;
     const link = IssueLink.parseLink(anchor.href);
-    if (link) {
-      anchor.title = '';
-      this.modal.show(event);
-      const issue = await this.issue.getIssue(link.projectPath, link.issue);
-      this.modal.updateContent(issue.data.project.issue);
-      setTimeout(() => {
-        this.modal.fixPosition();
-      }, 200);
+    if (!link) {
+      return;
     }
+    anchor.title = '';
+    this.modal.show(event);
+    const response = await this.issue.getIssue(link.projectPath, link.issue);
+    const relatedIssues = await this.issue.getIssueLinks(
+      response.data.project.id.replace(/\D/g, ''),
+      response.data.project.issue.iid
+    );
+    this.modal.updateContent({ ...response.data.project.issue, relatedIssues });
+    setTimeout(this.modal.fixPosition.bind(this.modal), 300);
   }
 
   onLeave() {
@@ -2597,6 +2753,137 @@ var ClearCacheService = class {
   }
 };
 
+// libs/share/src/ui/Observer.ts
+var Observer = class {
+  stop() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
+  start(element, callback, options) {
+    this.stop();
+    this.observer = new MutationObserver(callback);
+    this.observer.observe(
+      element,
+      options || {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        characterData: true,
+        attributeOldValue: true,
+        characterDataOldValue: true,
+      }
+    );
+  }
+};
+
+// apps/gitlab-plus/src/services/SortIssue.ts
+var sortWeight = {
+  ['ownIssue' /* ownIssue */]: 10,
+  ['ownUserStory' /* ownUserStory */]: 8,
+  ['userStory' /* userStory */]: 6,
+  ['issue' /* issue */]: 4,
+  ['unknown' /* unknown */]: 2,
+  ['label' /* label */]: 0,
+};
+var SortIssue = class {
+  init() {
+    const observer = new Observer();
+    const userName = this.userName();
+    const board = document.querySelector('.boards-list');
+    if (!userName || !board) {
+      return;
+    }
+    observer.start(board, () => this.run(userName));
+  }
+
+  run(userName) {
+    [...document.querySelectorAll('.board-list:not(.glp-ready)')].forEach(
+      (board) => this.initBoard(board, userName)
+    );
+  }
+
+  initBoard(board, userName) {
+    Dom.applyClass(board, 'glp-ready');
+    const observer = new Observer();
+    observer.start(board, () => this.sortBoard(board, userName), {
+      childList: true,
+    });
+  }
+
+  sortBoard(board, userName) {
+    Dom.applyStyles(board, {
+      flexDirection: 'column',
+      display: 'flex',
+    });
+    const children = [...board.children].map((element) => ({
+      element,
+      type: this.childType(element, userName),
+    }));
+    if (!this.shouldSort(children)) {
+      return;
+    }
+    this.sortChildren(children).forEach(({ element }, index) => {
+      const order =
+        index !== children.length - 1 ? index + 1 : children.length + 100;
+      element.style.order = `${order}`;
+    });
+  }
+
+  childType(child, userName) {
+    if (child instanceof HTMLDivElement) {
+      return 'label' /* label */;
+    }
+    const title = child.querySelector('[data-testid="board-card-title-link"]');
+    if (!title) {
+      return 'unknown' /* unknown */;
+    }
+    const isOwn = [...child.querySelectorAll('.gl-avatar-link img')].some(
+      (img) => img.alt.includes(userName)
+    );
+    const isUserStory = [...child.querySelectorAll('.gl-label')].some((span) =>
+      span.innerText.includes('User Story')
+    );
+    if (isUserStory && isOwn) {
+      return 'ownUserStory' /* ownUserStory */;
+    }
+    if (isOwn) {
+      return 'ownIssue' /* ownIssue */;
+    }
+    if (isUserStory) {
+      return 'userStory' /* userStory */;
+    }
+    return 'issue' /* issue */;
+  }
+
+  userName() {
+    const element = document.querySelector(
+      '.user-bar-dropdown-toggle .gl-button-text .gl-sr-only'
+    );
+    const testText = ' user\u2019s menu';
+    if (element && element.innerText.includes(testText)) {
+      return element.innerText.replace(testText, '');
+    }
+    return void 0;
+  }
+
+  sortChildren(items) {
+    return items.toSorted((a, b) => {
+      return Math.sign(sortWeight[b.type] - sortWeight[a.type]);
+    });
+  }
+
+  shouldSort(items) {
+    return items.some((item) => {
+      return [
+        'ownIssue' /* ownIssue */,
+        'ownUserStory' /* ownUserStory */,
+      ].includes(item.type);
+    });
+  }
+};
+
 // apps/gitlab-plus/src/main.ts
 [
   ClearCacheService,
@@ -2604,5 +2891,5 @@ var ClearCacheService = class {
   IssuePreview,
   CreateRelatedIssue,
   RelatedIssueAutocomplete,
-  // SortIssue,
+  SortIssue,
 ].forEach((Service) => new Service().init());

@@ -10,10 +10,9 @@ export default abstract class Dropdown<D extends DropdownItem> extends Field {
   protected value: D[] = [];
   protected items: D[] = [];
   protected recently: D[] = [];
+  protected extra = Dom.element('div');
   private recent: RecentProvider<D>;
   private searchTerm: string;
-
-  protected extra = Dom.element('div');
   private button: DropdownButton<D>;
   private modal: DropdownModal;
   private search: DropdownSearch;

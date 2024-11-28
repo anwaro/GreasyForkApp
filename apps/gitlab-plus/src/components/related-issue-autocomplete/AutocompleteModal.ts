@@ -3,7 +3,7 @@ import { DropdownSearch } from '../common/form/DropdownSearch';
 import { DropdownModal } from '../common/form/DropdownModal';
 import { Component } from '@ui/Component';
 
-export default class AutocompleteModal<
+export class AutocompleteModal<
   D extends DropdownItem
 > extends Component<'div'> {
   private list: DropdownList<D>;

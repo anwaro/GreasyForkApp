@@ -1,10 +1,10 @@
 import './styles';
-import IssuePreview from './services/IssuePreview';
-import ImagePreview from './services/ImagePreview';
+import { IssuePreview } from './services/IssuePreview';
+import { ImagePreview } from './services/ImagePreview';
 import { CreateRelatedIssue } from './services/CreateRelatedIssue';
-import RelatedIssueAutocomplete from './services/RelatedIssueAutocomplete';
-import ClearCacheService from './services/ClearCacheService';
-// import { SortIssue } from './services/SortIssue';
+import { RelatedIssueAutocomplete } from './services/RelatedIssueAutocomplete';
+import { ClearCacheService } from './services/ClearCacheService';
+import { SortIssue } from './services/SortIssue';
 
 [
   ClearCacheService,
@@ -12,5 +12,5 @@ import ClearCacheService from './services/ClearCacheService';
   IssuePreview,
   CreateRelatedIssue,
   RelatedIssueAutocomplete,
-  // SortIssue,
+  SortIssue,
 ].forEach((Service) => new Service().init());

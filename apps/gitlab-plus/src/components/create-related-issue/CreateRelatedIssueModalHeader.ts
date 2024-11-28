@@ -1,7 +1,7 @@
 import { CloseButton } from '../common/CloseButton';
 import { Component } from '@ui/Component';
 
-export default class CreateRelatedIssueModalHeader extends Component<'div'> {
+export class CreateRelatedIssueModalHeader extends Component<'div'> {
   constructor(onClose: () => void) {
     super('div', {
       classes:
