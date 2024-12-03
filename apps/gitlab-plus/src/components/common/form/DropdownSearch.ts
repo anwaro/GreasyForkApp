@@ -7,7 +7,10 @@ import { debounce } from '@utils/debounce';
 export class DropdownSearch extends Component<'div'> {
   private readonly input: HTMLInputElement;
 
-  constructor(private onChange: (value: string) => void) {
+  constructor(
+    private onChange: (value: string) => void,
+    private navigate: (value: string) => void
+  ) {
     super('div', {
       classes: 'gl-border-b-1 gl-border-b-solid gl-border-b-dropdown',
     });
@@ -44,7 +47,16 @@ export class DropdownSearch extends Component<'div'> {
       classes: 'gl-listbox-search-input',
       events: {
         input: () => search(this.input.value),
+        keydown: (e: KeyboardEvent) => this.navigate(e.key),
       },
     });
+  }
+
+  reset() {
+    this.input.value = '';
+  }
+
+  focus() {
+    this.input.focus();
   }
 }

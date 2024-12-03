@@ -58,10 +58,14 @@ export class FormAssignees extends Dropdown<User> {
     });
   }
 
-  renderLabel([item]: User[]) {
+  renderLabel(items: User[]) {
+    const label = items.map((i) => i.name).join(', ');
     return Dom.create({
       tag: 'div',
-      children: item ? item.name : 'Select assignee',
+      attrs: {
+        title: label,
+      },
+      children: items.length ? label : 'Select assignee',
     });
   }
 

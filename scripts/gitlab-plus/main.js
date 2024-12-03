@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2024-11-28
+// @version      2024-12-03
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -10,7 +10,7 @@
 
 // css:apps/gitlab-plus/src/styles/create-related-issue.css
 var create_related_issue_default =
-  '.glp-create-related-issue-layer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;display:none;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;}.glp-create-related-issue-layer.glp-modal-visible{display:flex;}.glp-create-related-issue-layer .glp-create-related-issue-modal{width:700px;max-width:95vw;}';
+  '.glp-create-related-issue-layer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;display:none;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;}.glp-create-related-issue-layer.glp-modal-visible{display:flex;}.glp-create-related-issue-layer .glp-create-related-issue-modal{width:700px;max-width:95vw;}.gl-new-dropdown-item .glp-item-check{opacity:0;}.gl-new-dropdown-item.glp-active .gl-new-dropdown-item-content{box-shadow:inset 0 0 0 2px var(--gl-focus-ring-outer-color),inset 0 0 0 3px var(--gl-focus-ring-inner-color),inset 0 0 0 1px var(--gl-focus-ring-inner-color);background-color:var(--gl-dropdown-option-background-color-unselected-hover);outline:none;}.gl-new-dropdown-item.glp-selected .glp-item-check{opacity:1;}';
 
 // css:apps/gitlab-plus/src/styles/image-preview.css
 var image_preview_default =
@@ -1532,11 +1532,12 @@ function debounce(callback, wait = 300) {
 
 // apps/gitlab-plus/src/components/common/form/DropdownSearch.ts
 var DropdownSearch = class extends Component {
-  constructor(onChange) {
+  constructor(onChange, navigate) {
     super('div', {
       classes: 'gl-border-b-1 gl-border-b-solid gl-border-b-dropdown',
     });
     this.onChange = onChange;
+    this.navigate = navigate;
     this.input = this.getSearchInput();
     this.element.append(this.getSearch());
   }
@@ -1568,10 +1569,26 @@ var DropdownSearch = class extends Component {
       classes: 'gl-listbox-search-input',
       events: {
         input: () => search(this.input.value),
+        keydown: (e) => this.navigate(e.key),
       },
     });
   }
+
+  reset() {
+    this.input.value = '';
+  }
+
+  focus() {
+    this.input.focus();
+  }
 };
+
+// libs/share/src/utils/id.ts
+function randomId(length = 5, prefix = '') {
+  const rand = () => (Math.random() + 1).toString(36).replace(/[\d.]/g, '');
+  const chars = new Array(Math.ceil(length / 4)).fill(0).map(rand).join('');
+  return `${prefix}${chars.substring(0, length)}`;
+}
 
 // apps/gitlab-plus/src/components/common/form/DropdownList.ts
 var DropdownList = class extends Component {
@@ -1583,7 +1600,8 @@ var DropdownList = class extends Component {
     this.renderItem = renderItem;
     this.onClick = onClick;
     this.removeFromRecent = removeFromRecent;
-    this.list = Dom.element('ul', 'gl-mb-0 gl-pl-0');
+    this.id = randomId(5, 'glp-list-');
+    this.list = Dom.element('ul', `gl-mb-0 gl-pl-0 ${this.id}`);
     this.element.append(this.list);
   }
 
@@ -1599,7 +1617,7 @@ var DropdownList = class extends Component {
         })
       );
       this.list.append(
-        ...recently.map((item) => this.listItem(item, selected, true))
+        ...recently.map((item, i) => this.listItem(item, selected, i, true))
       );
     }
     if (items.length) {
@@ -1610,7 +1628,11 @@ var DropdownList = class extends Component {
             'gl-pb-2 gl-pl-4 gl-pt-3 gl-text-sm gl-font-bold gl-text-strong gl-border-t',
         })
       );
-      this.list.append(...items.map((item) => this.listItem(item, selected)));
+      this.list.append(
+        ...items.map((item, i) =>
+          this.listItem(item, selected, recently.length + i)
+        )
+      );
     }
     if (items.length + recently.length === 0) {
       this.list.append(
@@ -1623,18 +1645,59 @@ var DropdownList = class extends Component {
     }
   }
 
-  listItem(item, selected, removeItem = false) {
+  updateActive(index) {
+    const activeClass = `glp-active`;
+    const itemClass = `glp-item-${index}`;
+    const prevActiveItem = document.querySelector(
+      `.${this.id} .${activeClass}`
+    );
+    if (prevActiveItem && !prevActiveItem.classList.contains(itemClass)) {
+      prevActiveItem.classList.remove(activeClass);
+    }
+    const selectedItem = document.querySelector(`.${this.id} .${itemClass}`);
+    if (selectedItem && !selectedItem.classList.contains(activeClass)) {
+      selectedItem.classList.add(activeClass);
+      selectedItem.scrollIntoView({ block: 'center' });
+    }
+  }
+
+  updateSelected(selected) {
+    const selectedIds = selected.map((i) => i.id);
+    const selectedClass = `glp-selected`;
+    const items = document.querySelectorAll(
+      `.${this.id} .gl-new-dropdown-item`
+    );
+    items.forEach((item) => {
+      const id = item.dataset.id;
+      if (selectedIds.includes(id)) {
+        item.classList.add(selectedClass);
+      } else {
+        item.classList.remove(selectedClass);
+      }
+    });
+  }
+
+  listItem(item, selected, index, removeItem = false) {
+    const selectedIds = selected.map((i) => i.id);
+    const selectedClass = selectedIds.includes(item.id) ? 'glp-selected' : '';
     return Dom.create({
       tag: 'li',
-      classes: 'gl-new-dropdown-item',
+      classes: `gl-new-dropdown-item ${selectedClass} glp-item-${index}`,
       events: {
         click: () => this.onClick(item),
+      },
+      attrs: {
+        'data-id': item.id,
       },
       children: {
         tag: 'span',
         classes: 'gl-new-dropdown-item-content',
         children: [
-          this.renderCheck(item, selected),
+          new IconComponent(
+            'mobile-issue-close',
+            's16',
+            'glp-item-check gl-pr-2'
+          ),
           this.renderItem(item),
           ...(removeItem ? [this.renderRemove(item)] : []),
         ],
@@ -1642,19 +1705,13 @@ var DropdownList = class extends Component {
     });
   }
 
-  renderCheck(item, selected) {
-    const selectedIds = selected.map((i) => i.id);
-    return new IconComponent(
-      selectedIds.includes(item.id) ? 'mobile-issue-close' : ''
-    );
-  }
-
   renderRemove(item) {
-    return new CloseButton((e) => {
+    const onClose = (e) => {
       e.preventDefault();
       e.stopPropagation();
       this.removeFromRecent && this.removeFromRecent(item);
-    }, 'Remove from recently used');
+    };
+    return new CloseButton(onClose, 'Remove from recently used');
   }
 };
 
@@ -1784,8 +1841,12 @@ var Dropdown = class extends Field {
     this.items = [];
     this.recently = [];
     this.extra = Dom.element('div');
+    this.selectedIndex = -1;
     this.recent = new RecentProvider(key);
-    this.search = new DropdownSearch(this.load.bind(this));
+    this.search = new DropdownSearch(
+      this.load.bind(this),
+      this.navigate.bind(this)
+    );
     this.list = new DropdownList(
       this.renderItem.bind(this),
       this.onSelect.bind(this),
@@ -1797,7 +1858,13 @@ var Dropdown = class extends Field {
     );
     this.button = new DropdownButton(
       this.renderLabel.bind(this),
-      this.modal.setVisible.bind(this.modal),
+      (visible) => {
+        if (visible) {
+          this.showList();
+        } else {
+          this.closeList();
+        }
+      },
       this.reset.bind(this)
     );
     container.append(
@@ -1822,20 +1889,22 @@ var Dropdown = class extends Field {
       } else {
         this.value.push(item);
       }
+      this.search.focus();
     } else {
       this.value = [item];
-      this.modal.setVisible(false);
+      this.closeList();
     }
     this.button.render(this.value);
-    this.render();
+    this.list.updateSelected(this.value);
     this.onChange();
   }
 
   reset() {
+    this.searchTerm = '';
     this.value = [];
     this.button.render(this.value);
-    this.render();
-    this.onChange();
+    this.search.reset();
+    this.load(this.searchTerm);
   }
 
   persistRecent() {
@@ -1852,7 +1921,18 @@ var Dropdown = class extends Field {
     return this.value;
   }
 
-  render() {
+  showList() {
+    this.modal.setVisible(true);
+    this.search.focus();
+  }
+
+  closeList() {
+    this.modal.setVisible(false);
+    this.search.reset();
+    this.load('');
+  }
+
+  itemsToRender() {
     const recent = this.recent.get();
     const recentlyIds = recent.map((i) => i.id);
     const itemsIds = this.items.map((i) => i.id);
@@ -1860,7 +1940,34 @@ var Dropdown = class extends Field {
     const recentItemsToRender = this.searchTerm.length
       ? recent.filter((i) => itemsIds.includes(i.id))
       : recent;
-    this.list.render(itemsToRender, recentItemsToRender, this.value);
+    return {
+      items: itemsToRender,
+      recent: recentItemsToRender,
+    };
+  }
+
+  navigate(key) {
+    if (['ArrowDown', 'ArrowUp'].includes(key)) {
+      const { recent, items } = this.itemsToRender();
+      const total = recent.length + items.length;
+      const diff = key === 'ArrowDown' ? 1 : -1;
+      this.selectedIndex = (this.selectedIndex + diff + total) % total;
+      this.list.updateActive(this.selectedIndex);
+    } else if (key === 'Enter') {
+      const { recent, items } = this.itemsToRender();
+      const allItems = [...recent, ...items];
+      if (-1 < this.selectedIndex && this.selectedIndex < allItems.length) {
+        this.onSelect(allItems[this.selectedIndex]);
+      }
+    } else if (key === 'Escape') {
+      this.closeList();
+    }
+  }
+
+  render() {
+    const { recent, items } = this.itemsToRender();
+    this.list.render(items, recent, this.value);
+    this.list.updateActive(this.selectedIndex);
   }
 };
 
@@ -2332,10 +2439,14 @@ var FormAssignees = class extends Dropdown {
     });
   }
 
-  renderLabel([item]) {
+  renderLabel(items) {
+    const label = items.map((i) => i.name).join(', ');
     return Dom.create({
       tag: 'div',
-      children: item ? item.name : 'Select assignee',
+      attrs: {
+        title: label,
+      },
+      children: items.length ? label : 'Select assignee',
     });
   }
 
@@ -2604,7 +2715,7 @@ var AutocompleteModal = class extends Component {
     super('div', {
       classes: 'gl-relative gl-w-full gl-new-dropdown !gl-block',
     });
-    const modalSearch = new DropdownSearch(search);
+    const modalSearch = new DropdownSearch(search, () => {});
     this.list = new DropdownList(renderItem, onSelect);
     this.modal = new DropdownModal(
       modalSearch.getElement(),

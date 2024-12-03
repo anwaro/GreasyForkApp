@@ -17,6 +17,7 @@ export default abstract class Dropdown<D extends DropdownItem> extends Field {
   private modal: DropdownModal;
   private search: DropdownSearch;
   private list: DropdownList<D>;
+  private selectedIndex = -1;
 
   constructor(title: string, key: string, private isMultiselect = false) {
     const container = Dom.element(
@@ -25,7 +26,10 @@ export default abstract class Dropdown<D extends DropdownItem> extends Field {
     );
     super(title, container);
     this.recent = new RecentProvider<D>(key);
-    this.search = new DropdownSearch(this.load.bind(this));
+    this.search = new DropdownSearch(
+      this.load.bind(this),
+      this.navigate.bind(this)
+    );
     this.list = new DropdownList(
       this.renderItem.bind(this),
       this.onSelect.bind(this),
@@ -38,7 +42,13 @@ export default abstract class Dropdown<D extends DropdownItem> extends Field {
 
     this.button = new DropdownButton(
       this.renderLabel.bind(this),
-      this.modal.setVisible.bind(this.modal),
+      (visible: boolean) => {
+        if (visible) {
+          this.showList();
+        } else {
+          this.closeList();
+        }
+      },
       this.reset.bind(this)
     );
 
@@ -73,20 +83,22 @@ export default abstract class Dropdown<D extends DropdownItem> extends Field {
       } else {
         this.value.push(item);
       }
+      this.search.focus();
     } else {
       this.value = [item];
-      this.modal.setVisible(false);
+      this.closeList();
     }
     this.button.render(this.value);
-    this.render();
+    this.list.updateSelected(this.value);
     this.onChange();
   }
 
   reset() {
+    this.searchTerm = '';
     this.value = [];
     this.button.render(this.value);
-    this.render();
-    this.onChange();
+    this.search.reset();
+    this.load(this.searchTerm);
   }
 
   persistRecent() {
@@ -103,7 +115,18 @@ export default abstract class Dropdown<D extends DropdownItem> extends Field {
     return this.value;
   }
 
-  private render() {
+  private showList() {
+    this.modal.setVisible(true);
+    this.search.focus();
+  }
+
+  private closeList() {
+    this.modal.setVisible(false);
+    this.search.reset();
+    this.load('');
+  }
+
+  private itemsToRender() {
     const recent = this.recent.get();
     const recentlyIds = recent.map((i) => i.id);
     const itemsIds = this.items.map((i) => i.id);
@@ -112,6 +135,35 @@ export default abstract class Dropdown<D extends DropdownItem> extends Field {
     const recentItemsToRender = this.searchTerm.length
       ? recent.filter((i) => itemsIds.includes(i.id))
       : recent;
-    this.list.render(itemsToRender, recentItemsToRender, this.value);
+
+    return {
+      items: itemsToRender,
+      recent: recentItemsToRender,
+    };
+  }
+
+  private navigate(key: string) {
+    if (['ArrowDown', 'ArrowUp'].includes(key)) {
+      const { recent, items } = this.itemsToRender();
+      const total = recent.length + items.length;
+      const diff = key === 'ArrowDown' ? 1 : -1;
+      this.selectedIndex = (this.selectedIndex + diff + total) % total;
+      this.list.updateActive(this.selectedIndex);
+    } else if (key === 'Enter') {
+      const { recent, items } = this.itemsToRender();
+      const allItems = [...recent, ...items];
+      if (-1 < this.selectedIndex && this.selectedIndex < allItems.length) {
+        this.onSelect(allItems[this.selectedIndex]);
+      }
+    } else if (key === 'Escape') {
+      this.closeList();
+    }
+  }
+
+  private render() {
+    const { recent, items } = this.itemsToRender();
+
+    this.list.render(items, recent, this.value);
+    this.list.updateActive(this.selectedIndex);
   }
 }

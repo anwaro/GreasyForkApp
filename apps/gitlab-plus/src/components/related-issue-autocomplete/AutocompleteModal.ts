@@ -18,7 +18,7 @@ export class AutocompleteModal<
       classes: 'gl-relative gl-w-full gl-new-dropdown !gl-block',
     });
 
-    const modalSearch = new DropdownSearch(search);
+    const modalSearch = new DropdownSearch(search, () => {});
     this.list = new DropdownList(renderItem, onSelect);
     this.modal = new DropdownModal(
       modalSearch.getElement(),
