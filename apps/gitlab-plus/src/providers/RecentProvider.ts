@@ -5,8 +5,8 @@ type Item = {
 };
 
 export class RecentProvider<T extends Item> {
-  private cache = new Cache('glp-');
-  private readonly key: string;
+  cache = new Cache('glp-');
+  readonly key: string;
 
   constructor(key: string) {
     this.key = `recent-${key}`;

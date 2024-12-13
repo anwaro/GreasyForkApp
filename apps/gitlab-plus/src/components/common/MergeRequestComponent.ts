@@ -1,6 +1,6 @@
 import { IconComponent, IconNames } from './IconComponent';
 import { MergeRequest } from '../../types/Issue';
-import { UserComponent } from './UserComponent';
+import { _UserComponent } from './UserComponent';
 import { Component } from '@ui/Component';
 
 const iconMap: Record<MergeRequest['state'], IconNames> = {
@@ -33,7 +33,7 @@ export class MergeRequestComponent extends Component<'div'> {
               classes: 'gl-text-gray-500',
               children: `!${mr.iid}`,
             },
-            new UserComponent(mr.author, 's16'),
+            new _UserComponent(mr.author, 's16'),
           ],
         },
         {

@@ -1,12 +1,13 @@
-import { Service } from '../types/Service';
+import { Events } from '@ui/Events';
+
 import { IssuePreviewModal } from '../components/IssuePreviewModal';
 import { IssueLink } from '../helpers/IssueLink';
 import { IssueProvider } from '../providers/IssueProvider';
-import { Events } from '@ui/Events';
+import { Service } from '../types/Service';
 
-export class IssuePreview implements Service {
-  private modal = new IssuePreviewModal();
+export class IssuePreview extends Service {
   private issue = new IssueProvider();
+  private modal = new IssuePreviewModal();
 
   public init() {
     Events.intendHover<HTMLAnchorElement>(

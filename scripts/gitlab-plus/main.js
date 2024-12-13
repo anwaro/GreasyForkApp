@@ -1,75 +1,66 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2024-12-03
+// @version      2024-12-05
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
-// @icon         https://www.google.com/s2/favicons?sz=64&gitlab.com/
+// @icon         https://www.google.com/s2/favicons?sz=64&gitlab.com
 // ==/UserScript==
 
-// css:apps/gitlab-plus/src/styles/create-related-issue.css
-var create_related_issue_default =
-  '.glp-create-related-issue-layer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;display:none;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;}.glp-create-related-issue-layer.glp-modal-visible{display:flex;}.glp-create-related-issue-layer .glp-create-related-issue-modal{width:700px;max-width:95vw;}.gl-new-dropdown-item .glp-item-check{opacity:0;}.gl-new-dropdown-item.glp-active .gl-new-dropdown-item-content{box-shadow:inset 0 0 0 2px var(--gl-focus-ring-outer-color),inset 0 0 0 3px var(--gl-focus-ring-inner-color),inset 0 0 0 1px var(--gl-focus-ring-inner-color);background-color:var(--gl-dropdown-option-background-color-unselected-hover);outline:none;}.gl-new-dropdown-item.glp-selected .glp-item-check{opacity:1;}';
+// Libs: preact, preact/hooks, preact/compat
+function importPreact(){var _,e,n,t,o,r,l,u,i,c,f,a={},s=[],p=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i,h=Array.isArray;function v(_,e){for(var n in e)_[n]=e[n];return _}function d(_){_&&_.parentNode&&_.parentNode.removeChild(_)}function m(e,n,t){var o,r,l,u={};for(l in n)"key"==l?o=n[l]:"ref"==l?r=n[l]:u[l]=n[l];if(arguments.length>2&&(u.children=arguments.length>3?_.call(arguments,2):t),"function"==typeof e&&null!=e.defaultProps)for(l in e.defaultProps)void 0===u[l]&&(u[l]=e.defaultProps[l]);return y(e,u,o,r,null)}function y(_,t,o,r,l){var u={type:_,props:t,key:o,ref:r,__k:null,__:null,__b:0,__e:null,__c:null,constructor:void 0,__v:null==l?++n:l,__i:-1,__u:0};return null==l&&null!=e.vnode&&e.vnode(u),u}function g(_){return _.children}function b(_,e){this.props=_,this.context=e}function k(_,e){if(null==e)return _.__?k(_.__,_.__i+1):null;for(var n;e<_.__k.length;e++)if(null!=(n=_.__k[e])&&null!=n.__e)return n.__e;return"function"==typeof _.type?k(_):null}function w(_){var e,n;if(null!=(_=_.__)&&null!=_.__c){for(_.__e=_.__c.base=null,e=0;e<_.__k.length;e++)if(null!=(n=_.__k[e])&&null!=n.__e){_.__e=_.__c.base=n.__e;break}return w(_)}}function P(_){(!_.__d&&(_.__d=!0)&&t.push(_)&&!S.__r++||o!==e.debounceRendering)&&((o=e.debounceRendering)||r)(S)}function S(){var _,n,o,r,u,i,c,f;for(t.sort(l);_=t.shift();)_.__d&&(n=t.length,r=void 0,i=(u=(o=_).__v).__e,c=[],f=[],o.__P&&((r=v({},u)).__v=u.__v+1,e.vnode&&e.vnode(r),A(o.__P,r,u,o.__n,o.__P.namespaceURI,32&u.__u?[i]:null,c,null==i?k(u):i,!!(32&u.__u),f),r.__v=u.__v,r.__.__k[r.__i]=r,D(c,r,f),r.__e!=i&&w(r)),t.length>n&&t.sort(l));S.__r=0}function x(_,e,n,t,o,r,l,u,i,c,f){var p,v,d,m,b,w,P=t&&t.__k||s,S=e.length;for(i=function(_,e,n,t){var o,r,l,u,i,c=e.length,f=n.length,a=f,s=0;for(_.__k=[],o=0;o<c;o++)null!=(r=e[o])&&"boolean"!=typeof r&&"function"!=typeof r?(u=o+s,(r=_.__k[o]="string"==typeof r||"number"==typeof r||"bigint"==typeof r||r.constructor==String?y(null,r,null,null,null):h(r)?y(g,{children:r},null,null,null):void 0===r.constructor&&r.__b>0?y(r.type,r.props,r.key,r.ref?r.ref:null,r.__v):r).__=_,r.__b=_.__b+1,l=null,-1!==(i=r.__i=N(r,n,u,a))&&(a--,(l=n[i])&&(l.__u|=2)),null==l||null===l.__v?(-1==i&&s--,"function"!=typeof r.type&&(r.__u|=4)):i!==u&&(i==u-1?s--:i==u+1?s++:(i>u?s--:s++,r.__u|=4))):r=_.__k[o]=null;if(a)for(o=0;o<f;o++)null!=(l=n[o])&&!(2&l.__u)&&(l.__e==t&&(t=k(l)),M(l,l));return t}(n,e,P,i),p=0;p<S;p++)null!=(d=n.__k[p])&&(v=-1===d.__i?a:P[d.__i]||a,d.__i=p,w=A(_,d,v,o,r,l,u,i,c,f),m=d.__e,d.ref&&v.ref!=d.ref&&(v.ref&&O(v.ref,null,d),f.push(d.ref,d.__c||m,d)),null==b&&null!=m&&(b=m),4&d.__u||v.__k===d.__k?i=C(d,i,_):"function"==typeof d.type&&void 0!==w?i=w:m&&(i=m.nextSibling),d.__u&=-7);return n.__e=b,i}function C(_,e,n){var t,o;if("function"==typeof _.type){for(t=_.__k,o=0;t&&o<t.length;o++)t[o]&&(t[o].__=_,e=C(t[o],e,n));return e}_.__e!=e&&(e&&_.type&&!n.contains(e)&&(e=k(_)),n.insertBefore(_.__e,e||null),e=_.__e);do{e=e&&e.nextSibling}while(null!=e&&8===e.nodeType);return e}function H(_,e){return e=e||[],null==_||"boolean"==typeof _||(h(_)?_.some((function(_){H(_,e)})):e.push(_)),e}function N(_,e,n,t){var o=_.key,r=_.type,l=n-1,u=n+1,i=e[n];if(null===i||i&&o==i.key&&r===i.type&&!(2&i.__u))return n;if(("function"!=typeof r||r===g||o)&&t>(null==i||2&i.__u?0:1))for(;l>=0||u<e.length;){if(l>=0){if((i=e[l])&&!(2&i.__u)&&o==i.key&&r===i.type)return l;l--}if(u<e.length){if((i=e[u])&&!(2&i.__u)&&o==i.key&&r===i.type)return u;u++}}return-1}function E(_,e,n){"-"===e[0]?_.setProperty(e,null==n?"":n):_[e]=null==n?"":"number"!=typeof n||p.test(e)?n:n+"px"}function U(_,e,n,t,o){var r;_:if("style"===e)if("string"==typeof n)_.style.cssText=n;else{if("string"==typeof t&&(_.style.cssText=t=""),t)for(e in t)n&&e in n||E(_.style,e,"");if(n)for(e in n)t&&n[e]===t[e]||E(_.style,e,n[e])}else if("o"===e[0]&&"n"===e[1])r=e!==(e=e.replace(u,"$1")),e=e.toLowerCase()in _||"onFocusOut"===e||"onFocusIn"===e?e.toLowerCase().slice(2):e.slice(2),_.l||(_.l={}),_.l[e+r]=n,n?t?n.u=t.u:(n.u=i,_.addEventListener(e,r?f:c,r)):_.removeEventListener(e,r?f:c,r);else{if("http://www.w3.org/2000/svg"==o)e=e.replace(/xlink(H|:h)/,"h").replace(/sName$/,"s");else if("width"!=e&&"height"!=e&&"href"!=e&&"list"!=e&&"form"!=e&&"tabIndex"!=e&&"download"!=e&&"rowSpan"!=e&&"colSpan"!=e&&"role"!=e&&"popover"!=e&&e in _)try{_[e]=null==n?"":n;break _}catch(_){}"function"==typeof n||(null==n||!1===n&&"-"!==e[4]?_.removeAttribute(e):_.setAttribute(e,"popover"==e&&1==n?"":n))}}function T(_){return function(n){if(this.l){var t=this.l[n.type+_];if(null==n.t)n.t=i++;else if(n.t<t.u)return;return t(e.event?e.event(n):n)}}}function A(n,t,o,r,l,u,i,c,f,s){var p,m,y,w,P,S,C,H,N,E,T,A,D,O,M,F,R,L=t.type;if(void 0!==t.constructor)return null;128&o.__u&&(f=!!(32&o.__u),u=[c=t.__e=o.__e]),(p=e.__b)&&p(t);_:if("function"==typeof L)try{if(H=t.props,N="prototype"in L&&L.prototype.render,E=(p=L.contextType)&&r[p.__c],T=p?E?E.props.value:p.__:r,o.__c?C=(m=t.__c=o.__c).__=m.__E:(N?t.__c=m=new L(H,T):(t.__c=m=new b(H,T),m.constructor=L,m.render=W),E&&E.sub(m),m.props=H,m.state||(m.state={}),m.context=T,m.__n=r,y=m.__d=!0,m.__h=[],m._sb=[]),N&&null==m.__s&&(m.__s=m.state),N&&null!=L.getDerivedStateFromProps&&(m.__s==m.state&&(m.__s=v({},m.__s)),v(m.__s,L.getDerivedStateFromProps(H,m.__s))),w=m.props,P=m.state,m.__v=t,y)N&&null==L.getDerivedStateFromProps&&null!=m.componentWillMount&&m.componentWillMount(),N&&null!=m.componentDidMount&&m.__h.push(m.componentDidMount);else{if(N&&null==L.getDerivedStateFromProps&&H!==w&&null!=m.componentWillReceiveProps&&m.componentWillReceiveProps(H,T),!m.__e&&(null!=m.shouldComponentUpdate&&!1===m.shouldComponentUpdate(H,m.__s,T)||t.__v===o.__v)){for(t.__v!==o.__v&&(m.props=H,m.state=m.__s,m.__d=!1),t.__e=o.__e,t.__k=o.__k,t.__k.some((function(_){_&&(_.__=t)})),A=0;A<m._sb.length;A++)m.__h.push(m._sb[A]);m._sb=[],m.__h.length&&i.push(m);break _}null!=m.componentWillUpdate&&m.componentWillUpdate(H,m.__s,T),N&&null!=m.componentDidUpdate&&m.__h.push((function(){m.componentDidUpdate(w,P,S)}))}if(m.context=T,m.props=H,m.__P=n,m.__e=!1,D=e.__r,O=0,N){for(m.state=m.__s,m.__d=!1,D&&D(t),p=m.render(m.props,m.state,m.context),M=0;M<m._sb.length;M++)m.__h.push(m._sb[M]);m._sb=[]}else do{m.__d=!1,D&&D(t),p=m.render(m.props,m.state,m.context),m.state=m.__s}while(m.__d&&++O<25);m.state=m.__s,null!=m.getChildContext&&(r=v(v({},r),m.getChildContext())),N&&!y&&null!=m.getSnapshotBeforeUpdate&&(S=m.getSnapshotBeforeUpdate(w,P)),c=x(n,h(F=null!=p&&p.type===g&&null==p.key?p.props.children:p)?F:[F],t,o,r,l,u,i,c,f,s),m.base=t.__e,t.__u&=-161,m.__h.length&&i.push(m),C&&(m.__E=m.__=null)}catch(_){if(t.__v=null,f||null!=u)if(_.then){for(t.__u|=f?160:128;c&&8===c.nodeType&&c.nextSibling;)c=c.nextSibling;u[u.indexOf(c)]=null,t.__e=c}else for(R=u.length;R--;)d(u[R]);else t.__e=o.__e,t.__k=o.__k;e.__e(_,t,o)}else null==u&&t.__v===o.__v?(t.__k=o.__k,t.__e=o.__e):c=t.__e=function(n,t,o,r,l,u,i,c,f){var s,p,v,m,y,g,b,w=o.props,P=t.props,S=t.type;if("svg"===S?l="http://www.w3.org/2000/svg":"math"===S?l="http://www.w3.org/1998/Math/MathML":l||(l="http://www.w3.org/1999/xhtml"),null!=u)for(s=0;s<u.length;s++)if((y=u[s])&&"setAttribute"in y==!!S&&(S?y.localName===S:3===y.nodeType)){n=y,u[s]=null;break}if(null==n){if(null===S)return document.createTextNode(P);n=document.createElementNS(l,S,P.is&&P),c&&(e.__m&&e.__m(t,u),c=!1),u=null}if(null===S)w===P||c&&n.data===P||(n.data=P);else{if(u=u&&_.call(n.childNodes),w=o.props||a,!c&&null!=u)for(w={},s=0;s<n.attributes.length;s++)w[(y=n.attributes[s]).name]=y.value;for(s in w)if(y=w[s],"children"==s);else if("dangerouslySetInnerHTML"==s)v=y;else if(!(s in P)){if("value"==s&&"defaultValue"in P||"checked"==s&&"defaultChecked"in P)continue;U(n,s,null,y,l)}for(s in P)y=P[s],"children"==s?m=y:"dangerouslySetInnerHTML"==s?p=y:"value"==s?g=y:"checked"==s?b=y:c&&"function"!=typeof y||w[s]===y||U(n,s,y,w[s],l);if(p)c||v&&(p.__html===v.__html||p.__html===n.innerHTML)||(n.innerHTML=p.__html),t.__k=[];else if(v&&(n.innerHTML=""),x(n,h(m)?m:[m],t,o,r,"foreignObject"===S?"http://www.w3.org/1999/xhtml":l,u,i,u?u[0]:o.__k&&k(o,0),c,f),null!=u)for(s=u.length;s--;)d(u[s]);c||(s="value","progress"===S&&null==g?n.removeAttribute("value"):void 0!==g&&(g!==n[s]||"progress"===S&&!g||"option"===S&&g!==w[s])&&U(n,s,g,w[s],l),s="checked",void 0!==b&&b!==n[s]&&U(n,s,b,w[s],l))}return n}(o.__e,t,o,r,l,u,i,f,s);return(p=e.diffed)&&p(t),128&t.__u?void 0:c}function D(_,n,t){for(var o=0;o<t.length;o++)O(t[o],t[++o],t[++o]);e.__c&&e.__c(n,_),_.some((function(n){try{_=n.__h,n.__h=[],_.some((function(_){_.call(n)}))}catch(_){e.__e(_,n.__v)}}))}function O(_,n,t){try{if("function"==typeof _){var o="function"==typeof _.__u;o&&_.__u(),o&&null==n||(_.__u=_(n))}else _.current=n}catch(_){e.__e(_,t)}}function M(_,n,t){var o,r;if(e.unmount&&e.unmount(_),(o=_.ref)&&(o.current&&o.current!==_.__e||O(o,null,n)),null!=(o=_.__c)){if(o.componentWillUnmount)try{o.componentWillUnmount()}catch(_){e.__e(_,n)}o.base=o.__P=null}if(o=_.__k)for(r=0;r<o.length;r++)o[r]&&M(o[r],n,t||"function"!=typeof _.type);t||d(_.__e),_.__c=_.__=_.__e=void 0}function W(_,e,n){return this.constructor(_,n)}_=s.slice,e={__e:function(_,e,n,t){for(var o,r,l;e=e.__;)if((o=e.__c)&&!o.__)try{if((r=o.constructor)&&null!=r.getDerivedStateFromError&&(o.setState(r.getDerivedStateFromError(_)),l=o.__d),null!=o.componentDidCatch&&(o.componentDidCatch(_,t||{}),l=o.__d),l)return o.__E=o}catch(e){_=e}throw _}},n=0,b.prototype.setState=function(_,e){var n;n=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=v({},this.state),"function"==typeof _&&(_=_(v({},n),this.props)),_&&v(n,_),null!=_&&this.__v&&(e&&this._sb.push(e),P(this))},b.prototype.forceUpdate=function(_){this.__v&&(this.__e=!0,_&&this.__h.push(_),P(this))},b.prototype.render=g,t=[],r="function"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,l=function(_,e){return _.__v.__b-e.__v.__b},S.__r=0,u=/(PointerCapture)$|Capture$/i,i=0,c=T(!1),f=T(!0);var F=0;var R,L,$,I,V=0,B=[],j=e,q=j.__b,z=j.__r,Z=j.diffed,G=j.__c,J=j.unmount,K=j.__;function Q(){for(var _;_=B.shift();)if(_.__P&&_.__H)try{_.__H.__h.forEach(__),_.__H.__h.forEach(e_),_.__H.__h=[]}catch(e){_.__H.__h=[],j.__e(e,_.__v)}}j.__b=function(_){L=null,q&&q(_)},j.__=function(_,e){_&&e.__k&&e.__k.__m&&(_.__m=e.__k.__m),K&&K(_,e)},j.__r=function(_){z&&z(_),R=0;var e=(L=_.__c).__H;e&&($===L?(e.__h=[],L.__h=[],e.__.forEach((function(_){_.__N&&(_.__=_.__N),_.i=_.__N=void 0}))):(e.__h.forEach(__),e.__h.forEach(e_),e.__h=[],R=0)),$=L},j.diffed=function(_){Z&&Z(_);var e=_.__c;e&&e.__H&&(e.__H.__h.length&&(1!==B.push(e)&&I===j.requestAnimationFrame||((I=j.requestAnimationFrame)||Y)(Q)),e.__H.__.forEach((function(_){_.i&&(_.__H=_.i),_.i=void 0}))),$=L=null},j.__c=function(_,e){e.some((function(_){try{_.__h.forEach(__),_.__h=_.__h.filter((function(_){return!_.__||e_(_)}))}catch(n){e.some((function(_){_.__h&&(_.__h=[])})),e=[],j.__e(n,_.__v)}})),G&&G(_,e)},j.unmount=function(_){J&&J(_);var e,n=_.__c;n&&n.__H&&(n.__H.__.forEach((function(_){try{__(_)}catch(_){e=_}})),n.__H=void 0,e&&j.__e(e,n.__v))};var X="function"==typeof requestAnimationFrame;function Y(_){var e,n=function(){clearTimeout(t),X&&cancelAnimationFrame(e),setTimeout(_)},t=setTimeout(n,100);X&&(e=requestAnimationFrame(n))}function __(_){var e=L,n=_.__c;"function"==typeof n&&(_.__c=void 0,n()),L=e}function e_(_){var e=L;_.__c=_.__(),L=e}function n_(_,e){return"function"==typeof e?e(_):e}function t_(_,e){for(var n in _)if("__source"!==n&&!(n in e))return!0;for(var t in e)if("__source"!==t&&_[t]!==e[t])return!0;return!1}function o_(_,e){this.props=_,this.context=e}(o_.prototype=new b).isPureReactComponent=!0,o_.prototype.shouldComponentUpdate=function(_,e){return t_(this.props,_)||t_(this.state,e)};var r_=e.__b;e.__b=function(_){_.type&&_.type.__f&&_.ref&&(_.props.ref=_.ref,_.ref=null),r_&&r_(_)};var l_=e.__e;e.__e=function(_,e,n,t){if(_.then)for(var o,r=e;r=r.__;)if((o=r.__c)&&o.__c)return null==e.__e&&(e.__e=n.__e,e.__k=n.__k),o.__c(_,e);l_(_,e,n,t)};var u_=e.unmount;function i_(_,e,n){return _&&(_.__c&&_.__c.__H&&(_.__c.__H.__.forEach((function(_){"function"==typeof _.__c&&_.__c()})),_.__c.__H=null),null!=(_=function(_,e){for(var n in e)_[n]=e[n];return _}({},_)).__c&&(_.__c.__P===n&&(_.__c.__P=e),_.__c=null),_.__k=_.__k&&_.__k.map((function(_){return i_(_,e,n)}))),_}function c_(_,e,n){return _&&n&&(_.__v=null,_.__k=_.__k&&_.__k.map((function(_){return c_(_,e,n)})),_.__c&&_.__c.__P===e&&(_.__e&&n.appendChild(_.__e),_.__c.__e=!0,_.__c.__P=n)),_}function f_(){this.__u=0,this.o=null,this.__b=null}function a_(_){var e=_.__.__c;return e&&e.__a&&e.__a(_)}function s_(){this.i=null,this.l=null}e.unmount=function(_){var e=_.__c;e&&e.__R&&e.__R(),e&&32&_.__u&&(_.type=null),u_&&u_(_)},(f_.prototype=new b).__c=function(_,e){var n=e.__c,t=this;null==t.o&&(t.o=[]),t.o.push(n);var o=a_(t.__v),r=!1,l=function(){r||(r=!0,n.__R=null,o?o(u):u())};n.__R=l;var u=function(){if(! --t.__u){if(t.state.__a){var _=t.state.__a;t.__v.__k[0]=c_(_,_.__c.__P,_.__c.__O)}var e;for(t.setState({__a:t.__b=null});e=t.o.pop();)e.forceUpdate()}};t.__u++||32&e.__u||t.setState({__a:t.__b=t.__v.__k[0]}),_.then(l,l)},f_.prototype.componentWillUnmount=function(){this.o=[]},f_.prototype.render=function(_,e){if(this.__b){if(this.__v.__k){var n=document.createElement("div"),t=this.__v.__k[0].__c;this.__v.__k[0]=i_(this.__b,n,t.__O=t.__P)}this.__b=null}var o=e.__a&&m(g,null,_.fallback);return o&&(o.__u&=-33),[m(g,null,e.__a?null:_.children),o]};var p_=function(_,e,n){if(++n[1]===n[0]&&_.l.delete(e),_.props.revealOrder&&("t"!==_.props.revealOrder[0]||!_.l.size))for(n=_.i;n;){for(;n.length>3;)n.pop()();if(n[1]<n[0])break;_.i=n=n[2]}};(s_.prototype=new b).__a=function(_){var e=this,n=a_(e.__v),t=e.l.get(_);return t[0]++,function(o){var r=function(){e.props.revealOrder?(t.push(o),p_(e,_,t)):o()};n?n(r):r()}},s_.prototype.render=function(_){this.i=null,this.l=new Map;var e=H(_.children);_.revealOrder&&"b"===_.revealOrder[0]&&e.reverse();for(var n=e.length;n--;)this.l.set(e[n],this.i=[1,0,this.i]);return _.children},s_.prototype.componentDidUpdate=s_.prototype.componentDidMount=function(){var _=this;this.l.forEach((function(e,n){p_(_,n,e)}))};var h_="undefined"!=typeof Symbol&&Symbol.for&&Symbol.for("react.element")||60103,v_=/^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/,d_=/^on(Ani|Tra|Tou|BeforeInp|Compo)/,m_=/[A-Z0-9]/g,y_="undefined"!=typeof document,g_=function(_){return("undefined"!=typeof Symbol&&"symbol"==typeof Symbol()?/fil|che|rad/:/fil|che|ra/).test(_)};b.prototype.isReactComponent={},["componentWillMount","componentWillReceiveProps","componentWillUpdate"].forEach((function(_){Object.defineProperty(b.prototype,_,{configurable:!0,get:function(){return this["UNSAFE_"+_]},set:function(e){Object.defineProperty(this,_,{configurable:!0,writable:!0,value:e})}})}));var b_=e.event;function k_(){}function w_(){return this.cancelBubble}function P_(){return this.defaultPrevented}e.event=function(_){return b_&&(_=b_(_)),_.persist=k_,_.isPropagationStopped=w_,_.isDefaultPrevented=P_,_.nativeEvent=_};var S_={enumerable:!1,configurable:!0,get:function(){return this.class}},x_=e.vnode;e.vnode=function(_){"string"==typeof _.type&&function(_){var e=_.props,n=_.type,t={},o=-1===n.indexOf("-");for(var r in e){var l=e[r];if(!("value"===r&&"defaultValue"in e&&null==l||y_&&"children"===r&&"noscript"===n||"class"===r||"className"===r)){var u=r.toLowerCase();"defaultValue"===r&&"value"in e&&null==e.value?r="value":"download"===r&&!0===l?l="":"translate"===u&&"no"===l?l=!1:"o"===u[0]&&"n"===u[1]?"ondoubleclick"===u?r="ondblclick":"onchange"!==u||"input"!==n&&"textarea"!==n||g_(e.type)?"onfocus"===u?r="onfocusin":"onblur"===u?r="onfocusout":d_.test(r)&&(r=u):u=r="oninput":o&&v_.test(r)?r=r.replace(m_,"-$&").toLowerCase():null===l&&(l=void 0),"oninput"===u&&t[r=u]&&(r="oninputCapture"),t[r]=l}}"select"==n&&t.multiple&&Array.isArray(t.value)&&(t.value=H(e.children).forEach((function(_){_.props.selected=-1!=t.value.indexOf(_.props.value)}))),"select"==n&&null!=t.defaultValue&&(t.value=H(e.children).forEach((function(_){_.props.selected=t.multiple?-1!=t.defaultValue.indexOf(_.props.value):t.defaultValue==_.props.value}))),e.class&&!e.className?(t.class=e.class,Object.defineProperty(t,"className",S_)):(e.className&&!e.class||e.class&&e.className)&&(t.class=t.className=e.className),_.props=t}(_),_.$$typeof=h_,x_&&x_(_)};var C_=e.__r;e.__r=function(_){C_&&C_(_),_.__c};var H_=e.diffed;return e.diffed=function(_){H_&&H_(_);var e=_.props,n=_.__e;null!=n&&"textarea"===_.type&&"value"in e&&e.value!==n.value&&(n.value=null==e.value?"":e.value)},{D:function(n,t,o){var r,l,u,i;t===document&&(t=document.documentElement),e.__&&e.__(n,t),l=(r="function"==typeof o)?null:t.__k,u=[],i=[],A(t,n=(!r&&o||t).__k=m(g,null,[n]),l||a,a,t.namespaceURI,!r&&o?[o]:l?null:t.firstChild?_.call(t.childNodes):null,u,!r&&o?o:l?l.__e:t.firstChild,r,i),D(u,n,i)},h:function(_){return V=1,function(_,e,n){var t=function(_,e){j.__h&&j.__h(L,_,V||e),V=0;var n=L.__H||(L.__H={__:[],__h:[]});return _>=n.__.length&&n.__.push({}),n.__[_]}(R++,2);if(t.t=_,!t.__c&&(t.__=[n?n(e):n_(void 0,e),function(_){var e=t.__N?t.__N[0]:t.__[0],n=t.t(e,_);e!==n&&(t.__N=[n,t.__[1]],t.__c.setState({}))}],t.__c=L,!L.u)){var o=function(_,e,n){if(!t.__c.__H)return!0;var o=t.__c.__H.__.filter((function(_){return!!_.__c}));if(o.every((function(_){return!_.__N})))return!r||r.call(this,_,e,n);var l=t.__c.props!==_;return o.forEach((function(_){if(_.__N){var e=_.__[0];_.__=_.__N,_.__N=void 0,e!==_.__[0]&&(l=!0)}})),r&&r.call(this,_,e,n)||l};L.u=!0;var r=L.shouldComponentUpdate,l=L.componentWillUpdate;L.componentWillUpdate=function(_,e,n){if(this.__e){var t=r;r=void 0,o(_,e,n),r=t}l&&l.call(this,_,e,n)},L.shouldComponentUpdate=o}return t.__N||t.__}(n_,_)},u:function(_,n,t,o,r,l){n||(n={});var u,i,c=n;"ref"in n&&(u=n.ref,delete n.ref);var f={type:_,props:c,key:t,ref:u,__k:null,__:null,__b:0,__e:null,__c:null,constructor:void 0,__v:--F,__i:-1,__u:0,__source:r,__self:l};if("function"==typeof _&&(u=_.defaultProps))for(i in u)void 0===c[i]&&(c[i]=u[i]);return e.vnode&&e.vnode(f),f}}}
+// Vite helpers
+var __defProp=Object.defineProperty,__defNormalProp=(e,r,o)=>r in e?__defProp(e,r,{enumerable:!0,configurable:!0,writable:!0,value:o}):e[r]=o,__publicField=(e,r,o)=>__defNormalProp(e,"symbol"!=typeof r?r+"":r,o);
 
-// css:apps/gitlab-plus/src/styles/image-preview.css
-var image_preview_default =
-  '.glp-image-preview-modal{position:fixed;display:flex;justify-content:center;align-items:center;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);visibility:hidden;opacity:0;pointer-events:none;z-index:99999;}.glp-image-preview-modal.glp-modal-visible{visibility:visible;opacity:1;pointer-events:auto;}.glp-image-preview-modal .glp-modal-img{max-width:95%;max-height:95%;}.glp-image-preview-modal .glp-modal-close{position:absolute;z-index:2;top:20px;right:20px;color:black;width:40px;height:40px;display:flex;justify-content:center;align-items:center;background:white;border-radius:20px;cursor:pointer;}';
-
-// css:apps/gitlab-plus/src/styles/issue-preview.css
-var issue_preview_default =
-  '.glp-issue-preview-modal{position:fixed;display:flex;padding:0 15px;background-color:var(--gl-background-color-default,var(--gl-color-neutral-0,#fff));border:1px solid var(--gl-border-color-default);border-radius:.25rem;width:300px;min-height:300px;z-index:99999;visibility:hidden;top:0;left:0;opacity:0;pointer-events:none;transition:all .2s ease-out;transition-property:visibility,opacity,transform;}.glp-issue-preview-modal.glp-modal-visible{visibility:visible;opacity:1;}.glp-issue-preview-modal .glp-issue-modal-inner{display:flex;flex-direction:column;max-width:100%;}.glp-issue-preview-modal .glp-block{padding:.5rem 0 .5rem;border-bottom-style:solid;border-bottom-color:var(--gl-border-color-subtle,var(--gl-color-neutral-50,#ececef));border-bottom-width:1px;width:100%;}.glp-issue-preview-modal .assignee-grid{margin-top:4px;gap:4px}';
+// App code
+const { u, h, D } = importPreact();
+const style1 =
+  '.glp-create-related-issue-layer {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 99999;\n  display: none;\n  background: rgba(0, 0, 0, 0.6);\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-create-related-issue-layer.glp-modal-visible {\n  display: flex;\n}\n\n.glp-create-related-issue-layer .glp-create-related-issue-modal {\n  width: 700px;\n  max-width: 95vw;\n}\n\n.gl-new-dropdown-item .glp-item-check {\n  opacity: 0;\n}\n\n.gl-new-dropdown-item.glp-active .gl-new-dropdown-item-content {\n  box-shadow: inset 0 0 0 2px var(--gl-focus-ring-outer-color), inset 0 0 0 3px var(--gl-focus-ring-inner-color), inset 0 0 0 1px var(--gl-focus-ring-inner-color);\n  background-color: var(--gl-dropdown-option-background-color-unselected-hover);\n  outline: none;\n}\n\n.gl-new-dropdown-item.glp-selected .glp-item-check {\n  opacity: 1;\n}\n\n';
+const style2 =
+  '.glp-image-preview-modal {\n  position: fixed;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.6);\n  visibility: hidden;\n  opacity: 0;\n  pointer-events: none;\n  z-index: 99999;\n}\n\n.glp-image-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n  pointer-events: auto;\n}\n\n.glp-image-preview-modal .glp-modal-img {\n  max-width: 95%;\n  max-height: 95%;\n}\n\n.glp-image-preview-modal .glp-modal-close {\n  position: absolute;\n  z-index: 2;\n  top: 20px;\n  right: 20px;\n  color: black;\n  width: 40px;\n  height: 40px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background: white;\n  border-radius: 20px;\n  cursor: pointer;\n}\n\n';
+const style3 =
+  '.glp-issue-preview-modal {\n  position: fixed;\n  display: flex;\n  padding: 0 15px;\n  background-color: var(--gl-background-color-default, var(--gl-color-neutral-0, #fff));\n  border: 1px solid var(--gl-border-color-default);\n  border-radius: .25rem;\n  width: 300px;\n  min-height: 300px;\n  z-index: 99999;\n  visibility: hidden;\n  top: 0;\n  left: 0;\n  opacity: 0;\n  pointer-events: none;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n}\n\n.glp-issue-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n\n.glp-issue-preview-modal .glp-issue-modal-inner {\n  display: flex;\n  flex-direction: column;\n  max-width: 100%;\n}\n\n\n.glp-issue-preview-modal .glp-block {\n  padding: .5rem 0 .5rem;\n  border-bottom-style: solid;\n  border-bottom-color: var(--gl-border-color-subtle, var(--gl-color-neutral-50, #ececef));\n  border-bottom-width: 1px;\n  width: 100%;\n}\n\n.glp-issue-preview-modal .assignee-grid {\n  margin-top: 4px;\n  gap: 4px\n}\n';
 
 // libs/share/src/ui/GlobalStyle.ts
-var GlobalStyle = class {
+class GlobalStyle {
   static addStyle(key, styles) {
     const style =
       document.getElementById(key) ||
       (function () {
-        const style2 = document.createElement('style');
-        style2.id = key;
-        document.head.appendChild(style2);
-        return style2;
+        const style22 = document.createElement('style');
+        style22.id = key;
+        document.head.appendChild(style22);
+        return style22;
       })();
     style.textContent = styles;
   }
-};
+}
 
 // apps/gitlab-plus/src/styles/index.ts
-GlobalStyle.addStyle(
-  'glp-style',
-  [
-    create_related_issue_default,
-    image_preview_default,
-    issue_preview_default,
-  ].join('\n')
-);
+GlobalStyle.addStyle('glp-style', [style1, style2, style3].join('\n'));
 
 // libs/share/src/ui/SvgComponent.ts
-var SvgComponent = class {
+class SvgComponent {
   constructor(tag, props = {}) {
     this.element = Dom.createSvg({ tag, ...props });
   }
-
   addClassName(...className) {
     this.element.classList.add(...className);
   }
-
   event(event, callback) {
     this.element.addEventListener(event, callback);
   }
-
   getElement() {
     return this.element;
   }
-
   mount(parent) {
     parent.appendChild(this.element);
   }
-};
+}
 
 // libs/share/src/ui/Dom.ts
-var svgTags = [
+const svgTags = [
   'animate',
   'animateMotion',
   'animateTransform',
@@ -130,12 +121,12 @@ var svgTags = [
   'use',
   'view',
 ];
-var commonTags = ['a', 'script', 'style', 'title'];
-var Dom = class _Dom {
+const commonTags = ['a', 'script', 'style', 'title'];
+class Dom {
   static appendChildren(element, children) {
     if (children) {
       element.append(
-        ..._Dom.array(children).map((item) => {
+        ...Dom.array(children).map((item) => {
           if (typeof item === 'string') {
             return document.createTextNode(item);
           }
@@ -145,50 +136,44 @@ var Dom = class _Dom {
           if (item instanceof Component || item instanceof SvgComponent) {
             return item.getElement();
           }
-          if (_Dom.isSvgItem(item, element)) {
-            return _Dom.createSvg(item);
+          if (Dom.isSvgItem(item, element)) {
+            return Dom.createSvg(item);
           }
-          return _Dom.create(item);
+          return Dom.create(item);
         })
       );
     }
   }
-
   static create(data) {
     const element = document.createElement(data.tag);
-    _Dom.appendChildren(element, data.children);
-    _Dom.applyClass(element, data.classes);
-    _Dom.applyAttrs(element, data.attrs);
-    _Dom.applyEvents(element, data.events);
-    _Dom.applyStyles(element, data.styles);
+    Dom.appendChildren(element, data.children);
+    Dom.applyClass(element, data.classes);
+    Dom.applyAttrs(element, data.attrs);
+    Dom.applyEvents(element, data.events);
+    Dom.applyStyles(element, data.styles);
     return element;
   }
-
   static element(tag, classes, children) {
-    return _Dom.create({ tag, classes, children });
+    return Dom.create({ tag, classes, children });
   }
-
   static createSvg(data) {
     const element = document.createElementNS(
       'http://www.w3.org/2000/svg',
       data.tag
     );
-    _Dom.appendChildren(element, data.children);
-    _Dom.applyClass(element, data.classes);
-    _Dom.applyAttrs(element, data.attrs);
-    _Dom.applyEvents(element, data.events);
-    _Dom.applyStyles(element, data.styles);
+    Dom.appendChildren(element, data.children);
+    Dom.applyClass(element, data.classes);
+    Dom.applyAttrs(element, data.attrs);
+    Dom.applyEvents(element, data.events);
+    Dom.applyStyles(element, data.styles);
     return element;
   }
-
   static array(element) {
     return Array.isArray(element) ? element : [element];
   }
-
   static elementSvg(tag, classes, children) {
-    return _Dom.createSvg({ tag, classes, children });
+    return Dom.createSvg({ tag, classes, children });
   }
-
   static applyAttrs(element, attrs) {
     if (attrs) {
       Object.entries(attrs).forEach(([key, value]) => {
@@ -200,7 +185,6 @@ var Dom = class _Dom {
       });
     }
   }
-
   static applyStyles(element, styles) {
     if (styles) {
       Object.entries(styles).forEach(([key, value]) => {
@@ -209,7 +193,6 @@ var Dom = class _Dom {
       });
     }
   }
-
   static applyEvents(element, events) {
     if (events) {
       Object.entries(events).forEach(([name, callback]) => {
@@ -217,46 +200,40 @@ var Dom = class _Dom {
       });
     }
   }
-
   static applyClass(element, classes) {
     if (classes) {
       element.classList.add(...classes.split(' ').filter(Boolean));
     }
   }
-
   static isSvgItem(item, parent) {
     if (commonTags.includes(item.tag)) {
       return parent instanceof SVGElement;
     }
     return svgTags.includes(item.tag);
   }
-};
+}
 
 // libs/share/src/ui/Component.ts
-var Component = class {
+class Component {
   constructor(tag, props = {}) {
     this.element = Dom.create({ tag, ...props });
   }
-
   addClassName(...className) {
     this.element.classList.add(...className);
   }
-
   event(event, callback) {
     this.element.addEventListener(event, callback);
   }
-
   getElement() {
     return this.element;
   }
-
   mount(parent) {
     parent.appendChild(this.element);
   }
-};
+}
 
 // apps/gitlab-plus/src/components/issue-preview/IssueBlock.ts
-var IssueBlock = class extends Component {
+class IssueBlock extends Component {
   constructor(title = '', content, classes = '', shouldRender = true) {
     super('div', {
       classes: 'glp-block',
@@ -276,15 +253,17 @@ var IssueBlock = class extends Component {
     });
     this.shouldRender = shouldRender;
   }
-};
+}
 
 // apps/gitlab-plus/src/components/common/IconComponent.ts
-var buildId =
+const buildId$1 =
   '236e3b687d786d9dfe4709143a94d4c53b8d5a1f235775401e5825148297fa84';
-var IconComponent = class extends SvgComponent {
+class IconComponent extends SvgComponent {
   constructor(icon, size = 's12', ...cls) {
+    var _a;
     const svgSprite =
-      unsafeWindow.gon?.sprite_icons || `/assets/icons-${buildId}.svg`;
+      ((_a = unsafeWindow.gon) == null ? void 0 : _a.sprite_icons) ||
+      `/assets/icons-${buildId$1}.svg`;
     super('svg', {
       classes: ['gl-icon gl-fill-current', size, ...cls].join(' '),
       children: {
@@ -295,10 +274,10 @@ var IconComponent = class extends SvgComponent {
       },
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/components/common/StatusComponent.ts
-var StatusComponent = class extends Component {
+class StatusComponent extends Component {
   constructor(isOpen) {
     super('span', {
       classes: `gl-badge badge badge-pill ${
@@ -314,10 +293,10 @@ var StatusComponent = class extends Component {
       ],
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/components/issue-preview/IssueTitle.ts
-var IssueTitle = class extends IssueBlock {
+class IssueTitle extends IssueBlock {
   constructor(issue) {
     super(
       issue.title,
@@ -344,10 +323,10 @@ var IssueTitle = class extends IssueBlock {
       ])
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/common/UserComponent.ts
-var UserComponent = class extends Component {
+class UserComponent extends Component {
   constructor(user, size = 's24') {
     super('div', {
       classes: 'gl-flex gl-w-full gl-items-center',
@@ -372,10 +351,10 @@ var UserComponent = class extends Component {
       ],
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/components/issue-preview/IssueAssignee.ts
-var IssueAssignee = class extends IssueBlock {
+class IssueAssignee extends IssueBlock {
   constructor(issue) {
     super(
       'Assignee',
@@ -386,16 +365,15 @@ var IssueAssignee = class extends IssueBlock {
       !!issue.assignees.nodes.length
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/common/LabelComponent.ts
-var LabelComponent = class extends Component {
+class LabelComponent extends Component {
   constructor(label, onRemove) {
     super('span');
     this.setClasses(label);
     this.element.append(...this.html(label, onRemove));
   }
-
   html(label, onRemove) {
     const [scope, text] = label.title.split('::');
     const items = [
@@ -439,7 +417,6 @@ var LabelComponent = class extends Component {
     }
     return elements;
   }
-
   setClasses(label) {
     this.addClassName(
       'gl-label',
@@ -457,10 +434,10 @@ var LabelComponent = class extends Component {
       `inset 0 0 0 2px ${label.color}`
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/issue-preview/IssueLabels.ts
-var IssueLabels = class extends IssueBlock {
+class IssueLabels extends IssueBlock {
   constructor(issue) {
     super(
       'Labels',
@@ -473,10 +450,10 @@ var IssueLabels = class extends IssueBlock {
       !!issue.labels.nodes.length
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/issue-preview/IssueMilestone.ts
-var IssueMilestone = class extends IssueBlock {
+class IssueMilestone extends IssueBlock {
   constructor(issue) {
     super(
       'Milestone',
@@ -490,11 +467,12 @@ var IssueMilestone = class extends IssueBlock {
       !!issue.milestone
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/issue-preview/IssueIteration.ts
-var IssueIteration = class _IssueIteration extends IssueBlock {
+class IssueIteration extends IssueBlock {
   constructor(issue) {
+    var _a, _b;
     super(
       'Iteration',
       issue.iteration
@@ -502,8 +480,13 @@ var IssueIteration = class _IssueIteration extends IssueBlock {
             new IconComponent('iteration', 's16', 'gl-mr-2'),
             {
               tag: 'span',
-              children: _IssueIteration.label(
-                issue.iteration?.iterationCadence?.title,
+              children: IssueIteration.label(
+                (_b =
+                  (_a = issue.iteration) == null
+                    ? void 0
+                    : _a.iterationCadence) == null
+                  ? void 0
+                  : _b.title,
                 issue.iteration.startDate,
                 issue.iteration.dueDate
               ),
@@ -514,7 +497,6 @@ var IssueIteration = class _IssueIteration extends IssueBlock {
       !!issue.iteration
     );
   }
-
   static label(title, start, end) {
     const date = (date2) => {
       return new Intl.DateTimeFormat('en-US', {
@@ -524,16 +506,16 @@ var IssueIteration = class _IssueIteration extends IssueBlock {
     };
     return [title, ': ', date(start), ' - ', date(end)].join('');
   }
-};
+}
 
 // apps/gitlab-plus/src/components/common/MergeRequestComponent.ts
-var iconMap = {
+const iconMap = {
   merged: 'merge',
   opened: 'merge-request',
   closed: 'merge-request-close',
   locked: 'search',
 };
-var MergeRequestComponent = class extends Component {
+class MergeRequestComponent extends Component {
   constructor(mr) {
     super('div', {
       styles: {
@@ -571,10 +553,10 @@ var MergeRequestComponent = class extends Component {
       ],
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/components/issue-preview/IssueMergeRequests.ts
-var IssueMergeRequests = class extends IssueBlock {
+class IssueMergeRequests extends IssueBlock {
   constructor(issue) {
     super(
       'Merge requests',
@@ -585,24 +567,23 @@ var IssueMergeRequests = class extends IssueBlock {
       !!issue.relatedMergeRequests.nodes.length
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/issue-preview/IssueRelatedIssue.ts
-var relationMap = {
+const relationMap = {
   relates_to: 'Related to:',
   blocks: 'Blocks:',
   is_blocked_by: 'Is blocked by:',
 };
-var IssueRelatedIssue = class _IssueRelatedIssue extends IssueBlock {
+class IssueRelatedIssue extends IssueBlock {
   constructor(issue) {
     super(
       '',
-      _IssueRelatedIssue.content(issue.relatedIssues),
+      IssueRelatedIssue.content(issue.relatedIssues),
       '',
       !!issue.relatedIssues.length
     );
   }
-
   static content(issues) {
     const groups = issues.reduce(
       (acc, issue) => ({
@@ -618,10 +599,9 @@ var IssueRelatedIssue = class _IssueRelatedIssue extends IssueBlock {
     return Object.entries(groups)
       .filter(([_, issues2]) => issues2.length)
       .map(([key, issues2]) =>
-        _IssueRelatedIssue.group(relationMap[key], issues2)
+        IssueRelatedIssue.group(relationMap[key], issues2)
       );
   }
-
   static group(title, issues) {
     return Dom.create({
       tag: 'div',
@@ -652,14 +632,13 @@ var IssueRelatedIssue = class _IssueRelatedIssue extends IssueBlock {
       ],
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/components/issue-preview/IssueModalContent.ts
-var IssueModalContent = class extends Component {
+class IssueModalContent extends Component {
   constructor() {
     super('div', { classes: 'glp-issue-modal-inner' });
   }
-
   update(issue) {
     const components = [
       IssueTitle,
@@ -677,10 +656,10 @@ var IssueModalContent = class extends Component {
         .map((block) => block.getElement())
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/common/GitlabLoader.ts
-var GitlabLoader = class extends Component {
+class GitlabLoader extends Component {
   constructor(size = '1em') {
     super('span', {
       classes: 'gl-spinner-container',
@@ -698,20 +677,19 @@ var GitlabLoader = class extends Component {
       },
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/components/IssuePreviewModal.ts
-var IssuePreviewModal = class _IssuePreviewModal extends Component {
+class IssuePreviewModal extends Component {
   constructor() {
     super('div', {
       classes: 'glp-issue-preview-modal',
-      children: _IssuePreviewModal.loader(),
+      children: IssuePreviewModal.loader(),
     });
-    this.content = new IssueModalContent();
-    this.visibleClassName = 'glp-modal-visible';
+    __publicField(this, 'content', new IssueModalContent());
+    __publicField(this, 'visibleClassName', 'glp-modal-visible');
     this.mount(document.body);
   }
-
   static loader() {
     return Dom.create({
       tag: 'div',
@@ -719,7 +697,6 @@ var IssuePreviewModal = class _IssuePreviewModal extends Component {
       children: new GitlabLoader('2em'),
     });
   }
-
   show(event) {
     Dom.applyStyles(this.element, {
       left: `${event.clientX + 10}px`,
@@ -728,7 +705,6 @@ var IssuePreviewModal = class _IssuePreviewModal extends Component {
     });
     this.element.classList.add(this.visibleClassName);
   }
-
   fixPosition() {
     const rect = this.element.getBoundingClientRect();
     const dY = rect.height + rect.top - window.innerHeight;
@@ -736,25 +712,23 @@ var IssuePreviewModal = class _IssuePreviewModal extends Component {
       this.element.style.transform = `translateY(-${dY + 15}px)`;
     }
   }
-
   hide() {
     this.element.classList.remove(this.visibleClassName);
-    this.element.replaceChildren(_IssuePreviewModal.loader());
+    this.element.replaceChildren(IssuePreviewModal.loader());
     Dom.applyStyles(this.element, {
       transform: 'translateY(0px)',
     });
   }
-
   updateContent(issue) {
     this.content.update(issue);
     this.element.replaceChildren(this.content.getElement());
   }
-};
+}
 
 // apps/gitlab-plus/src/helpers/IssueLink.ts
-var IssueLink = class _IssueLink {
+class IssueLink {
   static parseLink(link) {
-    if (!_IssueLink.validateLink(link)) {
+    if (!IssueLink.validateLink(link)) {
       return void 0;
     }
     const [projectPath, issue] = new URL(link).pathname
@@ -769,28 +743,25 @@ var IssueLink = class _IssueLink {
       workspacePath,
     };
   }
-
   static validateLink(link) {
     return Boolean(typeof link === 'string' && link.includes('/-/issues/'));
   }
-};
+}
 
 // libs/share/src/store/Cache.ts
-var Cache = class {
+class Cache {
   constructor(prefix) {
     this.prefix = prefix;
   }
-
   isValid(item) {
     if (item) {
       return (
         item.expirationDate === 'lifetime' ||
-        new Date(item.expirationDate) > /* @__PURE__ */ new Date()
+        new Date(item.expirationDate) > new Date()
       );
     }
     return false;
   }
-
   getItem(key) {
     try {
       return JSON.parse(localStorage.getItem(key) || '');
@@ -798,7 +769,6 @@ var Cache = class {
       return void 0;
     }
   }
-
   get(key) {
     try {
       const data = this.getItem(this.key(key));
@@ -810,7 +780,6 @@ var Cache = class {
     }
     return void 0;
   }
-
   set(key, value, minutes) {
     localStorage.setItem(
       this.key(key),
@@ -820,20 +789,17 @@ var Cache = class {
       })
     );
   }
-
   expirationDate(minutes) {
     if (typeof minutes === 'string') {
       return minutes;
     }
-    const time = /* @__PURE__ */ new Date();
+    const time = new Date();
     time.setMinutes(time.getMinutes() + minutes);
     return time;
   }
-
   key(key) {
     return `${this.prefix}${key}`;
   }
-
   clearInvalid() {
     for (const key in localStorage) {
       if (key.startsWith(this.prefix) && !this.isValid(this.getItem(key))) {
@@ -841,7 +807,7 @@ var Cache = class {
       }
     }
   }
-};
+}
 
 // libs/share/src/utils/camelizeKeys.ts
 function camelizeKeys(data) {
@@ -867,13 +833,12 @@ function camelizeKeys(data) {
 }
 
 // apps/gitlab-plus/src/providers/GitlabProvider.ts
-var GitlabProvider = class {
+class GitlabProvider {
   constructor() {
-    this.cache = new Cache('glp-');
-    this.url = 'https://gitlab.com/api/v4/';
-    this.graphqlApi = 'https://gitlab.com/api/graphql';
+    __publicField(this, 'cache', new Cache('glp-'));
+    __publicField(this, 'url', 'https://gitlab.com/api/v4/');
+    __publicField(this, 'graphqlApi', 'https://gitlab.com/api/graphql');
   }
-
   async get(path) {
     const response = await fetch(`${this.url}${path}`, {
       method: 'GET',
@@ -882,7 +847,6 @@ var GitlabProvider = class {
     const data = await response.json();
     return camelizeKeys(data);
   }
-
   async post(path, body) {
     const response = await fetch(`${this.url}${path}`, {
       method: 'POST',
@@ -892,7 +856,6 @@ var GitlabProvider = class {
     const data = await response.json();
     return camelizeKeys(data);
   }
-
   async query(query, variables) {
     const response = await fetch(this.graphqlApi, {
       method: 'POST',
@@ -901,15 +864,12 @@ var GitlabProvider = class {
     });
     return response.json();
   }
-
   async queryCached(key, query, variables, minutes) {
     return this.cached(key, () => this.query(query, variables), minutes);
   }
-
   async getCached(key, path, minutes) {
     return this.cached(key, () => this.get(path), minutes);
   }
-
   async cached(key, getValue, minutes) {
     const cacheValue = this.cache.get(key);
     if (cacheValue) {
@@ -919,7 +879,6 @@ var GitlabProvider = class {
     this.cache.set(key, value, minutes);
     return value;
   }
-
   csrf() {
     const token = document.querySelector('meta[name=csrf-token]');
     if (token) {
@@ -927,7 +886,6 @@ var GitlabProvider = class {
     }
     return '';
   }
-
   headers() {
     const headers = {
       'content-type': 'application/json',
@@ -938,10 +896,10 @@ var GitlabProvider = class {
     }
     return headers;
   }
-};
+}
 
 // apps/gitlab-plus/src/providers/query/label.ts
-var labelFragment = `
+const labelFragment = `
   fragment Label on Label {
     id
     title
@@ -951,7 +909,7 @@ var labelFragment = `
     __typename
   }
 `;
-var labelsQuery = `query projectLabels($fullPath: ID!, $searchTerm: String) {
+const labelsQuery = `query projectLabels($fullPath: ID!, $searchTerm: String) {
   workspace: project(fullPath: $fullPath) {
     id
     labels(searchTerm: $searchTerm, includeAncestorGroups: true) {
@@ -969,7 +927,7 @@ ${labelFragment}
 `;
 
 // apps/gitlab-plus/src/providers/query/user.ts
-var userFragment = `
+const userFragment = `
 fragment User on User {
   id
   avatarUrl
@@ -980,7 +938,7 @@ fragment User on User {
   __typename
 }
 `;
-var userQuery = `
+const userQuery = `
 query workspaceAutocompleteUsersSearch($search: String!, $fullPath: ID!, $isProject: Boolean = true) {
   groupWorkspace: group(fullPath: $fullPath) @skip(if: $isProject) {
     id
@@ -1013,7 +971,7 @@ fragment UserAvailability on User {
 `;
 
 // apps/gitlab-plus/src/providers/query/issue.ts
-var issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
+const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
   project(fullPath: $projectPath) {
     id
     issue(iid: $iid) {
@@ -1075,7 +1033,7 @@ var issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
 ${labelFragment}
 ${userFragment}
 `;
-var issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath: ID!, $types: [IssueType!], $in: [IssuableSearchableField!], $includeAncestors: Boolean = false, $includeDescendants: Boolean = false, $iid: String = null, $searchByIid: Boolean = false, $searchByText: Boolean = true, $searchEmpty: Boolean = true) {
+const issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath: ID!, $types: [IssueType!], $in: [IssuableSearchableField!], $includeAncestors: Boolean = false, $includeDescendants: Boolean = false, $iid: String = null, $searchByIid: Boolean = false, $searchByText: Boolean = true, $searchEmpty: Boolean = true) {
   workspace: group(fullPath: $fullPath) {
     id
     workItems(
@@ -1136,7 +1094,7 @@ var issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath: ID!, $ty
   }
 }
 `;
-var issueMutation = `
+const issueMutation = `
 mutation CreateIssue($input: CreateIssueInput!) {
   createIssuable: createIssue(input: $input) {
     issuable: issue {
@@ -1237,7 +1195,7 @@ fragment User on User {
 `;
 
 // apps/gitlab-plus/src/providers/IssueProvider.ts
-var IssueProvider = class extends GitlabProvider {
+class IssueProvider extends GitlabProvider {
   async getIssue(projectId, issueId) {
     return this.queryCached(
       `issue-${projectId}-${issueId}`,
@@ -1249,7 +1207,6 @@ var IssueProvider = class extends GitlabProvider {
       2
     );
   }
-
   async getIssues(projectId, search) {
     const searchById = !!search.match(/^\d+$/);
     return await this.query(issuesQuery, {
@@ -1265,11 +1222,9 @@ var IssueProvider = class extends GitlabProvider {
       in: 'TITLE',
     });
   }
-
   async createIssue(input) {
     return await this.query(issueMutation, { input });
   }
-
   async createIssueRelation(input) {
     const path = [
       'projects/:PROJECT_ID',
@@ -1286,17 +1241,16 @@ var IssueProvider = class extends GitlabProvider {
       .replace(':LINK_TYPE', input.linkType);
     return await this.post(path, {});
   }
-
   async getIssueLinks(projectId, issueId) {
     const path = 'projects/:PROJECT_ID/issues/:ISSUE_ID/links'
       .replace(':PROJECT_ID', `${projectId}`)
       .replace(':ISSUE_ID', `${issueId}`);
     return await this.getCached(`issue-${projectId}-${issueId}-links`, path, 2);
   }
-};
+}
 
 // libs/share/src/ui/Events.ts
-var Events = class {
+class Events {
   static intendHover(validate, mouseover, mouseleave, timeout = 500) {
     let hover = false;
     let id = 0;
@@ -1324,15 +1278,14 @@ var Events = class {
     };
     document.body.addEventListener('mouseover', onHover);
   }
-};
+}
 
 // apps/gitlab-plus/src/services/IssuePreview.ts
-var IssuePreview = class {
+class IssuePreview {
   constructor() {
-    this.modal = new IssuePreviewModal();
-    this.issue = new IssueProvider();
+    __publicField(this, 'modal', new IssuePreviewModal());
+    __publicField(this, 'issue', new IssueProvider());
   }
-
   init() {
     Events.intendHover(
       (element) => IssueLink.validateLink(element.href),
@@ -1340,7 +1293,6 @@ var IssuePreview = class {
       this.onLeave.bind(this)
     );
   }
-
   async onHover(event) {
     const anchor = event.target;
     const link = IssueLink.parseLink(anchor.href);
@@ -1357,53 +1309,60 @@ var IssuePreview = class {
     this.modal.updateContent({ ...response.data.project.issue, relatedIssues });
     setTimeout(this.modal.fixPosition.bind(this.modal), 300);
   }
-
   onLeave() {
     this.modal.hide();
   }
+}
+
+// libs/share/src/utils/clsx.ts
+function clsx(...args) {
+  return args.filter((c) => typeof c === 'string').join('');
+}
+
+// apps/gitlab-plus/src/components/common/Icon.tsx
+const buildId =
+  '236e3b687d786d9dfe4709143a94d4c53b8d5a1f235775401e5825148297fa84';
+const iconUrl = (icon) => {
+  var _a;
+  const svgSprite =
+    ((_a = unsafeWindow.gon) == null ? void 0 : _a.sprite_icons) ||
+    `/assets/icons-${buildId}.svg`;
+  return `${svgSprite}#${icon}`;
 };
+function Icon({ icon, size = 12, className }) {
+  return u('svg', {
+    className: clsx('gl-icon gl-fill-current', `s${size}`, className),
+    children: u('use', { href: iconUrl(icon) }),
+  });
+}
 
-// apps/gitlab-plus/src/components/ImagePreviewModal.ts
-var ImagePreviewModal = class extends Component {
-  constructor() {
-    super('div', { classes: 'glp-image-preview-modal' });
-    this.image = Dom.element('img', 'glp-modal-img');
-    this.visibleClassName = 'glp-modal-visible';
-    this.element.append(
-      this.image,
-      Dom.create({
-        tag: 'div',
-        classes: 'glp-modal-close',
-        children: new IconComponent('close-xs', 's24'),
-        events: {
-          click: this.hide.bind(this),
-        },
-      })
-    );
-    this.mount(document.body);
-  }
+// apps/gitlab-plus/src/components/ImagePreviewModal.tsx
+function ImagePreviewModal() {
+  const [src, setSrc] = h('');
+  return u('div', {
+    className: clsx(
+      'glp-image-preview-modal',
+      Boolean(src) && 'glp-modal-visible'
+    ),
+    children: [
+      u('img', { className: 'glp-modal-img', src, alt: 'Image preview' }),
+      u('div', {
+        className: 'glp-modal-close',
+        onClose: () => setSrc(''),
+        children: u(Icon, { icon: 'close-xs', size: 24 }),
+      }),
+    ],
+  });
+}
 
-  show(src) {
-    this.image.src = src;
-    this.element.classList.add(this.visibleClassName);
-  }
-
-  hide() {
-    this.element.classList.remove(this.visibleClassName);
-    this.image.src = '';
-  }
-};
-
-// apps/gitlab-plus/src/services/ImagePreview.ts
-var ImagePreview = class {
-  constructor() {
-    this.modal = new ImagePreviewModal();
-  }
-
+// apps/gitlab-plus/src/services/ImagePreview.tsx
+class ImagePreview {
   init() {
     document.body.addEventListener('click', this.onClick.bind(this));
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    D(u(ImagePreviewModal, {}), root);
   }
-
   onClick(event) {
     const element = this.getAnchor(event.target);
     if (!element) {
@@ -1411,17 +1370,14 @@ var ImagePreview = class {
     }
     event.preventDefault();
     event.stopPropagation();
-    this.modal.show(element.href);
     return false;
   }
-
   validate(element) {
     return (
       element.classList.contains('no-attachment-icon') &&
       /\.(png|jpg|jpeg|heic)$/.test(element.href.toLowerCase())
     );
   }
-
   getAnchor(element) {
     if (!element) {
       return void 0;
@@ -1439,10 +1395,10 @@ var ImagePreview = class {
     }
     return void 0;
   }
-};
+}
 
 // apps/gitlab-plus/src/components/common/CloseButton.ts
-var CloseButton = class extends Component {
+class CloseButton extends Component {
   constructor(onClick, title = 'Close') {
     super('button', {
       classes:
@@ -1457,10 +1413,10 @@ var CloseButton = class extends Component {
       children: new IconComponent('close-xs', 's16'),
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/components/create-related-issue/CreateRelatedIssueModalHeader.ts
-var CreateRelatedIssueModalHeader = class extends Component {
+class CreateRelatedIssueModalHeader extends Component {
   constructor(onClose) {
     super('div', {
       classes:
@@ -1476,10 +1432,10 @@ var CreateRelatedIssueModalHeader = class extends Component {
       ],
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/components/common/form/Field.ts
-var Field = class extends Component {
+class Field extends Component {
   constructor(title, input, hint = '') {
     super('fieldset', {
       classes: 'form-group gl-form-group gl-w-full is-valid',
@@ -1497,10 +1453,10 @@ var Field = class extends Component {
       ],
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/components/create-related-issue/form/FormTitle.ts
-var FormTitle = class extends Field {
+class FormTitle extends Field {
   constructor() {
     const input = Dom.create({
       tag: 'input',
@@ -1508,18 +1464,16 @@ var FormTitle = class extends Field {
       attrs: { placeholder: 'Add a title' },
     });
     super('Title', input, 'Maximum of 255 characters');
-    this.value = '';
+    __publicField(this, 'value', '');
     input.addEventListener('input', this.onChange.bind(this));
   }
-
   onChange(e) {
     this.value = e.target.value;
   }
-
   reset() {
     this.value = '';
   }
-};
+}
 
 // libs/share/src/utils/debounce.ts
 function debounce(callback, wait = 300) {
@@ -1531,17 +1485,17 @@ function debounce(callback, wait = 300) {
 }
 
 // apps/gitlab-plus/src/components/common/form/DropdownSearch.ts
-var DropdownSearch = class extends Component {
+class DropdownSearch extends Component {
   constructor(onChange, navigate) {
     super('div', {
       classes: 'gl-border-b-1 gl-border-b-solid gl-border-b-dropdown',
     });
+    __publicField(this, 'input');
     this.onChange = onChange;
     this.navigate = navigate;
     this.input = this.getSearchInput();
     this.element.append(this.getSearch());
   }
-
   getSearch() {
     return Dom.create({
       tag: 'div',
@@ -1561,7 +1515,6 @@ var DropdownSearch = class extends Component {
       ],
     });
   }
-
   getSearchInput() {
     const search = debounce(this.onChange.bind(this));
     return Dom.create({
@@ -1573,15 +1526,13 @@ var DropdownSearch = class extends Component {
       },
     });
   }
-
   reset() {
     this.input.value = '';
   }
-
   focus() {
     this.input.focus();
   }
-};
+}
 
 // libs/share/src/utils/id.ts
 function randomId(length = 5, prefix = '') {
@@ -1591,20 +1542,20 @@ function randomId(length = 5, prefix = '') {
 }
 
 // apps/gitlab-plus/src/components/common/form/DropdownList.ts
-var DropdownList = class extends Component {
+class DropdownList extends Component {
   constructor(renderItem, onClick, removeFromRecent = void 0) {
     super('div', {
       classes:
         'gl-new-dropdown-contents gl-new-dropdown-contents-with-scrim-overlay bottom-scrim-visible gl-new-dropdown-contents',
     });
+    __publicField(this, 'list');
+    __publicField(this, 'id', randomId(5, 'glp-list-'));
     this.renderItem = renderItem;
     this.onClick = onClick;
     this.removeFromRecent = removeFromRecent;
-    this.id = randomId(5, 'glp-list-');
     this.list = Dom.element('ul', `gl-mb-0 gl-pl-0 ${this.id}`);
     this.element.append(this.list);
   }
-
   render(items, recently, selected) {
     this.list.replaceChildren();
     if (recently.length) {
@@ -1644,7 +1595,6 @@ var DropdownList = class extends Component {
       );
     }
   }
-
   updateActive(index) {
     const activeClass = `glp-active`;
     const itemClass = `glp-item-${index}`;
@@ -1660,7 +1610,6 @@ var DropdownList = class extends Component {
       selectedItem.scrollIntoView({ block: 'center' });
     }
   }
-
   updateSelected(selected) {
     const selectedIds = selected.map((i) => i.id);
     const selectedClass = `glp-selected`;
@@ -1669,14 +1618,13 @@ var DropdownList = class extends Component {
     );
     items.forEach((item) => {
       const id = item.dataset.id;
-      if (selectedIds.includes(id)) {
+      if (id && selectedIds.includes(id)) {
         item.classList.add(selectedClass);
       } else {
         item.classList.remove(selectedClass);
       }
     });
   }
-
   listItem(item, selected, index, removeItem = false) {
     const selectedIds = selected.map((i) => i.id);
     const selectedClass = selectedIds.includes(item.id) ? 'glp-selected' : '';
@@ -1704,7 +1652,6 @@ var DropdownList = class extends Component {
       },
     });
   }
-
   renderRemove(item) {
     const onClose = (e) => {
       e.preventDefault();
@@ -1713,10 +1660,10 @@ var DropdownList = class extends Component {
     };
     return new CloseButton(onClose, 'Remove from recently used');
   }
-};
+}
 
 // apps/gitlab-plus/src/components/common/form/DropdownButton.ts
-var DropdownButton = class extends Component {
+class DropdownButton extends Component {
   constructor(renderLabel, setVisible, reset) {
     super('button', {
       classes:
@@ -1728,13 +1675,21 @@ var DropdownButton = class extends Component {
         click: () => setVisible(true),
       },
     });
+    __publicField(
+      this,
+      'buttonLabel',
+      Dom.element('span', 'gl-new-dropdown-button-text')
+    );
+    __publicField(
+      this,
+      'icon',
+      Dom.create({
+        tag: 'span',
+        children: [new IconComponent('chevron-lg-down', 's16').getElement()],
+      })
+    );
     this.renderLabel = renderLabel;
     this.reset = reset;
-    this.buttonLabel = Dom.element('span', 'gl-new-dropdown-button-text');
-    this.icon = Dom.create({
-      tag: 'span',
-      children: [new IconComponent('chevron-lg-down', 's16').getElement()],
-    });
     document.body.addEventListener('click', (e) => {
       if (e.target !== this.element && !this.element.contains(e.target)) {
         setVisible(false);
@@ -1742,7 +1697,6 @@ var DropdownButton = class extends Component {
     });
     this.element.append(this.buttonInner());
   }
-
   render(items) {
     this.buttonLabel.replaceChildren(this.renderLabel(items));
     const icon = new IconComponent(
@@ -1757,7 +1711,6 @@ var DropdownButton = class extends Component {
     }
     this.icon.replaceChildren(icon);
   }
-
   buttonInner() {
     return Dom.create({
       tag: 'span',
@@ -1765,10 +1718,10 @@ var DropdownButton = class extends Component {
       children: [this.buttonLabel, this.icon],
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/components/common/form/DropdownModal.ts
-var DropdownModal = class extends Component {
+class DropdownModal extends Component {
   constructor(search, list) {
     super('div', {
       classes: 'gl-new-dropdown-panel gl-absolute',
@@ -1788,7 +1741,6 @@ var DropdownModal = class extends Component {
       },
     });
   }
-
   setVisible(visible) {
     if (visible) {
       this.element.classList.add('!gl-block');
@@ -1796,19 +1748,18 @@ var DropdownModal = class extends Component {
       this.element.classList.remove('!gl-block');
     }
   }
-};
+}
 
 // apps/gitlab-plus/src/providers/RecentProvider.ts
-var RecentProvider = class {
+class RecentProvider {
   constructor(key) {
-    this.cache = new Cache('glp-');
+    __publicField(this, 'cache', new Cache('glp-'));
+    __publicField(this, 'key');
     this.key = `recent-${key}`;
   }
-
   get() {
     return this.cache.get(this.key) || [];
   }
-
   add(...items) {
     const itemsId = items.map((i) => i.id);
     this.cache.set(
@@ -1817,7 +1768,6 @@ var RecentProvider = class {
       'lifetime'
     );
   }
-
   remove(...items) {
     const itemsId = items.map((i) => i.id);
     this.cache.set(
@@ -1826,22 +1776,28 @@ var RecentProvider = class {
       'lifetime'
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/common/form/Dropdown.ts
-var Dropdown = class extends Field {
+class Dropdown extends Field {
   constructor(title, key, isMultiselect = false) {
     const container = Dom.element(
       'div',
       'gl-relative gl-w-full gl-new-dropdown !gl-block'
     );
     super(title, container);
+    __publicField(this, 'value', []);
+    __publicField(this, 'items', []);
+    __publicField(this, 'recently', []);
+    __publicField(this, 'extra', Dom.element('div'));
+    __publicField(this, 'recent');
+    __publicField(this, 'searchTerm', '');
+    __publicField(this, 'button');
+    __publicField(this, 'modal');
+    __publicField(this, 'search');
+    __publicField(this, 'list');
+    __publicField(this, 'selectedIndex', -1);
     this.isMultiselect = isMultiselect;
-    this.value = [];
-    this.items = [];
-    this.recently = [];
-    this.extra = Dom.element('div');
-    this.selectedIndex = -1;
     this.recent = new RecentProvider(key);
     this.search = new DropdownSearch(
       this.load.bind(this),
@@ -1875,13 +1831,11 @@ var Dropdown = class extends Field {
     this.button.render(this.value);
     this.list.render(this.items, this.recently, this.value);
   }
-
   updateItems(items, search = '') {
     this.searchTerm = search;
     this.items = items;
     this.render();
   }
-
   onSelect(item) {
     if (this.isMultiselect) {
       if (this.value.find((i) => i.id === item.id)) {
@@ -1898,7 +1852,6 @@ var Dropdown = class extends Field {
     this.list.updateSelected(this.value);
     this.onChange();
   }
-
   reset() {
     this.searchTerm = '';
     this.value = [];
@@ -1906,32 +1859,26 @@ var Dropdown = class extends Field {
     this.search.reset();
     this.load(this.searchTerm);
   }
-
   persistRecent() {
     this.recent.add(...this.value);
     this.render();
   }
-
   removeFromRecent(item) {
     this.recent.remove(item);
     this.render();
   }
-
   getValue() {
     return this.value;
   }
-
   showList() {
     this.modal.setVisible(true);
     this.search.focus();
   }
-
   closeList() {
     this.modal.setVisible(false);
     this.search.reset();
     this.load('');
   }
-
   itemsToRender() {
     const recent = this.recent.get();
     const recentlyIds = recent.map((i) => i.id);
@@ -1945,7 +1892,6 @@ var Dropdown = class extends Field {
       recent: recentItemsToRender,
     };
   }
-
   navigate(key) {
     if (['ArrowDown', 'ArrowUp'].includes(key)) {
       const { recent, items } = this.itemsToRender();
@@ -1963,16 +1909,15 @@ var Dropdown = class extends Field {
       this.closeList();
     }
   }
-
   render() {
     const { recent, items } = this.itemsToRender();
     this.list.render(items, recent, this.value);
     this.list.updateActive(this.selectedIndex);
   }
-};
+}
 
 // apps/gitlab-plus/src/providers/query/project.ts
-var projectsQuery = `query boardsGetGroupProjects($fullPath: ID!, $search: String, $after: String) {
+const projectsQuery = `query boardsGetGroupProjects($fullPath: ID!, $search: String, $after: String) {
   group(fullPath: $fullPath) {
     id
     projects(search: $search, after: $after, first: 100, includeSubgroups: true) {
@@ -2006,7 +1951,7 @@ fragment PageInfo on PageInfo {
 `;
 
 // apps/gitlab-plus/src/providers/ProjectsProvider.ts
-var ProjectsProvider = class extends GitlabProvider {
+class ProjectsProvider extends GitlabProvider {
   async getProjects(projectId, search = '') {
     return this.queryCached(
       `projects-${projectId}-${search}`,
@@ -2018,17 +1963,16 @@ var ProjectsProvider = class extends GitlabProvider {
       search === '' ? 20 : 0.5
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/create-related-issue/form/FormProject.ts
-var FormProject = class extends Dropdown {
+class FormProject extends Dropdown {
   constructor(link) {
     super('Project', 'projects');
+    __publicField(this, 'projects', new ProjectsProvider());
     this.link = link;
-    this.projects = new ProjectsProvider();
     this.load();
   }
-
   async load(search = '') {
     const projects = await this.projects.getProjects(
       this.link.workspacePath,
@@ -2036,7 +1980,6 @@ var FormProject = class extends Dropdown {
     );
     this.updateItems(projects.data.group.projects.nodes, search);
   }
-
   renderItem(item) {
     const image = item.avatarUrl
       ? Dom.create({
@@ -2076,19 +2019,17 @@ var FormProject = class extends Dropdown {
       ],
     });
   }
-
   renderLabel([item]) {
     return Dom.create({
       tag: 'div',
       children: item ? item.nameWithNamespace : 'Select project',
     });
   }
-
   onChange() {}
-};
+}
 
 // apps/gitlab-plus/src/providers/LabelsProvider.ts
-var LabelsProvider = class extends GitlabProvider {
+class LabelsProvider extends GitlabProvider {
   async getLabels(projectId, search = '') {
     return this.queryCached(
       `labels-${projectId}-${search}`,
@@ -2100,14 +2041,14 @@ var LabelsProvider = class extends GitlabProvider {
       search === '' ? 20 : 0.5
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/create-related-issue/form/FormLabels.ts
-var FormLabel = class extends Dropdown {
+class FormLabel extends Dropdown {
   constructor(link) {
     super('Labels', 'labels', true);
+    __publicField(this, 'labels', new LabelsProvider());
     this.link = link;
-    this.labels = new LabelsProvider();
     this.extra.classList.add(
       'gl-mt-1',
       'gl-pb-2',
@@ -2117,12 +2058,10 @@ var FormLabel = class extends Dropdown {
     );
     this.load();
   }
-
   async load(search = '') {
     const labels = await this.labels.getLabels(this.link.projectPath, search);
     this.updateItems(labels.data.workspace.labels.nodes, search);
   }
-
   renderItem(item) {
     return Dom.create({
       tag: 'div',
@@ -2142,7 +2081,6 @@ var FormLabel = class extends Dropdown {
       ],
     });
   }
-
   renderLabel(items) {
     let label = 'Select label';
     if (items.length !== 0) {
@@ -2159,7 +2097,6 @@ var FormLabel = class extends Dropdown {
       children: label,
     });
   }
-
   onChange() {
     this.extra.replaceChildren(
       ...this.value.map((item) =>
@@ -2167,10 +2104,10 @@ var FormLabel = class extends Dropdown {
       )
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/providers/query/milestone.ts
-var milestoneQuery = `query projectMilestones($fullPath: ID!, $title: String, $state: MilestoneStateEnum) {
+const milestoneQuery = `query projectMilestones($fullPath: ID!, $title: String, $state: MilestoneStateEnum) {
   workspace: project(fullPath: $fullPath) {
     id
     attributes: milestones(
@@ -2204,7 +2141,7 @@ fragment MilestoneFragment on Milestone {
 `;
 
 // apps/gitlab-plus/src/providers/MilestonesProvider.ts
-var MilestonesProvider = class extends GitlabProvider {
+class MilestonesProvider extends GitlabProvider {
   async getMilestones(projectId, title = '') {
     return this.queryCached(
       `milestones-${projectId}-${title}`,
@@ -2217,17 +2154,16 @@ var MilestonesProvider = class extends GitlabProvider {
       title === '' ? 20 : 0.5
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/create-related-issue/form/FormMilestone.ts
-var FormMilestone = class extends Dropdown {
+class FormMilestone extends Dropdown {
   constructor(link) {
     super('Milestone', 'milestones');
+    __publicField(this, 'milestones', new MilestonesProvider());
     this.link = link;
-    this.milestones = new MilestonesProvider();
     this.load();
   }
-
   async load(search = '') {
     const milestones = await this.milestones.getMilestones(
       this.link.projectPath,
@@ -2235,7 +2171,6 @@ var FormMilestone = class extends Dropdown {
     );
     this.updateItems(milestones.data.workspace.attributes.nodes, search);
   }
-
   renderItem(item) {
     return Dom.create({
       tag: 'span',
@@ -2253,19 +2188,17 @@ var FormMilestone = class extends Dropdown {
       ],
     });
   }
-
   renderLabel([item]) {
     return Dom.create({
       tag: 'div',
       children: item ? item.title : 'Select milestone',
     });
   }
-
   onChange() {}
-};
+}
 
 // apps/gitlab-plus/src/providers/query/iteration.ts
-var iterationFragment = `fragment IterationFragment on Iteration {
+const iterationFragment = `fragment IterationFragment on Iteration {
   id
   title
   startDate
@@ -2278,7 +2211,7 @@ var iterationFragment = `fragment IterationFragment on Iteration {
   }
   __typename
 }`;
-var iterationQuery = `query issueIterationsAliased($fullPath: ID!, $title: String, $state: IterationState) {
+const iterationQuery = `query issueIterationsAliased($fullPath: ID!, $title: String, $state: IterationState) {
   workspace: group(fullPath: $fullPath) {
     id
     attributes: iterations(
@@ -2300,7 +2233,7 @@ ${iterationFragment}
 `;
 
 // apps/gitlab-plus/src/providers/IterationsProvider.ts
-var IterationsProvider = class extends GitlabProvider {
+class IterationsProvider extends GitlabProvider {
   async getIterations(projectId, title = '') {
     return this.queryCached(
       `iterations-${projectId} `,
@@ -2313,17 +2246,16 @@ var IterationsProvider = class extends GitlabProvider {
       title !== '' ? 0.5 : 20
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/create-related-issue/form/FormIteration.ts
-var FormIteration = class extends Dropdown {
+class FormIteration extends Dropdown {
   constructor(link) {
     super('Iteration', 'iterations');
+    __publicField(this, 'iterations', new IterationsProvider());
     this.link = link;
-    this.iterations = new IterationsProvider();
     this.load();
   }
-
   async load(search = '') {
     const response = await this.iterations.getIterations(
       this.link.workspacePath,
@@ -2337,13 +2269,11 @@ var FormIteration = class extends Dropdown {
       .toSorted((a, b) => a.name.localeCompare(b.name));
     this.updateItems(iterationsNamed, search);
   }
-
   iterationName(iteration) {
     const start = new Date(iteration.startDate).toLocaleDateString();
     const end = new Date(iteration.dueDate).toLocaleDateString();
     return `${iteration.iterationCadence.title}: ${start} - ${end}`;
   }
-
   renderItem(item) {
     return Dom.create({
       tag: 'span',
@@ -2361,19 +2291,17 @@ var FormIteration = class extends Dropdown {
       ],
     });
   }
-
   renderLabel([item]) {
     return Dom.create({
       tag: 'div',
       children: item ? item.name : 'Select iteration',
     });
   }
-
   onChange() {}
-};
+}
 
 // apps/gitlab-plus/src/providers/UsersProvider.ts
-var UsersProvider = class extends GitlabProvider {
+class UsersProvider extends GitlabProvider {
   async getUsers(projectId, search = '') {
     return this.queryCached(
       `users-${projectId}-${search}`,
@@ -2385,17 +2313,16 @@ var UsersProvider = class extends GitlabProvider {
       search === '' ? 20 : 0.5
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/components/create-related-issue/form/FormAssignees.ts
-var FormAssignees = class extends Dropdown {
+class FormAssignees extends Dropdown {
   constructor(link) {
     super('Assignees', 'assignees', true);
+    __publicField(this, 'assignees', new UsersProvider());
     this.link = link;
-    this.assignees = new UsersProvider();
     this.load('');
   }
-
   async load(search) {
     const response = await this.assignees.getUsers(
       this.link.projectPath,
@@ -2403,7 +2330,6 @@ var FormAssignees = class extends Dropdown {
     );
     this.updateItems(response.data.workspace.users, search);
   }
-
   renderItem(item) {
     const image = Dom.create({
       tag: 'img',
@@ -2438,7 +2364,6 @@ var FormAssignees = class extends Dropdown {
       children: [image, label],
     });
   }
-
   renderLabel(items) {
     const label = items.map((i) => i.name).join(', ');
     return Dom.create({
@@ -2449,27 +2374,24 @@ var FormAssignees = class extends Dropdown {
       children: items.length ? label : 'Select assignee',
     });
   }
-
   onChange() {}
-};
+}
 
 // apps/gitlab-plus/src/components/create-related-issue/form/FormRelation.ts
-var FormRelation = class extends Field {
+class FormRelation extends Field {
   constructor() {
     const container = Dom.element('div', 'linked-issue-type-radio');
     super('New issue', container);
-    this.value = '';
+    __publicField(this, 'value', '');
     container.append(
       this.radio('blocks current issue', 'blocks'),
       this.radio('is blocked by current issue', 'is_blocked_by'),
       this.radio('relates to current issue', 'related')
     );
   }
-
   onChange(e) {
     this.value = e.target.value;
   }
-
   radio(label, value) {
     const id = `input-${Math.random()}`;
     return Dom.create({
@@ -2500,21 +2422,27 @@ var FormRelation = class extends Field {
       ],
     });
   }
-
   reset() {
     this.value = '';
   }
-};
+}
 
 // apps/gitlab-plus/src/components/create-related-issue/CreateRelatedIssueModalContent.ts
-var CreateRelatedIssueModalContent = class extends Component {
+class CreateRelatedIssueModalContent extends Component {
   constructor(link, onClose) {
     super('form', {
       classes: 'crud-body add-tree-form gl-mx-5 gl-my-4 gl-rounded-b-form',
     });
+    __publicField(this, 'issueProvider', new IssueProvider());
+    __publicField(this, 'title');
+    __publicField(this, 'project');
+    __publicField(this, 'labels');
+    __publicField(this, 'milestone');
+    __publicField(this, 'iteration');
+    __publicField(this, 'assignees');
+    __publicField(this, 'relation');
     this.link = link;
     this.onClose = onClose;
-    this.issueProvider = new IssueProvider();
     this.title = new FormTitle();
     this.project = new FormProject(this.link);
     this.labels = new FormLabel(this.link);
@@ -2545,7 +2473,6 @@ var CreateRelatedIssueModalContent = class extends Component {
       })
     );
   }
-
   row(items) {
     return Dom.create({
       tag: 'div',
@@ -2553,7 +2480,6 @@ var CreateRelatedIssueModalContent = class extends Component {
       children: items,
     });
   }
-
   reset() {
     this.element.reset();
     this.title.reset();
@@ -2564,7 +2490,6 @@ var CreateRelatedIssueModalContent = class extends Component {
     this.assignees.reset();
     this.labels.reset();
   }
-
   async createIssue() {
     const data = this.getFormValue();
     const link = IssueLink.parseLink(window.location.href);
@@ -2585,7 +2510,6 @@ var CreateRelatedIssueModalContent = class extends Component {
     this.onClose();
     this.reset();
   }
-
   getFormValue() {
     const [project] = this.project.getValue();
     if (!project) {
@@ -2612,7 +2536,6 @@ var CreateRelatedIssueModalContent = class extends Component {
     data['labelIds'] = labels.map((label) => label.id);
     return data;
   }
-
   persistRecently() {
     this.project.persistRecent();
     this.milestone.persistRecent();
@@ -2620,10 +2543,10 @@ var CreateRelatedIssueModalContent = class extends Component {
     this.assignees.persistRecent();
     this.labels.persistRecent();
   }
-};
+}
 
 // apps/gitlab-plus/src/components/CreateRelatedIssueModal.ts
-var CreateRelatedIssueModal = class extends Component {
+class CreateRelatedIssueModal extends Component {
   constructor() {
     const container = Dom.create({
       tag: 'div',
@@ -2634,7 +2557,7 @@ var CreateRelatedIssueModal = class extends Component {
       classes: 'glp-create-related-issue-layer',
       children: container,
     });
-    this.visibleClassName = 'glp-modal-visible';
+    __publicField(this, 'visibleClassName', 'glp-modal-visible');
     const link = IssueLink.parseLink(window.location.href);
     if (link) {
       const form = new CreateRelatedIssueModalContent(
@@ -2650,22 +2573,19 @@ var CreateRelatedIssueModal = class extends Component {
       );
     }
   }
-
   init() {
     this.mount(document.body);
   }
-
   show() {
     this.element.classList.add(this.visibleClassName);
   }
-
   hide() {
     this.element.classList.remove(this.visibleClassName);
   }
-};
+}
 
 // apps/gitlab-plus/src/components/create-related-issue/CreateButton.ts
-var CreateButton = class extends Component {
+class CreateButton extends Component {
   constructor() {
     super('button', {
       classes: 'btn btn-default btn-sm gl-button',
@@ -2679,7 +2599,6 @@ var CreateButton = class extends Component {
       },
     });
   }
-
   init() {
     const parent = document.querySelector(
       '#related-issues [data-testid="crud-actions"]'
@@ -2688,33 +2607,33 @@ var CreateButton = class extends Component {
       this.mount(parent);
     }
   }
-};
+}
 
 // apps/gitlab-plus/src/services/CreateRelatedIssue.ts
-var CreateRelatedIssue = class {
+class CreateRelatedIssue {
   constructor() {
-    this.modal = new CreateRelatedIssueModal();
-    this.addButton = new CreateButton();
+    __publicField(this, 'modal', new CreateRelatedIssueModal());
+    __publicField(this, 'addButton', new CreateButton());
   }
-
   init() {
     this.modal.init();
     this.addButton.event('click', this.modal.show.bind(this.modal));
     this.mountButton();
   }
-
   mountButton() {
     setTimeout(this.addButton.init.bind(this.addButton), 1e3);
     setTimeout(this.addButton.init.bind(this.addButton), 3e3);
   }
-};
+}
 
 // apps/gitlab-plus/src/components/related-issue-autocomplete/AutocompleteModal.ts
-var AutocompleteModal = class extends Component {
+class AutocompleteModal extends Component {
   constructor(onSelect, renderItem, search) {
     super('div', {
       classes: 'gl-relative gl-w-full gl-new-dropdown !gl-block',
     });
+    __publicField(this, 'list');
+    __publicField(this, 'modal');
     const modalSearch = new DropdownSearch(search, () => {});
     this.list = new DropdownList(renderItem, onSelect);
     this.modal = new DropdownModal(
@@ -2724,22 +2643,23 @@ var AutocompleteModal = class extends Component {
     this.element.append(this.modal.getElement());
     this.updateItems([]);
   }
-
   updateItems(items) {
     this.list.render(items, [], []);
   }
-
   setVisible(visible) {
     this.modal.setVisible(visible);
   }
-};
+}
 
 // apps/gitlab-plus/src/components/RelatedIssuesAutocompleteModal.ts
-var RelatedIssuesAutocompleteModal = class {
+class RelatedIssuesAutocompleteModal {
   constructor() {
-    this.readyClass = 'glp-input-ready';
-    this.input = Dom.element('input');
-    this.issueProvider = new IssueProvider();
+    __publicField(this, 'readyClass', 'glp-input-ready');
+    __publicField(this, 'input', Dom.element('input'));
+    __publicField(this, 'autocompleteModal');
+    __publicField(this, 'issueProvider', new IssueProvider());
+    __publicField(this, 'search');
+    __publicField(this, 'link');
     this.search = debounce(this.load.bind(this));
     this.link = IssueLink.parseLink(window.location.href);
     this.autocompleteModal = new AutocompleteModal(
@@ -2753,7 +2673,6 @@ var RelatedIssuesAutocompleteModal = class {
       }
     });
   }
-
   init(input) {
     if (this.isMounted(input)) {
       return;
@@ -2767,17 +2686,15 @@ var RelatedIssuesAutocompleteModal = class {
     this.input.classList.add(this.readyClass);
     this.input.addEventListener('focus', this.show.bind(this));
   }
-
   isMounted(input) {
     return input.classList.contains(this.readyClass);
   }
-
   show() {
     this.autocompleteModal.setVisible(true);
     this.search('');
   }
-
   async load(term = '') {
+    var _a, _b, _c;
     if (!this.link) {
       return;
     }
@@ -2786,19 +2703,23 @@ var RelatedIssuesAutocompleteModal = class {
       term
     );
     this.autocompleteModal.updateItems([
-      ...(response.data.workspace.workItems?.nodes || []),
-      ...(response.data.workspace.workItemsByIid?.nodes || []),
-      ...(response.data.workspace.workItemsEmpty?.nodes || []),
+      ...(((_a = response.data.workspace.workItems) == null
+        ? void 0
+        : _a.nodes) || []),
+      ...(((_b = response.data.workspace.workItemsByIid) == null
+        ? void 0
+        : _b.nodes) || []),
+      ...(((_c = response.data.workspace.workItemsEmpty) == null
+        ? void 0
+        : _c.nodes) || []),
     ]);
   }
-
   onSelect(item) {
     this.input.value = `${item.project.fullPath}#${item.iid} `;
     this.input.dispatchEvent(new Event('input'));
     this.input.dispatchEvent(new Event('change'));
     this.autocompleteModal.setVisible(false);
   }
-
   renderItem(item) {
     return Dom.create({
       tag: 'div',
@@ -2810,22 +2731,20 @@ var RelatedIssuesAutocompleteModal = class {
       ],
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/services/RelatedIssueAutocomplete.ts
-var RelatedIssueAutocomplete = class {
+class RelatedIssueAutocomplete {
   constructor() {
-    this.modal = new RelatedIssuesAutocompleteModal();
-    this.ready = false;
+    __publicField(this, 'modal', new RelatedIssuesAutocompleteModal());
+    __publicField(this, 'ready', false);
   }
-
   init() {
     this.initObserver();
     window.setTimeout(this.initObserver.bind(this), 1e3);
     window.setTimeout(this.initObserver.bind(this), 3e3);
     window.setTimeout(this.initObserver.bind(this), 5e3);
   }
-
   initObserver() {
     const section = document.querySelector('#related-issues');
     if (this.ready || !section) {
@@ -2843,35 +2762,32 @@ var RelatedIssueAutocomplete = class {
       childList: true,
     });
   }
-
   initAutocomplete(section) {
     const input = section.querySelector('#add-related-issues-form-input');
     if (input) {
       this.modal.init(input);
     }
   }
-};
+}
 
 // apps/gitlab-plus/src/services/ClearCacheService.ts
-var ClearCacheService = class {
+class ClearCacheService {
   constructor() {
-    this.cache = new Cache('glp-');
+    __publicField(this, 'cache', new Cache('glp-'));
   }
-
   init() {
     this.cache.clearInvalid();
     window.setInterval(this.cache.clearInvalid.bind(this.cache), 60 * 1e3);
   }
-};
+}
 
 // libs/share/src/ui/Observer.ts
-var Observer = class {
+class Observer {
   stop() {
     if (this.observer) {
       this.observer.disconnect();
     }
   }
-
   start(element, callback, options) {
     this.stop();
     this.observer = new MutationObserver(callback);
@@ -2887,18 +2803,18 @@ var Observer = class {
       }
     );
   }
-};
+}
 
 // apps/gitlab-plus/src/services/SortIssue.ts
-var sortWeight = {
-  ['ownIssue' /* ownIssue */]: 10,
-  ['ownUserStory' /* ownUserStory */]: 8,
-  ['userStory' /* userStory */]: 6,
-  ['issue' /* issue */]: 4,
-  ['unknown' /* unknown */]: 2,
-  ['label' /* label */]: 0,
+const sortWeight = {
+  ['ownIssue']: 10,
+  ['ownUserStory']: 8,
+  ['userStory']: 6,
+  ['issue']: 4,
+  ['unknown']: 2,
+  ['label']: 0,
 };
-var SortIssue = class {
+class SortIssue {
   init() {
     const observer = new Observer();
     const userName = this.userName();
@@ -2908,13 +2824,11 @@ var SortIssue = class {
     }
     observer.start(board, () => this.run(userName));
   }
-
   run(userName) {
     [...document.querySelectorAll('.board-list:not(.glp-ready)')].forEach(
       (board) => this.initBoard(board, userName)
     );
   }
-
   initBoard(board, userName) {
     Dom.applyClass(board, 'glp-ready');
     const observer = new Observer();
@@ -2922,7 +2836,6 @@ var SortIssue = class {
       childList: true,
     });
   }
-
   sortBoard(board, userName) {
     Dom.applyStyles(board, {
       flexDirection: 'column',
@@ -2941,14 +2854,13 @@ var SortIssue = class {
       element.style.order = `${order}`;
     });
   }
-
   childType(child, userName) {
     if (child instanceof HTMLDivElement) {
-      return 'label' /* label */;
+      return 'label';
     }
     const title = child.querySelector('[data-testid="board-card-title-link"]');
     if (!title) {
-      return 'unknown' /* unknown */;
+      return 'unknown';
     }
     const isOwn = [...child.querySelectorAll('.gl-avatar-link img')].some(
       (img) => img.alt.includes(userName)
@@ -2957,43 +2869,37 @@ var SortIssue = class {
       span.innerText.includes('User Story')
     );
     if (isUserStory && isOwn) {
-      return 'ownUserStory' /* ownUserStory */;
+      return 'ownUserStory';
     }
     if (isOwn) {
-      return 'ownIssue' /* ownIssue */;
+      return 'ownIssue';
     }
     if (isUserStory) {
-      return 'userStory' /* userStory */;
+      return 'userStory';
     }
-    return 'issue' /* issue */;
+    return 'issue';
   }
-
   userName() {
     const element = document.querySelector(
       '.user-bar-dropdown-toggle .gl-button-text .gl-sr-only'
     );
-    const testText = ' user\u2019s menu';
+    const testText = ' user’s menu';
     if (element && element.innerText.includes(testText)) {
       return element.innerText.replace(testText, '');
     }
     return void 0;
   }
-
   sortChildren(items) {
     return items.toSorted((a, b) => {
       return Math.sign(sortWeight[b.type] - sortWeight[a.type]);
     });
   }
-
   shouldSort(items) {
     return items.some((item) => {
-      return [
-        'ownIssue' /* ownIssue */,
-        'ownUserStory' /* ownUserStory */,
-      ].includes(item.type);
+      return ['ownIssue', 'ownUserStory'].includes(item.type);
     });
   }
-};
+}
 
 // apps/gitlab-plus/src/main.ts
 [

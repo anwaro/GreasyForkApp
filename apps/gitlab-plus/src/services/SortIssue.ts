@@ -20,7 +20,7 @@ const sortWeight: Record<ChildType, number> = {
   [ChildType.label]: 0,
 };
 
-export class SortIssue implements Service {
+export class SortIssue extends Service {
   public init() {
     const observer = new Observer();
     const userName = this.userName();

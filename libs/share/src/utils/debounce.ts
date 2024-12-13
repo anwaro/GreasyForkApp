@@ -1,6 +1,6 @@
 export function debounce<T extends unknown[]>(
   callback: (...args: T) => void,
-  wait: number = 300
+  wait = 300
 ) {
   let timer: number;
 

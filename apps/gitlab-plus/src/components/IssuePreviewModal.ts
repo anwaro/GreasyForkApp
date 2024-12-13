@@ -1,8 +1,9 @@
-import { IssueWithRelated } from '../types/Issue';
-import { IssueModalContent } from './issue-preview/IssueModalContent';
 import { Component } from '@ui/Component';
 import { Dom } from '@ui/Dom';
-import { GitlabLoader } from './common/GitlabLoader';
+
+import { IssueWithRelated } from '../types/Issue';
+import { _GitlabLoader } from './common/GitlabLoader';
+import { IssueModalContent } from './issue-preview/IssueModalContent';
 
 export class IssuePreviewModal extends Component<'div'> {
   private content = new IssueModalContent();
@@ -10,8 +11,8 @@ export class IssuePreviewModal extends Component<'div'> {
 
   constructor() {
     super('div', {
-      classes: 'glp-issue-preview-modal',
       children: IssuePreviewModal.loader(),
+      classes: 'glp-issue-preview-modal',
     });
     this.mount(document.body);
   }
@@ -19,18 +20,9 @@ export class IssuePreviewModal extends Component<'div'> {
   static loader() {
     return Dom.create({
       tag: 'div',
+      children: new _GitlabLoader('2em'),
       classes: 'gl-flex gl-flex-1 gl-items-center gl-justify-center',
-      children: new GitlabLoader('2em'),
     });
-  }
-
-  show(event: HTMLElementEventMap['mouseenter']) {
-    Dom.applyStyles(this.element, {
-      left: `${event.clientX + 10}px`,
-      top: `${event.clientY + 10}px`,
-      transform: 'translateY(0px)',
-    });
-    this.element.classList.add(this.visibleClassName);
   }
 
   fixPosition() {
@@ -48,6 +40,15 @@ export class IssuePreviewModal extends Component<'div'> {
     Dom.applyStyles(this.element, {
       transform: 'translateY(0px)',
     });
+  }
+
+  show(event: HTMLElementEventMap['mouseenter']) {
+    Dom.applyStyles(this.element, {
+      left: `${event.clientX + 10}px`,
+      top: `${event.clientY + 10}px`,
+      transform: 'translateY(0px)',
+    });
+    this.element.classList.add(this.visibleClassName);
   }
 
   updateContent(issue: IssueWithRelated) {

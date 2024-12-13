@@ -3,12 +3,12 @@ import { projectsQuery } from './query/project';
 import { ProjectsResponse } from '../types/Project';
 
 export class ProjectsProvider extends GitlabProvider {
-  async getProjects(projectId: string, search: string = '') {
+  async getProjects(workspacePath: string, search = '') {
     return this.queryCached<ProjectsResponse>(
-      `projects-${projectId}-${search}`,
+      `projects-${workspacePath}-${search}`,
       projectsQuery,
       {
-        fullPath: projectId,
+        fullPath: workspacePath,
         search,
       },
       search === '' ? 20 : 0.5
