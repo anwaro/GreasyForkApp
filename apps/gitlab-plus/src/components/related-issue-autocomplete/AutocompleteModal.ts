@@ -1,13 +1,16 @@
-import { DropdownItem, DropdownList } from '../common/form/DropdownList';
-import { DropdownSearch } from '../common/form/DropdownSearch';
-import { DropdownModal } from '../common/form/DropdownModal';
+import {
+  _AsyncAutocompleteList,
+  DropdownItem,
+} from '../common/form/autocomplete/AsyncAutocompleteList';
+import { _AsyncAutocompleteSearch } from '../common/form/autocomplete/AsyncAutocompleteSearch';
+import { _AsyncAutocompleteDropdown } from '../common/form/autocomplete/AsyncAutocompleteDropdown';
 import { Component } from '@ui/Component';
 
 export class AutocompleteModal<
   D extends DropdownItem
 > extends Component<'div'> {
-  private list: DropdownList<D>;
-  private modal: DropdownModal;
+  private list: _AsyncAutocompleteList<D>;
+  private modal: _AsyncAutocompleteDropdown;
 
   constructor(
     onSelect: (item: D) => void,
@@ -18,9 +21,11 @@ export class AutocompleteModal<
       classes: 'gl-relative gl-w-full gl-new-dropdown !gl-block',
     });
 
-    const modalSearch = new DropdownSearch(search, () => {});
-    this.list = new DropdownList(renderItem, onSelect);
-    this.modal = new DropdownModal(
+    const modalSearch = new _AsyncAutocompleteSearch(search, () => {
+      // pass
+    });
+    this.list = new _AsyncAutocompleteList(renderItem, onSelect);
+    this.modal = new _AsyncAutocompleteDropdown(
       modalSearch.getElement(),
       this.list.getElement()
     );

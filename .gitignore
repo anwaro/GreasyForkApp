@@ -44,3 +44,4 @@ Thumbs.db
 vite.config.*.timestamp*
 
 scripts/**/dev.js
+scripts/**/index.html

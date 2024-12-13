@@ -6,6 +6,23 @@
   "tags": [],
   "targets": {
     "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "development",
+      "options": {
+        "outputPath": "scripts/gitlab-plus"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development",
+          "watch": true
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "build-old": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": [
         "{options.outputPath}"

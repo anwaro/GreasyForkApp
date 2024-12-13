@@ -4,7 +4,7 @@ type CacheItem = {
 };
 
 export class Cache {
-  constructor(private prefix: string) {}
+  constructor(public prefix: string) {}
 
   private isValid(item?: CacheItem): item is CacheItem {
     if (item) {
@@ -57,6 +57,7 @@ export class Cache {
   }
 
   key(key: string) {
+    console.log('key', `${this.prefix}${key}`);
     return `${this.prefix}${key}`;
   }
 

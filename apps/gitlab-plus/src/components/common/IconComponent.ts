@@ -25,7 +25,7 @@ declare global {
 }
 
 export class IconComponent extends SvgComponent<'svg'> {
-  constructor(icon: IconNames, size: string = 's12', ...cls: string[]) {
+  constructor(icon: IconNames, size = 's12', ...cls: string[]) {
     const svgSprite =
       unsafeWindow.gon?.sprite_icons || `/assets/icons-${buildId}.svg`;
     super('svg', {

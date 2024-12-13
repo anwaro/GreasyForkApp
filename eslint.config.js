@@ -1,4 +1,5 @@
 const nx = require('@nx/eslint-plugin');
+const perfectionist = require('eslint-plugin-perfectionist');
 
 module.exports = [
   ...nx.configs['flat/base'],
@@ -6,6 +7,11 @@ module.exports = [
   ...nx.configs['flat/javascript'],
   {
     ignores: ['**/dist'],
+  },
+  {
+    plugins: {
+      perfectionist,
+    },
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
@@ -26,8 +32,123 @@ module.exports = [
     },
   },
   {
-    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    files: ['**/*.ts', '**/*.tsx'],
     // Override or add rules here
-    rules: {},
+    rules: {
+      'prefer-const': 'error',
+      'no-console': [
+        'error',
+        {
+          allow: ['error'],
+        },
+      ],
+      'perfectionist/sort-interfaces': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+          groups: ['top'],
+          customGroups: {
+            top: ['id', 'tag'],
+          },
+        },
+      ],
+      'perfectionist/sort-union-types': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+        },
+      ],
+      'perfectionist/sort-object-types': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+          groups: ['id'],
+          customGroups: {
+            id: ['id', 'tag'],
+          },
+        },
+      ],
+      'perfectionist/sort-objects': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+          groups: ['id'],
+          customGroups: {
+            id: ['id', 'tag'],
+          },
+        },
+      ],
+      'perfectionist/sort-enums': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+        },
+      ],
+      'perfectionist/sort-classes': 'error',
+      'perfectionist/sort-jsx-props': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+          groups: ['key', 'id', 'multiline', 'shorthand', 'callback'],
+          customGroups: {
+            callback: 'on*',
+            key: 'key',
+            id: 'id',
+          },
+        },
+      ],
+      'perfectionist/sort-exports': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+        },
+      ],
+      'perfectionist/sort-named-exports': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+        },
+      ],
+      'perfectionist/sort-imports': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+          groups: [
+            ['react', 'builtin', 'external'],
+            'type',
+            'internal-apps',
+            'internal',
+            'internal-type',
+            ['parent', 'sibling', 'index'],
+            ['parent-type', 'sibling-type', 'index-type'],
+            'object',
+            'unknown',
+          ],
+          customGroups: {
+            value: {
+              react: ['preact', 'react-*'],
+              'internal-apps': ['@store/*', '@ui/*', '@utils/*'],
+            },
+          },
+          newlinesBetween: 'always',
+        },
+      ],
+      'perfectionist/sort-named-imports': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+        },
+      ],
+    },
   },
 ];

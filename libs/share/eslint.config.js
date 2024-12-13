@@ -1,3 +1,7 @@
+// import baseConfig from '../../eslint.config.js';
+//
+// export default [
+
 const baseConfig = require('../../eslint.config.js');
 
 module.exports = [
