@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
 
 import { OptionItem } from './types';
 import { useAsyncAutocompleteOptions } from './useAsyncAutocompleteOptions';
@@ -11,9 +11,10 @@ export function useAsyncAutocomplete<D extends OptionItem>(
   onChange: (items: D[]) => void,
   isMultiselect: boolean
 ) {
-  const { recently } = useAsyncAutocompleteRecently<D>(name);
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const { recently: allRecently, remove: removeRecently } =
+    useAsyncAutocompleteRecently<D>(name);
   const options = useAsyncAutocompleteOptions(searchTerm, getValues);
 
   const onClick = (item: D) => {
@@ -29,11 +30,23 @@ export function useAsyncAutocomplete<D extends OptionItem>(
     }
   };
 
+  const recently = useMemo(() => {
+    const optionsIds = options.map((i) => i.id);
+    return searchTerm.length
+      ? allRecently.filter((i) => optionsIds.includes(i.id))
+      : allRecently;
+  }, [options, allRecently]);
+
   return {
     isOpen,
     onClick,
-    options,
+    options: useMemo(() => {
+      const recentlyIds = recently.map((i) => i.id);
+
+      return options.filter((i) => !recentlyIds.includes(i.id));
+    }, [options, recently]),
     recently,
+    removeRecently,
     searchTerm,
     setIsOpen,
     setSearchTerm,

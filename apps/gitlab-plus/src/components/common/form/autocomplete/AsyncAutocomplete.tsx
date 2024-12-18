@@ -2,7 +2,7 @@ import type { ReactNode } from 'preact/compat';
 
 import { Dom } from '@ui/Dom';
 
-import { RecentProvider } from '../../../../providers/RecentProvider';
+import { RecentlyProvider } from '../../../../providers/RecentlyProvider';
 import { _FormField } from '../FormField';
 import {
   _AsyncAutocompleteInput,
@@ -27,7 +27,7 @@ export default abstract class _AsyncAutocomplete<
   private button: _AsyncAutocompleteInput<D>;
   private list: _AsyncAutocompleteList<D>;
   private modal: _AsyncAutocompleteDropdown;
-  private recent: RecentProvider<D>;
+  private recent: RecentlyProvider<D>;
   private search: _AsyncAutocompleteSearch;
   private searchTerm = '';
   private selectedIndex = -1;
@@ -38,7 +38,7 @@ export default abstract class _AsyncAutocomplete<
       'gl-relative gl-w-full gl-new-dropdown !gl-block'
     );
     super(title, container);
-    this.recent = new RecentProvider<D>(key);
+    this.recent = new RecentlyProvider<D>(key);
     this.search = new _AsyncAutocompleteSearch(
       this.load.bind(this),
       this.navigate.bind(this)
@@ -197,10 +197,19 @@ export function AsyncAutocomplete<D extends OptionItem>({
   name,
   onChange,
   renderLabel,
-  renderOption, value
+  renderOption,
+  value,
 }: Props<D>) {
-  const { isOpen, onClick, options, searchTerm, setIsOpen, setSearchTerm } =
-    useAsyncAutocomplete<D>(name, value, getValues, onChange, isMultiselect);
+  const {
+    isOpen,
+    onClick,
+    options,
+    recently,
+    removeRecently,
+    searchTerm,
+    setIsOpen,
+    setSearchTerm,
+  } = useAsyncAutocomplete<D>(name, value, getValues, onChange, isMultiselect);
 
   return (
     <div class={'gl-relative gl-w-full gl-new-dropdown !gl-block'}>
@@ -211,17 +220,19 @@ export function AsyncAutocomplete<D extends OptionItem>({
         setIsOpen={setIsOpen}
         value={value}
       />
-      <AsyncAutocompleteDropdown<D>
-        onClick={onClick}
-        onClose={() => setIsOpen(false)}
-        options={options}
-        renderOption={renderOption}
-        isOpen={isOpen}
-        name={name}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        value={value}
-      />
+      {isOpen && (
+        <AsyncAutocompleteDropdown<D>
+          onClick={onClick}
+          onClose={() => setIsOpen(false)}
+          options={options}
+          removeRecently={removeRecently}
+          renderOption={renderOption}
+          recently={recently}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          value={value}
+        />
+      )}
     </div>
   );
 }

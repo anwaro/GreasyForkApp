@@ -7,6 +7,7 @@ import { GitlabIcon } from '../../GitlabIcon';
 import { OptionItem } from './types';
 
 type Props<D extends OptionItem> = {
+  isActive?: boolean;
   onClick: (item: D) => void;
   option: D;
   removeFromRecent?: (value: D) => void;
@@ -15,6 +16,7 @@ type Props<D extends OptionItem> = {
 };
 
 export function AsyncAutocompleteOption<D extends OptionItem>({
+  isActive,
   onClick,
   option,
   removeFromRecent,
@@ -27,8 +29,12 @@ export function AsyncAutocompleteOption<D extends OptionItem>({
 
   return (
     <li
+      class={clsx(
+        'gl-new-dropdown-item',
+        selectedClass(option.id),
+        isActive && 'glp-active'
+      )}
       onClick={() => onClick(option)}
-      class={clsx('gl-new-dropdown-item', selectedClass(option.id))}
     >
       <span class={'gl-new-dropdown-item-content'}>
         <GitlabIcon

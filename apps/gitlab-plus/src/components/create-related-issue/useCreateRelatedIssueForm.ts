@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 
 import { IssueLinkType } from '../../helpers/IssueLink';
 import { IssueProvider } from '../../providers/IssueProvider';
+import { RecentlyProvider } from '../../providers/RecentlyProvider';
 import { CreateIssueInput, Issuable, IssueRelation } from '../../types/Issue';
 import { Label } from '../../types/Label';
 import { Milestone } from '../../types/Milestone';
@@ -45,11 +46,11 @@ export function useCreateRelatedIssueForm(
   onClose: () => void,
   isVisible: boolean
 ) {
+  const [values, setValues] = useState<FormFields>(initialState());
+  const [errors, setErrors] = useState<FormErrors>(initialError());
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [values, setValues] = useState<FormFields>(initialState());
-  const [errors, setErrors] = useState<FormErrors>(initialError());
 
   const reset = () => {
     setIsLoading(false);
@@ -85,6 +86,18 @@ export function useCreateRelatedIssueForm(
     data['labelIds'] = values.labels.map((label) => label.id);
 
     return data;
+  };
+
+  const persistRecently = () => {
+    Object.entries({
+      assignees: values.assignees,
+      iterations: values.iteration ? [values.iteration] : [],
+      labels: values.labels,
+      milestones: values.milestone ? [values.milestone] : [],
+      projects: values.project ? [values.project] : [],
+    }).map(([key, values]) => {
+      new RecentlyProvider(key).add(...values);
+    });
   };
 
   const validate = () => {
@@ -127,13 +140,18 @@ export function useCreateRelatedIssueForm(
       setIsLoading(false);
       return;
     }
-    const payload = createPayload();
-    const response = await createIssue(payload);
-    if (values.relation) {
-      await createRelation(
-        response.data.createIssuable.issuable,
-        values.relation
-      );
+    try {
+      const payload = createPayload();
+      const response = await createIssue(payload);
+      persistRecently();
+      if (values.relation) {
+        await createRelation(
+          response.data.createIssuable.issuable,
+          values.relation
+        );
+      }
+    } catch (e) {
+      setError((e as Error).message);
     }
     setIsLoading(false);
     setMessage('Issue was created');

@@ -1,16 +1,16 @@
 export abstract class Service {
   abstract init(): void;
 
-  root(className: string) {
+  root(className: string, parent?: HTMLElement) {
     const root = document.createElement('div');
     root.classList.add(className);
-    document.body.appendChild(root);
+    if (parent) {
+      parent.append(root);
+    }
     return root;
   }
 
   rootBody(className: string) {
-    const root = this.root(className);
-    document.body.appendChild(root);
-    return root;
+    return this.root(className, document.body);
   }
 }

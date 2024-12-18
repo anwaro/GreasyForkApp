@@ -1,77 +1,9 @@
-import { Dom } from '@ui/Dom';
-
 import { issueRelation, IssueRelation } from '../../../types/Issue';
-import { _FormField } from '../../common/form/FormField';
-
-export class FormRelation extends _FormField {
-  public value = '';
-
-  constructor() {
-    const container = Dom.element('div', 'linked-issue-type-radio');
-    super('New issue', container);
-
-    container.append(
-      this.radio('blocks current issue', 'blocks'),
-      this.radio('is blocked by current issue', 'is_blocked_by'),
-      this.radio('relates to current issue', 'related')
-    );
-  }
-
-  onChange(e: Event) {
-    this.value = (e.target as HTMLInputElement).value;
-  }
-
-  radio(label: string, value: string) {
-    const id = `input-${Math.random()}`;
-    return Dom.create({
-      tag: 'div',
-      children: [
-        {
-          tag: 'input',
-          attrs: {
-            id,
-            name: 'linked-issue-type-radio',
-            type: 'radio',
-            value: value,
-          },
-          classes: 'custom-control-input',
-          events: {
-            change: this.onChange.bind(this),
-          },
-        },
-        {
-          tag: 'label',
-          attrs: {
-            for: id,
-          },
-          children: label,
-          classes: 'custom-control-label',
-        },
-      ],
-      classes: 'gl-form-radio custom-control custom-radio',
-    });
-  }
-
-  reset() {
-    this.value = '';
-  }
-}
 
 type Props = {
   setValue: (value: IssueRelation | null) => void;
   value: IssueRelation | null;
 };
-
-/*
-        {
-          tag: 'label',
-          attrs: {
-            for: id,
-          },
-          children: label,
-          classes: 'custom-control-label',
-        },
- */
 
 const labels = (relation: IssueRelation | null) => {
   switch (relation) {

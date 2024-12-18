@@ -6,7 +6,6 @@ import { clsx } from '@utils/clsx';
 import { AsyncAutocompleteList } from './AsyncAutocompleteList';
 import { AsyncAutocompleteSearch } from './AsyncAutocompleteSearch';
 import { OptionItem } from './types';
-import { useAsyncAutocompleteRecently } from './useAsyncAutocompleteRecently';
 import { useListNavigate } from './useListNavigate';
 
 export class _AsyncAutocompleteDropdown extends Component<'div'> {
@@ -40,11 +39,11 @@ export class _AsyncAutocompleteDropdown extends Component<'div'> {
 }
 
 type Props<D extends OptionItem> = {
-  isOpen: boolean;
-  name: string;
   onClick: (item: D) => void;
   onClose: () => void;
   options: D[];
+  recently?: D[];
+  removeRecently?: (...recently: D[]) => void;
   renderOption: (value: D) => ReactNode;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
@@ -52,18 +51,22 @@ type Props<D extends OptionItem> = {
 };
 
 export function AsyncAutocompleteDropdown<D extends OptionItem>({
-  isOpen,
-  name,
   onClick,
   onClose,
   options,
+  recently = [],
+  removeRecently,
   renderOption,
   searchTerm,
   setSearchTerm,
   value,
 }: Props<D>) {
-  const { recently, remove } = useAsyncAutocompleteRecently<D>(name);
-  const { index, navigate } = useListNavigate<D>(onClick, onClose);
+  const { activeIndex, navigate } = useListNavigate<D>(
+    options,
+    recently,
+    onClick,
+    onClose
+  );
 
   return (
     <div
@@ -74,7 +77,7 @@ export function AsyncAutocompleteDropdown<D extends OptionItem>({
         top: '100%',
       }}
       onClick={(e) => e.stopPropagation()}
-      class={clsx('gl-new-dropdown-panel gl-absolute', isOpen && '!gl-block')}
+      class={clsx('gl-new-dropdown-panel gl-absolute !gl-block')}
     >
       <div class={'gl-new-dropdown-inner'}>
         <AsyncAutocompleteSearch
@@ -85,8 +88,9 @@ export function AsyncAutocompleteDropdown<D extends OptionItem>({
         <AsyncAutocompleteList
           onClick={onClick}
           options={options}
-          removeFromRecent={remove}
+          removeRecently={removeRecently}
           renderOption={renderOption}
+          activeIndex={activeIndex}
           recently={recently}
           value={value}
         />

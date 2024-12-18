@@ -1,32 +1,26 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 
-import { RecentProvider } from '../../../../providers/RecentProvider';
+import { RecentlyProvider } from '../../../../providers/RecentlyProvider';
 import { OptionItem } from './types';
 
 export function useAsyncAutocompleteRecently<D extends OptionItem>(
   name: string
 ) {
-  const store = useRef(new RecentProvider<D>(name));
+  const store = useRef(new RecentlyProvider<D>(name));
   const [recently, setRecently] = useState<D[]>([]);
 
   const refresh = () => {
-    console.log(name, store.current.key, store.current.cache.prefix);
     setRecently(store.current.get());
   };
 
   useEffect(() => {
     refresh();
+    store.current.onChange(refresh);
   }, []);
 
   return {
-    add: (...items: D[]) => {
-      store.current.add(...items);
-      refresh();
-    },
+    add: store.current.add,
     recently,
-    remove: (...items: D[]) => {
-      store.current.remove(...items);
-      refresh();
-    },
+    remove: store.current.remove,
   };
 }
