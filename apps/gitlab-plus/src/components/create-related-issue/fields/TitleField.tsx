@@ -13,7 +13,7 @@ export function TitleField({ error, onChange, value }: Props) {
         'gl-form-input form-control',
         error && 'gl-field-error-outline'
       )}
-      onChange={(e) => onChange((e.target as HTMLInputElement).value)}
+      onInput={(e) => onChange((e.target as HTMLInputElement).value)}
       placeholder={'Add a title'}
       value={value}
     />

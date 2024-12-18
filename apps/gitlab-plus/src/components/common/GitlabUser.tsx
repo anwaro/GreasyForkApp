@@ -1,19 +1,19 @@
 import { User } from '../../types/User';
 
 type Props = {
-  user: User;
-  size?: 16 | 24 | 32;
   showUsername?: boolean;
+  size?: 16 | 24 | 32;
+  user: User;
 };
 
-export function GitlabUser({ user, showUsername, size = 24 }: Props) {
+export function GitlabUser({ showUsername, size = 24, user }: Props) {
   return (
     <div class={'gl-flex gl-w-full gl-items-center'}>
       {user.avatarUrl ? (
         <img
-          src={user.avatarUrl}
-          class={`gl-mr-3 gl-avatar gl-avatar-circle gl-avatar-s${size}`}
           alt={`${user.name}'s avatar`}
+          class={`gl-mr-3 gl-avatar gl-avatar-circle gl-avatar-s${size}`}
+          src={user.avatarUrl}
         />
       ) : (
         <div

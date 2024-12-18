@@ -1,7 +1,8 @@
-import { Issue } from '../../types/Issue';
-import { IssueBlock } from './IssueBlock';
-import { LabelComponent } from '../common/LabelComponent';
 import { Dom } from '@ui/Dom';
+
+import { Issue } from '../../types/Issue';
+import { LabelComponent } from '../common/LabelComponent';
+import { IssueBlock } from './IssueBlock';
 
 export class IssueLabels extends IssueBlock {
   constructor(issue: Issue) {
@@ -9,8 +10,8 @@ export class IssueLabels extends IssueBlock {
       'Labels',
       Dom.create({
         tag: 'div',
-        classes: 'issuable-show-labels',
         children: issue.labels.nodes.map((label) => new LabelComponent(label)),
+        classes: 'issuable-show-labels',
       }),
       '',
       !!issue.labels.nodes.length

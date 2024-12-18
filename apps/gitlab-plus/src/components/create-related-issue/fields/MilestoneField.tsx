@@ -1,61 +1,9 @@
 import { useCallback } from 'preact/hooks';
 
-import { Dom } from '@ui/Dom';
-
 import { IssueLinkType } from '../../../helpers/IssueLink';
 import { MilestonesProvider } from '../../../providers/MilestonesProvider';
 import { Milestone } from '../../../types/Milestone';
-import _AsyncAutocomplete, {
-  AsyncAutocomplete,
-} from '../../common/form/autocomplete/AsyncAutocomplete';
-
-export class FormMilestone extends _AsyncAutocomplete<Milestone> {
-  private milestones = new MilestonesProvider();
-
-  constructor(private link: IssueLinkType) {
-    super('Milestone', 'milestones');
-
-    this.load();
-  }
-
-  async load(search = '') {
-    const milestones = await this.milestones.getMilestones(
-      this.link.projectPath,
-      search
-    );
-
-    this.updateItems(milestones.data.workspace.attributes.nodes, search);
-  }
-
-  onChange() {
-    // pass
-  }
-
-  renderItem(item: Milestone) {
-    return Dom.create({
-      tag: 'span',
-      children: [
-        {
-          tag: 'span',
-          children: {
-            tag: 'span',
-            children: item.title,
-            classes: 'gl-mr-2 gl-block',
-          },
-          classes: 'gl-flex gl-w-full gl-items-center',
-        },
-      ],
-      classes: 'gl-new-dropdown-item-text-wrapper',
-    });
-  }
-
-  renderLabel([item]: Milestone[]) {
-    return Dom.create({
-      tag: 'div',
-      children: item ? item.title : 'Select milestone',
-    });
-  }
-}
+import { AsyncAutocomplete } from '../../common/form/autocomplete/AsyncAutocomplete';
 
 type Props = {
   link: IssueLinkType;
@@ -95,7 +43,7 @@ export function MilestoneField({ link, setValue, value }: Props) {
       onChange={setValue}
       renderOption={renderOption}
       getValues={getMilestones}
-      name={'iterations'}
+      name={'milestones'}
       renderLabel={renderLabel}
       value={value}
     />

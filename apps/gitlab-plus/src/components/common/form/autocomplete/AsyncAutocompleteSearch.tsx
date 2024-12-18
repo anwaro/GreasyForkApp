@@ -1,9 +1,10 @@
-import { IconComponent } from '../../IconComponent';
-import { _CloseButton, CloseButton } from '../../CloseButton';
 import { Component } from '@ui/Component';
 import { Dom } from '@ui/Dom';
 import { debounce } from '@utils/debounce';
+
+import { _CloseButton, CloseButton } from '../../CloseButton';
 import { GitlabIcon } from '../../GitlabIcon';
+import { IconComponent } from '../../IconComponent';
 
 export class _AsyncAutocompleteSearch extends Component<'div'> {
   private readonly input: HTMLInputElement;
@@ -20,23 +21,31 @@ export class _AsyncAutocompleteSearch extends Component<'div'> {
     this.element.append(this.getSearch());
   }
 
+  focus() {
+    this.input.focus();
+  }
+
+  reset() {
+    this.input.value = '';
+  }
+
   private getSearch() {
     return Dom.create({
       tag: 'div',
-      classes: 'gl-listbox-search gl-listbox-topmost',
       children: [
         new IconComponent('search', 's16', 'gl-search-box-by-type-search-icon'),
         this.input,
         {
           tag: 'div',
-          classes: 'gl-search-box-by-type-right-icons',
-          styles: { top: '0' },
           children: new _CloseButton(() => {
             this.input.value = '';
             this.onChange('');
           }, 'Clear input'),
+          classes: 'gl-search-box-by-type-right-icons',
+          styles: { top: '0' },
         },
       ],
+      classes: 'gl-listbox-search gl-listbox-topmost',
     });
   }
 
@@ -52,14 +61,6 @@ export class _AsyncAutocompleteSearch extends Component<'div'> {
       },
     });
   }
-
-  reset() {
-    this.input.value = '';
-  }
-
-  focus() {
-    this.input.focus();
-  }
 }
 
 /*
@@ -74,25 +75,26 @@ export class _AsyncAutocompleteSearch extends Component<'div'> {
  */
 
 type Props = {
-  value: string;
-  setValue: (value: string) => void;
   navigate: (value: string) => void;
+  setValue: (value: string) => void;
+  value: string;
 };
 
-export function AsyncAutocompleteSearch({ value, setValue, navigate }: Props) {
+export function AsyncAutocompleteSearch({ navigate, setValue, value }: Props) {
   return (
     <div class={'gl-border-b-1 gl-border-b-solid gl-border-b-dropdown'}>
       <div class={'gl-listbox-search gl-listbox-topmost'}>
         <GitlabIcon
           icon={'search'}
-          size={16}
           className={'gl-search-box-by-type-search-icon'}
+          size={16}
         />
         <input
+          autofocus
+          onInput={(e) => setValue((e.target as HTMLInputElement).value)}
+          onKeyDown={(e) => navigate(e.key)}
           class={'gl-listbox-search-input'}
           value={value}
-          onChange={(e) => setValue((e.target as HTMLInputElement).value)}
-          onKeyDown={(e) => navigate(e.key)}
         />
         {Boolean(value) && (
           <div class={'gl-search-box-by-type-right-icons'} style={{ top: '0' }}>

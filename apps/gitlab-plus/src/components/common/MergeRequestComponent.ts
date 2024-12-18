@@ -1,26 +1,22 @@
-import { IconComponent, IconNames } from './IconComponent';
-import { MergeRequest } from '../../types/Issue';
-import { _UserComponent } from './UserComponent';
 import { Component } from '@ui/Component';
 
+import { MergeRequest } from '../../types/Issue';
+import { IconComponent, IconNames } from './IconComponent';
+import { _UserComponent } from './UserComponent';
+
 const iconMap: Record<MergeRequest['state'], IconNames> = {
-  merged: 'merge',
-  opened: 'merge-request',
   closed: 'merge-request-close',
   locked: 'search',
+  merged: 'merge',
+  opened: 'merge-request',
 };
 
 export class MergeRequestComponent extends Component<'div'> {
   constructor(mr: MergeRequest) {
     super('div', {
-      styles: {
-        marginTop: '10px',
-      },
-      classes: `item-body `,
       children: [
         {
           tag: 'div',
-          classes: 'item-title gl-flex gl-min-w-0 gl-gap-3',
           children: [
             new IconComponent(
               iconMap[mr.state] || 'empty',
@@ -30,22 +26,27 @@ export class MergeRequestComponent extends Component<'div'> {
             ),
             {
               tag: 'span',
-              classes: 'gl-text-gray-500',
               children: `!${mr.iid}`,
+              classes: 'gl-text-gray-500',
             },
             new _UserComponent(mr.author, 's16'),
           ],
+          classes: 'item-title gl-flex gl-min-w-0 gl-gap-3',
         },
         {
           tag: 'div',
+          children: mr.title,
           classes: 'item-title sortable-link',
           styles: {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           },
-          children: mr.title,
         },
       ],
+      classes: `item-body `,
+      styles: {
+        marginTop: '10px',
+      },
     });
   }
 }

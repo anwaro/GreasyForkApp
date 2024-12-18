@@ -1,19 +1,17 @@
 import { Cache } from '@store/Cache';
 
 type Item = {
-  id: string | number;
+  id: number | string;
 };
 
-export class RecentProvider<T extends Item> {
+export class RecentlyProvider<T extends Item> {
   cache = new Cache('glp-');
   readonly key: string;
+  private readonly eventName: string;
 
   constructor(key: string) {
-    this.key = `recent-${key}`;
-  }
-
-  get() {
-    return this.cache.get<T[]>(this.key) || [];
+    this.key = `recently-${key}`;
+    this.eventName = `recently-${key}-change`;
   }
 
   add(...items: T[]) {
@@ -23,6 +21,15 @@ export class RecentProvider<T extends Item> {
       [...items, ...this.get().filter((el) => !itemsId.includes(el.id))],
       'lifetime'
     );
+    this.triggerChange();
+  }
+
+  get() {
+    return this.cache.get<T[]>(this.key) || [];
+  }
+
+  onChange(callback: () => void) {
+    document.addEventListener(this.eventName, callback);
   }
 
   remove(...items: T[]) {
@@ -32,5 +39,10 @@ export class RecentProvider<T extends Item> {
       this.get().filter((el) => !itemsId.includes(el.id)),
       'lifetime'
     );
+    this.triggerChange();
+  }
+
+  private triggerChange() {
+    document.dispatchEvent(new CustomEvent(this.eventName));
   }
 }

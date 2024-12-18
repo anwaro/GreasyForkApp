@@ -10,15 +10,13 @@ export function GitlabProject({ project, size = 32 }: Props) {
     <span class={'gl-flex gl-w-full gl-items-center'}>
       {project.avatarUrl ? (
         <img
-          src={project.avatarUrl}
-          class={`gl-mr-3 gl-avatar gl-avatar-s${size}`}
           alt={project.name}
+          class={`gl-mr-3 gl-avatar gl-avatar-s${size}`}
+          src={project.avatarUrl}
         />
       ) : (
         <div
-          class={
-            `gl-mr-3 gl-avatar gl-avatar-identicon gl-avatar-s${size} gl-avatar-identicon-bg1`
-          }
+          class={`gl-mr-3 gl-avatar gl-avatar-identicon gl-avatar-s${size} gl-avatar-identicon-bg1`}
         >
           {project.name[0].toUpperCase()}
         </div>

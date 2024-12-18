@@ -152,24 +152,24 @@ export class _AsyncAutocompleteList<
 }
 
 type Props<D extends OptionItem> = {
+  activeIndex: number;
   onClick: (item: D) => void;
   options: D[];
   recently: D[];
-  removeFromRecent: (value: D) => void;
+  removeRecently?: (value: D) => void;
   renderOption: (value: D) => ReactNode;
   value: D[];
 };
 
 export function AsyncAutocompleteList<D extends OptionItem>({
+  activeIndex,
   onClick,
   options,
   recently,
-  removeFromRecent,
+  removeRecently,
   renderOption,
   value,
 }: Props<D>) {
-  console.log("recently", recently);
-
   return (
     <div
       class={
@@ -194,13 +194,14 @@ export function AsyncAutocompleteList<D extends OptionItem>({
               >
                 Recently used
               </li>
-              {recently.map((item) => (
+              {recently.map((item, index) => (
                 <AsyncAutocompleteOption<D>
                   key={item.id}
                   onClick={onClick}
                   option={item}
-                  removeFromRecent={removeFromRecent}
+                  removeFromRecent={removeRecently}
                   renderOption={renderOption}
+                  isActive={index === activeIndex}
                   selected={value}
                 />
               ))}
@@ -213,12 +214,13 @@ export function AsyncAutocompleteList<D extends OptionItem>({
                   'gl-pb-2 gl-pl-4 gl-pt-3 gl-text-sm gl-font-bold gl-text-strong gl-border-t'
                 }
               />
-              {options.map((item) => (
+              {options.map((item, index) => (
                 <AsyncAutocompleteOption<D>
                   key={item.id}
                   onClick={onClick}
                   option={item}
                   renderOption={renderOption}
+                  isActive={recently.length + index === activeIndex}
                   selected={value}
                 />
               ))}

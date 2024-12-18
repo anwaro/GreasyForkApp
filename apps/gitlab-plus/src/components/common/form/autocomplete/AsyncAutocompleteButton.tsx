@@ -104,7 +104,10 @@ export function AsyncAutocompleteButton<D extends OptionItem>({
       class={
         'btn btn-default btn-md btn-block gl-button gl-new-dropdown-toggle'
       }
-      onClick={() => setIsOpen(true)}
+      onClick={(e) => {
+        e.preventDefault();
+        setIsOpen(true);
+      }}
       ref={ref}
       type={'button'}
     >

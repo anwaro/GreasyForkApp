@@ -1,18 +1,22 @@
-import { AutocompleteModal } from './related-issue-autocomplete/AutocompleteModal';
-import { IssueAutocomplete } from '../types/Issue';
-import { IssueProvider } from '../providers/IssueProvider';
-import { IssueLink, IssueLinkType } from '../helpers/IssueLink';
-import { IconComponent } from './common/IconComponent';
 import { Dom } from '@ui/Dom';
 import { debounce } from '@utils/debounce';
 
-export class RelatedIssuesAutocompleteModal {
-  private readyClass = 'glp-input-ready';
-  private input = Dom.element('input');
+import { IssueLink, IssueLinkType } from '../../helpers/IssueLink';
+import { IssueProvider } from '../../providers/IssueProvider';
+import { IssueAutocomplete } from '../../types/Issue';
+import { AsyncAutocompleteDropdown } from '../common/form/autocomplete/AsyncAutocompleteDropdown';
+import { GitlabIcon } from '../common/GitlabIcon';
+import { IconComponent } from '../common/IconComponent';
+import { AutocompleteModal } from '../related-issue-autocomplete/AutocompleteModal';
+import { useRelatedIssuesAutocompleteModal } from './useRelatedIssuesAutocompleteModal';
+
+export class _RelatedIssuesAutocompleteModal {
   private autocompleteModal: AutocompleteModal<IssueAutocomplete>;
+  private input = Dom.element('input');
   private issueProvider = new IssueProvider();
-  private search: (search: string) => void;
   private link: IssueLinkType | undefined;
+  private readyClass = 'glp-input-ready';
+  private search: (search: string) => void;
 
   constructor() {
     this.search = debounce(this.load.bind(this));
@@ -30,9 +34,6 @@ export class RelatedIssuesAutocompleteModal {
   }
 
   init(input: HTMLInputElement) {
-    if (this.isMounted(input)) {
-      return;
-    }
     const container = input.closest<HTMLElement>(
       '.add-issuable-form-input-wrapper'
     );
@@ -49,12 +50,7 @@ export class RelatedIssuesAutocompleteModal {
     return input.classList.contains(this.readyClass);
   }
 
-  show() {
-    this.autocompleteModal.setVisible(true);
-    this.search('');
-  }
-
-  async load(term: string = '') {
+  async load(term = '') {
     if (!this.link) {
       return;
     }
@@ -80,12 +76,47 @@ export class RelatedIssuesAutocompleteModal {
   renderItem(item: IssueAutocomplete) {
     return Dom.create({
       tag: 'div',
-      classes: 'gl-flex gl-gap-x-2 gl-py-2',
       children: [
         new IconComponent('issue-type-issue', 's16'),
         { tag: 'small', children: item.iid },
-        { tag: 'span', classes: 'gl-flex gl-flex-wrap', children: item.title },
+        { tag: 'span', children: item.title, classes: 'gl-flex gl-flex-wrap' },
       ],
+      classes: 'gl-flex gl-gap-x-2 gl-py-2',
     });
   }
+
+  show() {
+    this.autocompleteModal.setVisible(true);
+    this.search('');
+  }
+}
+
+type Props = {
+  input: HTMLInputElement;
+  link: IssueLinkType;
+};
+
+export function RelatedIssuesAutocompleteModal({ input, link }: Props) {
+  const { isVisible, onClose, onSelect, options, searchTerm, setSearchTerm } =
+    useRelatedIssuesAutocompleteModal(link, input);
+
+  return isVisible ? (
+    <div class={'gl-relative gl-w-full gl-new-dropdown !gl-block'}>
+      <AsyncAutocompleteDropdown<IssueAutocomplete>
+        onClick={onSelect}
+        onClose={onClose}
+        options={options}
+        renderOption={(item) => (
+          <div class={'gl-flex gl-gap-x-2 gl-py-2'}>
+            <GitlabIcon icon={'issue-type-issue'} size={16} />
+            <small>{item.iid}</small>
+            <span class={'gl-flex gl-flex-wrap'}>{item.title}</span>
+          </div>
+        )}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        value={[]}
+      />
+    </div>
+  ) : null;
 }
