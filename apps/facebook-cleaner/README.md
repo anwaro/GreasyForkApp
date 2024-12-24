@@ -1,13 +1,16 @@
-# Hide Facebook Sponsored Posts
+# Facebook Cleaner
 
-This script hides sponsored posts (ads) on Facebook, making your feed cleaner and free from distractions.
+This script helps you take control of your Facebook experience by hiding unnecessary and distracting elements such as sponsored posts, suggested groups, suggested profiles, and reels. With this tool, you can customize your feed to show only the content you want to see.
 
 ## Features
-- Automatically identifies and hides sponsored posts from your Facebook feed.
-- Hide reels if user sets it in extension settings.
-- Hide suggested profiles.
-- Hide suggested groups.
-- Lightweight and easy to install.
+- Automatically identifies and hides:
+  - Sponsored posts.
+  - Suggested profiles.
+  - Suggested groups.
+  - Reels.
+- All elements can be toggled on or off in the settings.
+
+![Settings Screenshot](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/facebook-cleaner/settings.jpg)
 
 ---
 
@@ -26,10 +29,12 @@ To use this script, follow these steps:
   - [Edge Add-ons - Tampermonkey](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/dhbdgbhfblhlncplflalpeoipjkdplfp)
 
 2. Install the script via one of the following links:
-  - **[GitHub Repository](https://github.com/anwaro/GreasyForkApp/apps/facebook-cleaner)**: Clone or download the script directly.
-  - **[Greasy Fork Page](https://greasyfork.org/en/scripts/your-script-id)**: Click the install button on the script page.
+  - **[GitHub Repository](https://github.com/anwaro/GreasyForkApp/tree/main/apps/facebook-cleaner)**: Clone or download the script directly.
+  - **[Greasy Fork Page](https://greasyfork.org/en/scripts/521647-facebook-cleaner)**: Click the install button on the script page.
 
 3. After installation, refresh your Facebook feed to see the script in action.
+
+![Example Screenshot](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/facebook-cleaner/example.png)
 
 ---
 
@@ -37,7 +42,7 @@ To use this script, follow these steps:
 
 - Ensure your Tampermonkey or Greasemonkey extension is enabled.
 - Check that the script is active in the extension dashboard.
-- If you encounter any issues, please report them on the [GitHub Issues page](https://github.com/yourusername/hide-facebook-sponsored-posts/issues).
+- If you encounter any issues, please report them on the [GitHub Issues page](https://github.com/anwaro/GreasyForkApp/issues).
 
 ---
 
@@ -47,4 +52,4 @@ Contributions are welcome! Feel free to fork the repository and submit pull requ
 ---
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/yourusername/hide-facebook-sponsored-posts/blob/main/LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/anwaro/GreasyForkApp/tree/main/LICENSE) file for details.

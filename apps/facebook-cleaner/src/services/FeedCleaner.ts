@@ -9,7 +9,7 @@ export class FeedCleaner {
     const posts = [...feedElement.children] as HTMLDivElement[];
     const bannedPosts = this.bannedPostDetector.filter(
       posts,
-      this.settings.getHideReels()
+      this.settings.getSettings()
     );
     bannedPosts.forEach((post) => {
       this.bannedPostDetector.hide(post);

@@ -15,6 +15,7 @@ export class FacebookCleaner {
   run() {
     this.initFeedElement();
     this.initObserver();
+    this.feedListUpdated();
   }
 
   private initFeedElement() {
@@ -32,6 +33,7 @@ export class FacebookCleaner {
       this.feedElement.dataset.fccReady = '1';
       this.observer.start(this.feedElement, this.feedListUpdated.bind(this), {
         childList: true,
+        subtree: true,
       });
     }
   }
@@ -49,6 +51,12 @@ export class FacebookCleaner {
   }
 
   private initEvents() {
-    window.addEventListener('urlchange', this.run.bind(this));
+    window.addEventListener('urlchange', () => {
+      this.run();
+      window.setTimeout(this.run.bind(this), 2000);
+      window.setTimeout(this.run.bind(this), 5000);
+    });
+
+    window.setInterval(this.run.bind(this), 20 * 1000);
   }
 }

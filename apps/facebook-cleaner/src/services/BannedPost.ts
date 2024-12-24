@@ -1,5 +1,6 @@
 import { Dictionary } from '../dictionary/Dictionary';
 import { ElementDetector } from './ElementDetector';
+import { SettingsItemId, UserSettingsType } from './UserSettings';
 
 enum HiddenType {
   SponsoredLink = 'sponsored-link',
@@ -14,7 +15,7 @@ export class BannedPost {
   private dictionary = new Dictionary();
   private detector = new ElementDetector();
 
-  filter(posts: HTMLDivElement[], hideReels = false) {
+  filter(posts: HTMLDivElement[], settings: UserSettingsType) {
     return posts.filter((post) => {
       if (post.dataset.fcc) {
         return true;
@@ -22,6 +23,7 @@ export class BannedPost {
 
       const query = '[data-ad-rendering-role="profile_name"] [role="button"]';
       if (
+        settings[SettingsItemId.HideSuggestedProfiles] &&
         this.detector.getElement(post, query, this.dictionary.getFollowLabel())
       ) {
         post.dataset.fccReason = HiddenType.Follow;
@@ -29,6 +31,7 @@ export class BannedPost {
       }
 
       if (
+        settings[SettingsItemId.HideSuggestedGroups] &&
         this.detector.getElement(post, query, this.dictionary.getJoinLabel())
       ) {
         post.dataset.fccReason = HiddenType.Join;
@@ -36,7 +39,7 @@ export class BannedPost {
       }
 
       if (
-        hideReels &&
+        settings[SettingsItemId.HideReels] &&
         this.detector.getElement(
           post,
           '[role="button"]',
@@ -47,12 +50,16 @@ export class BannedPost {
         return true;
       }
 
-      if (this.detector.getElement(post, 'a[href*="ads/about"]')) {
+      if (
+        settings[SettingsItemId.HideSponsored] &&
+        this.detector.getElement(post, 'a[href*="ads/about"]')
+      ) {
         post.dataset.fccReason = HiddenType.SponsoredLink;
         return true;
       }
 
       if (
+        settings[SettingsItemId.HideSponsored] &&
         this.detector.getElement(
           post,
           'a[attributionsrc] [aria-labelledby]',
@@ -68,7 +75,10 @@ export class BannedPost {
         'a[attributionsrc] [aria-labelledby]'
       );
 
-      if (items.some(this.isSponsoredElement.bind(this))) {
+      if (
+        settings[SettingsItemId.HideSponsored] &&
+        items.some(this.isSponsoredElement.bind(this))
+      ) {
         post.dataset.fccReason = HiddenType.SponsoredHiddenLabel;
         return true;
       }
@@ -100,7 +110,6 @@ export class BannedPost {
       .sort((a, b) => a.order - b.order)
       .map((item) => item.text)
       .join('');
-    console.log(element, elementLabel);
     return elementLabel.includes(sponsoredLabel);
   }
 

@@ -35,8 +35,6 @@ export class ElementDetector {
       return undefined;
     }
 
-    const feedElement = feedHeader.parentElement.lastElementChild;
-
-    return feedElement as HTMLDivElement;
+    return feedHeader.parentElement.lastElementChild as HTMLDivElement;
   }
 }

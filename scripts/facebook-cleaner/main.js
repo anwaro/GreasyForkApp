@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Facebook cleaner
 // @namespace    https://lukaszmical.pl/
-// @version      0.1.0
+// @version      0.2.0
 // @description  This script hides sponsored posts (ads) on Facebook, making your feed cleaner and free from distractions.
 // @author       Łukasz Micał
 // @match        https://*.facebook.com/*
@@ -9,6 +9,7 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        window.onurlchange
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=facebook.com
 // ==/UserScript==
 
@@ -246,8 +247,69 @@ const ElementDetector = class {
     if (!feedHeader) {
       return void 0;
     }
-    const feedElement = feedHeader.parentElement.lastElementChild;
-    return feedElement;
+    return feedHeader.parentElement.lastElementChild;
+  }
+};
+
+// apps/facebook-cleaner/src/services/UserSettings.ts
+const settingsMenuLabels = {
+  ['fcc-hide-sponsored' /* HideSponsored */]: 'sponsored posts',
+  ['fcc-hide-reels' /* HideReels */]: 'reels',
+  ['fcc-hide-suggested-groups' /* HideSuggestedGroups */]: 'suggested groups',
+  ['fcc-hide-suggested-profiles' /* HideSuggestedProfiles */]:
+    'suggested profiles',
+};
+const UserSettings = class {
+  constructor() {
+    this.setting = {
+      ['fcc-hide-sponsored' /* HideSponsored */]: true,
+      ['fcc-hide-reels' /* HideReels */]: true,
+      ['fcc-hide-suggested-groups' /* HideSuggestedGroups */]: true,
+      ['fcc-hide-suggested-profiles' /* HideSuggestedProfiles */]: true,
+    };
+    this.setting = this.readSettings();
+    this.updateMenu();
+  }
+
+  getSettings() {
+    return { ...this.setting };
+  }
+
+  readSettings() {
+    return Object.fromEntries(
+      Object.entries(this.setting).map(([key, defaultValue]) => [
+        key,
+        GM_getValue(key, defaultValue),
+      ])
+    );
+  }
+
+  settingLabel(id) {
+    return [
+      this.setting[id] ? 'Show' : 'Hide',
+      settingsMenuLabels[id],
+      'in feed news',
+    ].join(' ');
+  }
+
+  setSettingValue(id, value) {
+    this.setting[id] = value;
+    GM_setValue(id, value);
+    this.updateMenu();
+  }
+
+  updateMenu() {
+    Object.keys(this.setting).forEach((id) => GM_unregisterMenuCommand(id));
+    Object.entries(this.setting).forEach(([id, value]) =>
+      GM_registerMenuCommand(
+        this.settingLabel(id),
+        () => this.setSettingValue(id, !value),
+        {
+          id,
+          autoClose: true,
+        }
+      )
+    );
   }
 };
 
@@ -258,26 +320,28 @@ const BannedPost = class {
     this.detector = new ElementDetector();
   }
 
-  filter(posts, hideReels = false) {
+  filter(posts, settings) {
     return posts.filter((post) => {
       if (post.dataset.fcc) {
         return true;
       }
       const query = '[data-ad-rendering-role="profile_name"] [role="button"]';
       if (
+        settings['fcc-hide-suggested-profiles' /* HideSuggestedProfiles */] &&
         this.detector.getElement(post, query, this.dictionary.getFollowLabel())
       ) {
         post.dataset.fccReason = 'follow' /* Follow */;
         return true;
       }
       if (
+        settings['fcc-hide-suggested-groups' /* HideSuggestedGroups */] &&
         this.detector.getElement(post, query, this.dictionary.getJoinLabel())
       ) {
         post.dataset.fccReason = 'join' /* Join */;
         return true;
       }
       if (
-        hideReels &&
+        settings['fcc-hide-reels' /* HideReels */] &&
         this.detector.getElement(
           post,
           '[role="button"]',
@@ -287,11 +351,15 @@ const BannedPost = class {
         post.dataset.fccReason = 'reels' /* Reels */;
         return true;
       }
-      if (this.detector.getElement(post, 'a[href*="ads/about"]')) {
+      if (
+        settings['fcc-hide-sponsored' /* HideSponsored */] &&
+        this.detector.getElement(post, 'a[href*="ads/about"]')
+      ) {
         post.dataset.fccReason = 'sponsored-link' /* SponsoredLink */;
         return true;
       }
       if (
+        settings['fcc-hide-sponsored' /* HideSponsored */] &&
         this.detector.getElement(
           post,
           'a[attributionsrc] [aria-labelledby]',
@@ -305,7 +373,10 @@ const BannedPost = class {
         post,
         'a[attributionsrc] [aria-labelledby]'
       );
-      if (items.some(this.isSponsoredElement.bind(this))) {
+      if (
+        settings['fcc-hide-sponsored' /* HideSponsored */] &&
+        items.some(this.isSponsoredElement.bind(this))
+      ) {
         post.dataset.fccReason =
           'sponsored-hidden-label' /* SponsoredHiddenLabel */;
         return true;
@@ -335,7 +406,6 @@ const BannedPost = class {
       .sort((a, b) => a.order - b.order)
       .map((item) => item.text)
       .join('');
-    console.log(element, elementLabel);
     return elementLabel.includes(sponsoredLabel);
   }
 
@@ -364,37 +434,6 @@ const BannedPost = class {
   }
 };
 
-// apps/facebook-cleaner/src/services/UserSettings.ts
-const UserSettings = class {
-  constructor() {
-    this.hideReelsMenuId = 'fcc-show-reels';
-    this.hideReels = GM_getValue(this.hideReelsMenuId, false);
-    this.updateMenu();
-  }
-
-  getHideReels() {
-    return this.hideReels;
-  }
-
-  toggleReels() {
-    this.hideReels = !this.hideReels;
-    GM_setValue(this.hideReelsMenuId, this.hideReels);
-    this.updateMenu();
-  }
-
-  updateMenu() {
-    GM_unregisterMenuCommand(this.hideReelsMenuId);
-    GM_registerMenuCommand(
-      this.hideReels ? 'Show reels in feed' : 'Hide reels in feed',
-      this.toggleReels.bind(this),
-      {
-        id: this.hideReelsMenuId,
-        autoClose: true,
-      }
-    );
-  }
-};
-
 // apps/facebook-cleaner/src/services/FeedCleaner.ts
 const FeedCleaner = class {
   constructor() {
@@ -406,7 +445,7 @@ const FeedCleaner = class {
     const posts = [...feedElement.children];
     const bannedPosts = this.bannedPostDetector.filter(
       posts,
-      this.settings.getHideReels()
+      this.settings.getSettings()
     );
     bannedPosts.forEach((post) => {
       this.bannedPostDetector.hide(post);
@@ -428,6 +467,7 @@ const FacebookCleaner = class {
   run() {
     this.initFeedElement();
     this.initObserver();
+    this.feedListUpdated();
   }
 
   initFeedElement() {
@@ -444,6 +484,7 @@ const FacebookCleaner = class {
       this.feedElement.dataset.fccReady = '1';
       this.observer.start(this.feedElement, this.feedListUpdated.bind(this), {
         childList: true,
+        subtree: true,
       });
     }
   }
@@ -459,27 +500,33 @@ const FacebookCleaner = class {
   }
 
   initEvents() {
-    window.addEventListener('urlchange', this.run.bind(this));
+    window.addEventListener('urlchange', () => {
+      this.run();
+      window.setTimeout(this.run.bind(this), 2e3);
+      window.setTimeout(this.run.bind(this), 5e3);
+    });
+    window.setInterval(this.run.bind(this), 20 * 1e3);
   }
 };
 
 // libs/share/src/utils/urlChangeEvent.ts
-function dispatchUrlChangeEvent() {
-  window.dispatchEvent(new CustomEvent('urlchange'));
-}
-
 function activateUrlChangeEvents() {
-  window.addEventListener('popstate', dispatchUrlChangeEvent);
-  const originalPushState = history.pushState;
-  history.pushState = function (...args) {
-    originalPushState.apply(this, args);
-    dispatchUrlChangeEvent();
-  };
-  const originalReplaceState = history.replaceState;
-  history.replaceState = function (...args) {
-    originalReplaceState.apply(this, args);
-    dispatchUrlChangeEvent();
-  };
+  if (!window.onurlchange) {
+    const dispatchUrlChangeEvent = function () {
+      window.dispatchEvent(new CustomEvent('urlchange'));
+    };
+    window.addEventListener('popstate', dispatchUrlChangeEvent);
+    const originalPushState = history.pushState;
+    history.pushState = function (...args) {
+      originalPushState.apply(this, args);
+      dispatchUrlChangeEvent();
+    };
+    const originalReplaceState = history.replaceState;
+    history.replaceState = function (...args) {
+      originalReplaceState.apply(this, args);
+      dispatchUrlChangeEvent();
+    };
+  }
 }
 
 // libs/share/src/ui/GlobalStyle.ts
