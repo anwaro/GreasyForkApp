@@ -1,0 +1,18 @@
+[data-fcc="@"] {
+  position: relative;
+}
+
+[data-fcc="@"]:before {
+  display: block;
+  content: attr(data-fcc-reason);
+  position: absolute;
+  top: 0;
+  left: 50%;
+  border-radius: 16px;
+  padding: 8px;
+  background-color: var(--card-background);
+  transform: translateX(-50%);
+  color: var(--primary-text);
+  z-index: 999;
+  border: 1px solid var(--primary-button-background)
+}

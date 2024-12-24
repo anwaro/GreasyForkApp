@@ -1,0 +1,29 @@
+[data-fcc="@"] {
+  display: none !important;
+}
+
+[data-fcc="@"][data-fcc-type="@"] {
+  display: block !important;
+  max-height: 24px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  padding-top: 24px;
+  border-radius: 16px;
+  box-sizing: border-box;
+  position: relative;
+  background-color: var(--card-background);
+}
+
+[data-fcc="@"][data-fcc-type="@"] * {
+  max-height: 2px;
+}
+
+[data-fcc="@"][data-fcc-type="@"]:before {
+  display: block;
+  content: attr(title);
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--primary-text);
+}

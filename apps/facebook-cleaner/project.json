@@ -1,0 +1,41 @@
+{
+  "name": "facebook-cleaner",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/facebook-cleaner/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "development",
+      "options": {
+        "platform": "browser",
+        "outputPath": "scripts/facebook-cleaner",
+        "format": [
+          "cjs"
+        ],
+        "bundle": true,
+        "main": "apps/facebook-cleaner/src/main.ts",
+        "tsConfig": "apps/facebook-cleaner/tsconfig.app.json",
+        "assets": [
+          "apps/facebook-cleaner/src/assets"
+        ],
+        "generatePackageJson": false,
+        "deleteOutputPath": false,
+        "esbuildConfig": "./tools/esbuild.config.js"
+      },
+      "configurations": {
+        "development": {
+          "outputFileName": "dev",
+          "watch": true
+        },
+        "production": {
+          "esbuildConfig": "./apps/facebook-cleaner/esbuild.config.prod.js"
+        }
+      }
+    }
+  }
+}
