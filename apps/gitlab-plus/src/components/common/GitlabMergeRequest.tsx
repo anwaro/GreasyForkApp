@@ -1,6 +1,8 @@
 import { Component } from '@ui/Component';
 
 import { MergeRequest } from '../../types/Issue';
+import { GitlabIcon } from './GitlabIcon';
+import { GitlabUser } from './GitlabUser';
 import { IconComponent, IconNames } from './IconComponent';
 import { _UserComponent } from './UserComponent';
 
@@ -11,7 +13,7 @@ const iconMap: Record<MergeRequest['state'], IconNames> = {
   opened: 'merge-request',
 };
 
-export class MergeRequestComponent extends Component<'div'> {
+export class _GitlabMR extends Component<'div'> {
   constructor(mr: MergeRequest) {
     super('div', {
       children: [
@@ -49,4 +51,33 @@ export class MergeRequestComponent extends Component<'div'> {
       },
     });
   }
+}
+
+type Props = {
+  mr: MergeRequest;
+};
+
+export function GitlabMergeRequest({ mr }: Props) {
+  return (
+    <div class={'item-body'} style={{ marginTop: 10 }}>
+      <div class={'item-title gl-flex gl-min-w-0 gl-gap-3'}>
+        <GitlabIcon
+          icon={iconMap[mr.state] || 'empty'}
+          className={'merge-request-status'}
+          size={16}
+        />
+        <span class={'gl-text-gray-500'}>!{mr.iid}</span>
+        <GitlabUser size={16} user={mr.author} />
+      </div>
+      <div
+        style={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+        class={'item-title sortable-link'}
+      >
+        {mr.title}
+      </div>
+    </div>
+  );
 }

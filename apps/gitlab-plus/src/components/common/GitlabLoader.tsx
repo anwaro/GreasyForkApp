@@ -24,7 +24,7 @@ type Props = {
   size?: number | string;
 };
 
-export function GitlabLoader({ size }: Props) {
+export function GitlabLoader({ size = 24 }: Props) {
   return (
     <span role={'status'} class={'gl-spinner-container'}>
       <span
