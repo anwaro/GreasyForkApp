@@ -1,30 +1,10 @@
-import type { ReactNode } from 'preact/compat';
 
-import { Component } from '@ui/Component';
+import type { ComponentChild } from 'preact';
+
 import { clsx } from '@utils/clsx';
 
-export class _FormField extends Component<'fieldset'> {
-  constructor(title: string, input: HTMLElement, hint = '') {
-    super('fieldset', {
-      children: [
-        {
-          tag: 'legend',
-          children: title,
-          classes: 'bv-no-focus-ring col-form-label pt-0 col-form-label',
-        },
-        input,
-        {
-          tag: 'small',
-          children: hint,
-        },
-      ],
-      classes: 'form-group gl-form-group gl-w-full is-valid',
-    });
-  }
-}
-
 type Props = {
-  children: ReactNode;
+  children: ComponentChild;
   error?: string;
   hint?: string;
   title: string;

@@ -1,4 +1,5 @@
-import type { ReactNode } from 'preact/compat';
+
+import type { ComponentChild } from 'preact';
 
 import { clsx } from '@utils/clsx';
 
@@ -11,7 +12,7 @@ type Props<D extends OptionItem> = {
   onClick: (item: D) => void;
   option: D;
   removeFromRecent?: (value: D) => void;
-  renderOption: (value: D) => ReactNode;
+  renderOption: (value: D) => ComponentChild;
   selected: D[];
 };
 

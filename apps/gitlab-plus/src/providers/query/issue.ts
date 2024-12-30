@@ -42,6 +42,7 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
           iid
           title
           state
+          webUrl
           author {
             ...User
           }

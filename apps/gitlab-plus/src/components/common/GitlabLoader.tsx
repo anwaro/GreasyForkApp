@@ -1,25 +1,3 @@
-import { Component } from '@ui/Component';
-
-export class _GitlabLoader extends Component<'span'> {
-  constructor(size = '1em') {
-    super('span', {
-      attrs: {
-        role: 'status',
-      },
-      children: {
-        tag: 'span',
-        classes:
-          'gl-spinner gl-spinner-sm gl-spinner-dark !gl-align-text-bottom',
-        styles: {
-          width: size,
-          height: size,
-        },
-      },
-      classes: 'gl-spinner-container',
-    });
-  }
-}
-
 type Props = {
   size?: number | string;
 };

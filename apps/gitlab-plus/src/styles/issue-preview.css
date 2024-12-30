@@ -27,7 +27,6 @@
   max-width: 100%;
 }
 
-
 .glp-issue-preview-modal .glp-block {
   padding: .5rem 0 .5rem;
   border-bottom-style: solid;
@@ -39,4 +38,9 @@
 .glp-issue-preview-modal .assignee-grid {
   margin-top: 4px;
   gap: 4px
+}
+
+
+.glp-issue-preview-modal * {
+  max-width: 100%;
 }

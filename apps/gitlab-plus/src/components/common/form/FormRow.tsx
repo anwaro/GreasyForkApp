@@ -1,7 +1,7 @@
-import type { ReactNode } from 'preact/compat';
 
+import type { ComponentChild } from 'preact';
 type Props = {
-  children: ReactNode;
+  children: ComponentChild;
 };
 
 export function FormRow({ children }: Props) {

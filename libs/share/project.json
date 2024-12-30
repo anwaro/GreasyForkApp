@@ -7,17 +7,23 @@
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/share",
         "main": "libs/share/src/index.ts",
         "tsConfig": "libs/share/tsconfig.lib.json",
-        "assets": ["libs/share/*.md"]
+        "assets": [
+          "libs/share/*.md"
+        ]
       }
     },
     "test": {
       "executor": "@nx/vite:test",
-      "outputs": ["{options.reportsDirectory}"],
+      "outputs": [
+        "{options.reportsDirectory}"
+      ],
       "options": {
         "reportsDirectory": "../../coverage/libs/share"
       }

@@ -1,29 +1,7 @@
-import { Dom } from '@ui/Dom';
-
 import { Issue } from '../../../types/Issue';
 import { GitlabIcon } from '../../common/GitlabIcon';
-import { _StatusComponent, IssueStatus } from '../../common/IssueStatus';
-import { _IssueBlock, IssueBlock } from './IssueBlock';
-
-export class IssueTitle extends _IssueBlock {
-  constructor(issue: Issue) {
-    super(
-      issue.title,
-      Dom.element('div', '', [
-        {
-          tag: 'div',
-          children: new _StatusComponent(issue.state === 'opened'),
-        },
-        {
-          tag: 'div',
-          children: issue.description,
-          classes: 'gl-text-sm gl-text-gray-500, gl-truncate',
-          styles: { maxHeight: '100px' },
-        },
-      ])
-    );
-  }
-}
+import { IssueStatus } from '../../common/IssueStatus';
+import { IssueBlock } from './IssueBlock';
 
 type Props = {
   issue: Issue;

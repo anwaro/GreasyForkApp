@@ -37,7 +37,7 @@ export function GitlabLabel({ label, onRemove }: Props) {
 
   return (
     <span class={props.class} style={props.style}>
-      <span class={'gl-link gl-label-link'}>
+      <span class={'gl-link gl-label-link gl-label-link-underline'}>
         <span class={'gl-label-text'}>{scope}</span>
         {text && <span class={'gl-label-text-scoped'}>{text}</span>}
       </span>

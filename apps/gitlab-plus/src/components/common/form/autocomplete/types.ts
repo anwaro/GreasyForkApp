@@ -1,1 +1,3 @@
-export type OptionItem = { id: string | number };
+export type OptionItem = {
+  id: number | string;
+};

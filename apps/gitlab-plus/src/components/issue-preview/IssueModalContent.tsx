@@ -37,7 +37,7 @@ export function IssueModalContent({
   }
 
   return (
-    <div class={'gl-flex gl-flex-col'}>
+    <div class={'gl-flex gl-w-full gl-flex-col'}>
       <IssueHeader issue={issue} />
       <IssueAssignee issue={issue} />
       <IssueLabels issue={issue} />

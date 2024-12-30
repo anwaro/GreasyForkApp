@@ -7,20 +7,17 @@ export function useAsyncAutocompleteRecently<D extends OptionItem>(
   name: string
 ) {
   const store = useRef(new RecentlyProvider<D>(name));
-  const [recently, setRecently] = useState<D[]>([]);
-
-  const refresh = () => {
-    setRecently(store.current.get());
-  };
+  const [recently, setRecently] = useState<D[]>(store.current.get());
 
   useEffect(() => {
-    refresh();
-    store.current.onChange(refresh);
+    store.current.onChange(() => {
+      setRecently(store.current.get());
+    });
   }, []);
 
   return {
-    add: store.current.add,
+    add: store.current.add.bind(store.current),
     recently,
-    remove: store.current.remove,
+    remove: store.current.remove.bind(store.current),
   };
 }

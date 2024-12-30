@@ -22,11 +22,8 @@ export function CreateRelatedIssueModalContent({
   link,
   onClose,
 }: Props) {
-  const { actions, form, isLoading } = useCreateRelatedIssueForm(
-    link,
-    onClose,
-    isVisible
-  );
+  const { actions, error, form, isLoading, message } =
+    useCreateRelatedIssueForm(link, onClose, isVisible);
 
   return (
     <form class={'crud-body add-tree-form gl-mx-5 gl-my-4 gl-rounded-b-form'}>
@@ -86,13 +83,15 @@ export function CreateRelatedIssueModalContent({
           value={form.relation.value}
         />
       </FormField>
-      <FormRow>
-        <ButtonField
-          isLoading={isLoading}
-          create={actions.submit}
-          reset={actions.reset}
-        />
-      </FormRow>
+      <FormField error={error} hint={message} title={''}>
+        <FormRow>
+          <ButtonField
+            isLoading={isLoading}
+            create={actions.submit}
+            reset={actions.reset}
+          />
+        </FormRow>
+      </FormField>
     </form>
   );
 }

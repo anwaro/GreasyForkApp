@@ -149,6 +149,10 @@ module.exports = [
           order: 'asc',
         },
       ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
     },
   },
 ];

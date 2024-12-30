@@ -8,6 +8,10 @@ import { Service } from '../types/Service';
 export class CreateRelatedIssue extends Service {
   private isMounted = false;
 
+  constructor() {
+    super();
+  }
+
   public init() {
     this.mount();
     setTimeout(this.mount.bind(this), 1000);
@@ -15,27 +19,26 @@ export class CreateRelatedIssue extends Service {
   }
 
   mount() {
+    if (this.isMounted) {
+      return;
+    }
     const link = IssueLink.parseLink(window.location.href);
-    const parent = document.querySelector(
+    const parent = document.querySelector<HTMLDivElement>(
       '#related-issues [data-testid="crud-actions"]'
     );
 
-    if (link && parent && !this.isMounted) {
-      this.isMounted = true;
-
-      const buttonRoot = this.root('glp-related-issue-button');
-      const modalRoot = this.rootBody('glp-related-issue-modal');
-      parent.appendChild(buttonRoot);
-
-      render(
-        <CreateIssueButton
-          onClick={() => {
-            document.dispatchEvent(new CustomEvent('show-modal'));
-          }}
-        />,
-        buttonRoot
-      );
-      render(<CreateRelatedIssueModal link={link} />, modalRoot);
+    if (!link || !parent) {
+      return;
     }
+    this.isMounted = true;
+
+    render(
+      <CreateIssueButton />,
+      this.root('glp-related-issue-button', parent)
+    );
+    render(
+      <CreateRelatedIssueModal link={link} />,
+      this.rootBody('glp-related-issue-modal')
+    );
   }
 }

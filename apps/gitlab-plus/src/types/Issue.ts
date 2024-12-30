@@ -5,7 +5,11 @@ import { User } from './User';
 
 export type IssueRelation = 'blocks' | 'is_blocked_by' | 'relates_to';
 
-export const issueRelation: IssueRelation[] = ['blocks', 'is_blocked_by', 'relates_to']
+export const issueRelation: IssueRelation[] = [
+  'blocks',
+  'is_blocked_by',
+  'relates_to',
+];
 
 export type CreateIssueInput = {
   assigneeIds?: string[];
@@ -126,6 +130,7 @@ export interface MergeRequest {
   author: User;
   state: 'closed' | 'locked' | 'merged' | 'opened';
   title: string;
+  webUrl: string;
 }
 
 export interface IssuesResponse {
@@ -173,6 +178,5 @@ export type RelatedIssue = {
   state: string;
   title: string;
   updatedAt: string;
+  webUrl: string;
 };
-
-export type IssueWithRelated = Issue & { relatedIssues: RelatedIssue[] };

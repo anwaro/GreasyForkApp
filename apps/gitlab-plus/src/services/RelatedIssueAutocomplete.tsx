@@ -8,6 +8,10 @@ export class RelatedIssueAutocomplete extends Service {
   private ready = false;
   private readyClass = 'glp-input-ready';
 
+  constructor() {
+    super();
+  }
+
   public init() {
     this.initObserver();
     window.setTimeout(this.initObserver.bind(this), 1000);

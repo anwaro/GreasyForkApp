@@ -1,8 +1,10 @@
-type Props = {
-  onClick: () => void;
-};
+import { ShowModalEvent } from './event';
 
-export function CreateIssueButton({ onClick }: Props) {
+export function CreateIssueButton() {
+  const onClick = () => {
+    document.dispatchEvent(ShowModalEvent);
+  };
+
   return (
     <button
       onClick={onClick}

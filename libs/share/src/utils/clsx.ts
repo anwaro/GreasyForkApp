@@ -13,7 +13,7 @@ export function clsx(...args: unknown[]): string {
       if (typeof item === 'object') {
         return clsx(
           Object.entries(item)
-            .filter(([key, value]) => value)
+            .filter(([_, value]) => value)
             .map(([key]) => key)
         );
       }

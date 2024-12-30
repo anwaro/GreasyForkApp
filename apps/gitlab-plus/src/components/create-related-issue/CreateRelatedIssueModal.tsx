@@ -5,6 +5,7 @@ import { clsx } from '@utils/clsx';
 import { IssueLinkType } from '../../helpers/IssueLink';
 import { CloseButton } from '../common/CloseButton';
 import { CreateRelatedIssueModalContent } from './CreateRelatedIssueModalContent';
+import { showModalEventName } from './event';
 
 type Props = {
   link: IssueLinkType;
@@ -14,7 +15,7 @@ export function CreateRelatedIssueModal({ link }: Props) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    document.addEventListener('show-modal', () => setIsVisible(true));
+    document.addEventListener(showModalEventName, () => setIsVisible(true));
   }, []);
 
   return (

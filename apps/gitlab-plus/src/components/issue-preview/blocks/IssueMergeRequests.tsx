@@ -1,19 +1,6 @@
 import { Issue } from '../../../types/Issue';
-import { _GitlabMR, GitlabMergeRequest } from '../../common/GitlabMergeRequest';
-import { _IssueBlock, IssueBlock } from './IssueBlock';
-
-export class _IssueMergeRequests extends _IssueBlock {
-  constructor(issue: Issue) {
-    super(
-      'Merge requests',
-      issue.relatedMergeRequests.nodes.map((mr) =>
-        new _GitlabMR(mr).getElement()
-      ),
-      '',
-      !!issue.relatedMergeRequests.nodes.length
-    );
-  }
-}
+import { GitlabMergeRequest } from '../../common/GitlabMergeRequest';
+import { IssueBlock } from './IssueBlock';
 
 type Props = {
   issue: Issue;
