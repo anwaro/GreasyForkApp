@@ -1,5 +1,5 @@
-import { GitlabProvider } from './GitlabProvider';
 import { LabelsResponse } from '../types/Label';
+import { GitlabProvider } from './GitlabProvider';
 import { labelsQuery } from './query/label';
 
 export class LabelsProvider extends GitlabProvider {

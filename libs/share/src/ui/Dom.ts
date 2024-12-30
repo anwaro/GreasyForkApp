@@ -1,69 +1,5 @@
-import { Component } from '@ui/Component';
-import { SvgComponent } from '@ui/SvgComponent';
-
-const svgTags = [
-  'animate',
-  'animateMotion',
-  'animateTransform',
-  'circle',
-  'clipPath',
-  'defs',
-  'desc',
-  'ellipse',
-  'feBlend',
-  'feColorMatrix',
-  'feComponentTransfer',
-  'feComposite',
-  'feConvolveMatrix',
-  'feDiffuseLighting',
-  'feDisplacementMap',
-  'feDistantLight',
-  'feDropShadow',
-  'feFlood',
-  'feFuncA',
-  'feFuncB',
-  'feFuncG',
-  'feFuncR',
-  'feGaussianBlur',
-  'feImage',
-  'feMerge',
-  'feMergeNode',
-  'feMorphology',
-  'feOffset',
-  'fePointLight',
-  'feSpecularLighting',
-  'feSpotLight',
-  'feTile',
-  'feTurbulence',
-  'filter',
-  'foreignObject',
-  'g',
-  'image',
-  'line',
-  'linearGradient',
-  'marker',
-  'mask',
-  'metadata',
-  'mpath',
-  'path',
-  'pattern',
-  'polygon',
-  'polyline',
-  'radialGradient',
-  'rect',
-  'set',
-  'stop',
-  'svg',
-  'switch',
-  'symbol',
-  'text',
-  'textPath',
-  'tspan',
-  'use',
-  'view',
-];
-
-const commonTags = ['a', 'script', 'style', 'title'];
+import { Component } from './Component';
+import { SvgComponent } from './SvgComponent';
 
 type HtmlAttr<K extends keyof HTMLElementTagNameMap> = Partial<
   Record<keyof HTMLElementTagNameMap[K], unknown>
@@ -74,19 +10,19 @@ type HtmlEvents<
 > = Partial<Record<E, (this: HTMLElement, ev: HTMLElementEventMap[E]) => void>>;
 
 export type HtmlItem =
+  | Component<keyof HTMLElementTagNameMap>
   | HtmlData
-  | HTMLElement
-  | Component<keyof HTMLElementTagNameMap>;
+  | HTMLElement;
 
 export type HtmlData<
   K extends keyof HTMLElementTagNameMap = keyof HTMLElementTagNameMap
 > = {
   tag: K;
-  classes?: string;
   attrs?: HtmlAttr<K> & Record<string, unknown>;
+  children?: (HtmlItem | SvgItem)[] | HtmlItem | string | SvgItem;
+  classes?: string;
   events?: HtmlEvents;
   styles?: Partial<CSSStyleDeclaration>;
-  children?: (HtmlItem | SvgItem)[] | HtmlItem | SvgItem | string;
 };
 
 type SvgAttr<K extends keyof SVGElementTagNameMap> = Partial<
@@ -97,25 +33,26 @@ type SvgEvents<E extends keyof SVGElementEventMap = keyof SVGElementEventMap> =
   Partial<Record<E, (this: HTMLElement, ev: SVGElementEventMap[E]) => void>>;
 
 export type SvgItem =
+  | SvgComponent<keyof SVGElementTagNameMap>
   | SvgData
-  | SVGElement
-  | SvgComponent<keyof SVGElementTagNameMap>;
+  | SVGElement;
 
 export type SvgData<
   K extends keyof SVGElementTagNameMap = keyof SVGElementTagNameMap
 > = {
   tag: K;
-  classes?: string;
   attrs?: SvgAttr<K> & Record<string, string>;
+  children?: string | SvgItem | SvgItem[];
+  classes?: string;
   events?: SvgEvents;
   styles?: Partial<CSSStyleDeclaration>;
-  children?: SvgItem[] | SvgItem | string;
 };
 
 export class Dom {
   static appendChildren(
     element: HTMLElement | SVGElement,
-    children: HtmlData['children']
+    children: HtmlData['children'],
+    isSvgMode = false
   ) {
     if (children) {
       element.append(
@@ -129,68 +66,20 @@ export class Dom {
           if (item instanceof Component || item instanceof SvgComponent) {
             return item.getElement();
           }
-          if (Dom.isSvgItem(item, element)) {
-            return Dom.createSvg(item);
+          const isSvg =
+            'svg' === item.tag
+              ? true
+              : 'foreignObject' === item.tag
+              ? false
+              : isSvgMode;
+
+          if (isSvg) {
+            return Dom.createSvg(item as SvgData);
           }
-          return Dom.create(item);
+          return Dom.create(item as HtmlData);
         })
       );
     }
-  }
-
-  static create<
-    K extends keyof HTMLElementTagNameMap = keyof HTMLElementTagNameMap
-  >(data: HtmlData<K>): HTMLElementTagNameMap[K] {
-    const element = document.createElement(data.tag);
-
-    Dom.appendChildren(element, data.children);
-    Dom.applyClass(element, data.classes);
-    Dom.applyAttrs(element, data.attrs);
-    Dom.applyEvents(element, data.events);
-    Dom.applyStyles(element, data.styles);
-
-    return element;
-  }
-
-  static element<
-    K extends keyof HTMLElementTagNameMap = keyof HTMLElementTagNameMap
-  >(
-    tag: K,
-    classes?: string,
-    children?: HtmlData<K>['children']
-  ): HTMLElementTagNameMap[K] {
-    return Dom.create({ tag, classes, children });
-  }
-
-  static createSvg<
-    K extends keyof SVGElementTagNameMap = keyof SVGElementTagNameMap
-  >(data: SvgData<K>): SVGElementTagNameMap[K] {
-    const element = document.createElementNS(
-      'http://www.w3.org/2000/svg',
-      data.tag
-    );
-
-    Dom.appendChildren(element, data.children);
-    Dom.applyClass(element, data.classes);
-    Dom.applyAttrs(element, data.attrs);
-    Dom.applyEvents(element, data.events);
-    Dom.applyStyles(element, data.styles);
-
-    return element;
-  }
-
-  static array<T>(element: T | T[]): T[] {
-    return Array.isArray(element) ? element : [element];
-  }
-
-  static elementSvg<
-    K extends keyof SVGElementTagNameMap = keyof SVGElementTagNameMap
-  >(
-    tag: K,
-    classes?: string,
-    children?: SvgData<K>['children']
-  ): SVGElementTagNameMap[K] {
-    return Dom.createSvg({ tag, classes, children });
   }
 
   static applyAttrs(
@@ -208,15 +97,9 @@ export class Dom {
     }
   }
 
-  static applyStyles(
-    element: HTMLElement | SVGElement,
-    styles?: Record<string, unknown>
-  ) {
-    if (styles) {
-      Object.entries(styles).forEach(([key, value]) => {
-        const name = key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
-        element.style.setProperty(name, value as string);
-      });
+  static applyClass(element: HTMLElement | SVGElement, classes?: string) {
+    if (classes) {
+      element.classList.add(...classes.split(' ').filter(Boolean));
     }
   }
 
@@ -231,20 +114,70 @@ export class Dom {
     }
   }
 
-  static applyClass(element: HTMLElement | SVGElement, classes?: string) {
-    if (classes) {
-      element.classList.add(...classes.split(' ').filter(Boolean));
+  static applyStyles(
+    element: HTMLElement | SVGElement,
+    styles?: Record<string, unknown>
+  ) {
+    if (styles) {
+      Object.entries(styles).forEach(([key, value]) => {
+        const name = key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+        element.style.setProperty(name, value as string);
+      });
     }
   }
 
-  static isSvgItem(
-    item: SvgData | HtmlData,
-    parent: HTMLElement | SVGElement
-  ): item is SvgData {
-    if (commonTags.includes(item.tag)) {
-      return parent instanceof SVGElement;
-    }
+  static array<T>(element: T | T[]): T[] {
+    return Array.isArray(element) ? element : [element];
+  }
 
-    return svgTags.includes(item.tag);
+  static create<
+    K extends keyof HTMLElementTagNameMap = keyof HTMLElementTagNameMap
+  >(data: HtmlData<K>): HTMLElementTagNameMap[K] {
+    const element = document.createElement(data.tag);
+
+    Dom.appendChildren(element, data.children);
+    Dom.applyClass(element, data.classes);
+    Dom.applyAttrs(element, data.attrs);
+    Dom.applyEvents(element, data.events);
+    Dom.applyStyles(element, data.styles);
+
+    return element;
+  }
+
+  static createSvg<
+    K extends keyof SVGElementTagNameMap = keyof SVGElementTagNameMap
+  >(data: SvgData<K>): SVGElementTagNameMap[K] {
+    const element = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      data.tag
+    );
+
+    Dom.appendChildren(element, data.children, true);
+    Dom.applyClass(element, data.classes);
+    Dom.applyAttrs(element, data.attrs);
+    Dom.applyEvents(element, data.events);
+    Dom.applyStyles(element, data.styles);
+
+    return element;
+  }
+
+  static element<
+    K extends keyof HTMLElementTagNameMap = keyof HTMLElementTagNameMap
+  >(
+    tag: K,
+    classes?: string,
+    children?: HtmlData<K>['children']
+  ): HTMLElementTagNameMap[K] {
+    return Dom.create({ tag, children, classes });
+  }
+
+  static elementSvg<
+    K extends keyof SVGElementTagNameMap = keyof SVGElementTagNameMap
+  >(
+    tag: K,
+    classes?: string,
+    children?: SvgData<K>['children']
+  ): SVGElementTagNameMap[K] {
+    return Dom.createSvg({ tag, children, classes });
   }
 }

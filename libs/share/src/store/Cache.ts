@@ -1,28 +1,26 @@
 type CacheItem = {
-  expirationDate: Date | 'lifetime';
+  expirationDate: 'lifetime' | Date;
   value: unknown;
 };
 
 export class Cache {
-  constructor(private prefix: string) {}
+  constructor(public prefix: string) {}
 
-  private isValid(item?: CacheItem): item is CacheItem {
-    if (item) {
-      return (
-        item.expirationDate === 'lifetime' ||
-        new Date(item.expirationDate) > new Date()
-      );
+  clearInvalid() {
+    for (const key in localStorage) {
+      if (key.startsWith(this.prefix) && !this.isValid(this.getItem(key))) {
+        localStorage.removeItem(key);
+      }
     }
-
-    return false;
   }
 
-  private getItem(key: string) {
-    try {
-      return JSON.parse(localStorage.getItem(key) || '');
-    } catch (e) {
-      return undefined;
+  expirationDate(minutes: 'lifetime' | number) {
+    if (typeof minutes === 'string') {
+      return minutes;
     }
+    const time = new Date();
+    time.setMinutes(time.getMinutes() + minutes);
+    return time;
   }
 
   get<T>(key: string): T | undefined {
@@ -37,7 +35,11 @@ export class Cache {
     return undefined;
   }
 
-  set<T>(key: string, value: T, minutes: number | 'lifetime') {
+  key(key: string) {
+    return `${this.prefix}${key}`;
+  }
+
+  set<T>(key: string, value: T, minutes: 'lifetime' | number) {
     localStorage.setItem(
       this.key(key),
       JSON.stringify({
@@ -47,24 +49,22 @@ export class Cache {
     );
   }
 
-  expirationDate(minutes: number | 'lifetime') {
-    if (typeof minutes === 'string') {
-      return minutes;
+  private getItem(key: string) {
+    try {
+      return JSON.parse(localStorage.getItem(key) || '');
+    } catch (e) {
+      return undefined;
     }
-    const time = new Date();
-    time.setMinutes(time.getMinutes() + minutes);
-    return time;
   }
 
-  key(key: string) {
-    return `${this.prefix}${key}`;
-  }
-
-  clearInvalid() {
-    for (const key in localStorage) {
-      if (key.startsWith(this.prefix) && !this.isValid(this.getItem(key))) {
-        localStorage.removeItem(key);
-      }
+  private isValid(item?: CacheItem): item is CacheItem {
+    if (item) {
+      return (
+        item.expirationDate === 'lifetime' ||
+        new Date(item.expirationDate) > new Date()
+      );
     }
+
+    return false;
   }
 }

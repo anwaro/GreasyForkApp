@@ -1,26 +1,32 @@
-import { User } from './User';
+import { Iteration } from './Iteration';
 import { Label } from './Label';
 import { Nodes } from './response';
-import { Iteration } from './Iteration';
+import { User } from './User';
 
-export type IssueRelation = 'relates_to' | 'blocks' | 'is_blocked_by';
+export type IssueRelation = 'blocks' | 'is_blocked_by' | 'relates_to';
+
+export const issueRelation: IssueRelation[] = [
+  'blocks',
+  'is_blocked_by',
+  'relates_to',
+];
 
 export type CreateIssueInput = {
-  title: string;
-  projectPath: string;
   assigneeIds?: string[];
-  milestoneId?: string;
   iterationCadenceId?: string;
   iterationId?: string;
-  labelIds?: (string | number)[];
+  labelIds?: (number | string)[];
+  milestoneId?: string;
+  projectPath: string;
+  title: string;
 };
 
 export type CreateIssueLinkInput = {
-  projectId: string | number;
-  issueId: string | number;
-  targetProjectId: string;
   targetIssueIid: string;
+  issueId: number | string;
   linkType: IssueRelation;
+  projectId: number | string;
+  targetProjectId: string;
 };
 
 export interface CreateIssueResponse {
@@ -32,50 +38,50 @@ export interface IssueData {
 }
 
 export interface CreateIssuable {
-  issuable: Issuable;
-  errors: string[];
   __typename: string;
+  errors: string[];
+  issuable: Issuable;
 }
 
 export interface Issuable {
-  id: string;
-  iid: string;
-  title: string;
-  referencePath: string;
-  closedAt: string;
-  dueDate: string;
-  timeEstimate: number;
-  totalTimeSpent: number;
-  humanTimeEstimate: number;
-  humanTotalTimeSpent: number;
-  emailsDisabled: boolean;
   confidential: boolean;
   hidden: boolean;
-  webUrl: string;
-  relativePosition: number;
-  type: string;
-  severity: string;
-  projectId: string;
-  milestone: unknown;
-  assignees: Assignees;
-  labels: Labels;
+  id: string;
+  iid: string;
   __typename: string;
-  weight: unknown;
+  assignees: Assignees;
   blocked: boolean;
   blockedByCount: number;
+  closedAt: string;
+  dueDate: string;
+  emailsDisabled: boolean;
   epic: unknown;
-  iteration: unknown;
   healthStatus: unknown;
+  humanTimeEstimate: number;
+  humanTotalTimeSpent: number;
+  iteration: unknown;
+  labels: Labels;
+  milestone: unknown;
+  projectId: string;
+  referencePath: string;
+  relativePosition: number;
+  severity: string;
+  timeEstimate: number;
+  title: string;
+  totalTimeSpent: number;
+  type: string;
+  webUrl: string;
+  weight: unknown;
 }
 
 export interface Assignees {
-  nodes: User[];
   __typename: string;
+  nodes: User[];
 }
 
 export interface Labels {
-  nodes: Label[];
   __typename: string;
+  nodes: Label[];
 }
 
 export interface IssueResponse {
@@ -88,42 +94,43 @@ export interface ProjectData {
 
 export interface Project {
   id: string;
-  issue: Issue;
   __typename: string;
+  issue: Issue;
 }
 
 export interface Issue {
+  confidential: boolean;
   id: string;
   iid: string;
-  title: string;
-  description: string;
-  createdAt: string;
-  state: string;
-  confidential: boolean;
-  dueDate: string | null;
-  milestone: Milestone | null;
-  labels: Nodes<Label>;
-  assignees: Nodes<User>;
-  relatedMergeRequests: Nodes<MergeRequest>;
-  iteration: Iteration | null;
-  weight: number | null;
-  type: string;
   __typename: string;
+  assignees: Nodes<User>;
+  createdAt: string;
+  description: string;
+  dueDate: null | string;
+  iteration: Iteration | null;
+  labels: Nodes<Label>;
+  milestone: Milestone | null;
+  relatedMergeRequests: Nodes<MergeRequest>;
+  state: string;
+  title: string;
+  type: string;
+  weight: null | number;
 }
 
 export interface Milestone {
   id: string;
-  title: string;
-  startDate: string;
-  dueDate: string;
   __typename: string;
+  dueDate: string;
+  startDate: string;
+  title: string;
 }
 
 export interface MergeRequest {
   iid: string;
-  title: string;
-  state: 'merged' | 'opened' | 'closed' | 'locked';
   author: User;
+  state: 'closed' | 'locked' | 'merged' | 'opened';
+  title: string;
+  webUrl: string;
 }
 
 export interface IssuesResponse {
@@ -136,41 +143,40 @@ export interface IssuesResponseData {
 
 export interface IssuesResponseWorkspace {
   id: string;
-  workItems: WorkItems;
   workItemsByIid: WorkItems;
-  workItemsEmpty: WorkItems;
   __typename: string;
+  workItems: WorkItems;
+  workItemsEmpty: WorkItems;
 }
 
 export interface WorkItems {
-  nodes: IssueAutocomplete[];
   __typename: string;
+  nodes: IssueAutocomplete[];
 }
 
 export interface IssueAutocomplete {
+  confidential: boolean;
   id: string;
   iid: string;
-  title: string;
-  confidential: boolean;
+  __typename: string;
   project: {
     fullPath: string;
   };
-  __typename: string;
+  title: string;
 }
 
 export type RelatedIssue = {
   id: number;
   iid: number;
-  projectId: number;
-  title: string;
-  description: string;
-  state: string;
-  createdAt: string;
-  updatedAt: string;
+  author: User;
   closedAt: string;
   closedBy: string;
+  createdAt: string;
+  description: string;
   linkType: IssueRelation;
-  author: User;
+  projectId: number;
+  state: string;
+  title: string;
+  updatedAt: string;
+  webUrl: string;
 };
-
-export type IssueWithRelated = Issue & { relatedIssues: RelatedIssue[] };

@@ -1,12 +1,6 @@
 export class Observer {
   private observer?: MutationObserver;
 
-  stop() {
-    if (this.observer) {
-      this.observer.disconnect();
-    }
-  }
-
   start(
     element: HTMLElement,
     callback: MutationCallback,
@@ -18,13 +12,19 @@ export class Observer {
     this.observer.observe(
       element,
       options || {
-        childList: true,
-        subtree: true,
+        attributeOldValue: true,
         attributes: true,
         characterData: true,
-        attributeOldValue: true,
         characterDataOldValue: true,
+        childList: true,
+        subtree: true,
       }
     );
+  }
+
+  stop() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
   }
 }

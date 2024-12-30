@@ -7,7 +7,7 @@ export function camelizeKeys<R, T = unknown>(data: T): R {
   }
 
   const camelize = (key: string) => {
-    const _key = key.replace(/[\-_\s]+(.)?/g, (_, chr) =>
+    const _key = key.replace(/[-_\s]+(.)?/g, (_, chr) =>
       chr ? chr.toUpperCase() : ''
     );
     return _key.substring(0, 1).toLowerCase() + _key.substring(1);
