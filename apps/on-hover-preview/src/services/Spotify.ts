@@ -1,13 +1,13 @@
 import { BaseService } from './BaseService';
 
 export class Spotify extends BaseService {
-  private regExp =
-    /spotify\.com\/(.+\/)?(?<type>track|album|playlist|show)\/(?<id>[\w-]+)/;
   public styles = {
     width: '600px',
-    height: '152px',
     borderRadius: '12px',
+    height: '152px',
   };
+  private regExp =
+    /spotify\.com\/(.+\/)?(?<type>track|album|playlist|show)\/(?<id>[\w-]+)/;
 
   public async embeddedVideoUrl({ href }: HTMLAnchorElement): Promise<string> {
     const props = this.match(href, this.regExp);

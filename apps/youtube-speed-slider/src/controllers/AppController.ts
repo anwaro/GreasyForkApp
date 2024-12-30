@@ -1,25 +1,26 @@
+import { Store } from '@store/Store';
+import { Observer } from '@ui/Observer';
+
+import { Checkbox } from '../components/Checkbox';
 import { Icon } from '../components/Icon';
 import { Label } from '../components/Label';
-import { Slider } from '../components/Slider';
-import { Checkbox } from '../components/Checkbox';
-import { SpeedMenuItem } from '../components/SpeedMenuItem';
 import { Menu } from '../components/Menu';
 import { Player } from '../components/Player';
-import { Observer } from '@ui/Observer';
-import { Store } from '@store/Store';
+import { Slider } from '../components/Slider';
+import { SpeedMenuItem } from '../components/SpeedMenuItem';
 
 export class AppController {
-  private menu: Menu;
-  private readonly speedMenuItem: SpeedMenuItem;
-  private player: Player;
+  private checkbox: Checkbox;
   private icon: Icon;
   private label: Label;
-  private slider: Slider;
-  private checkbox: Checkbox;
+  private menu: Menu;
   private observer: Observer;
-
+  private player: Player;
   private rememberSpeed = new Store<boolean>('yts-remember-speed');
+  private slider: Slider;
+
   private speed = new Store<number>('yts-speed');
+  private readonly speedMenuItem: SpeedMenuItem;
 
   constructor() {
     const initialSpeed = this.getSpeed();
@@ -43,49 +44,12 @@ export class AppController {
     this.initEvents();
   }
 
-  initEvents() {
-    this.slider.event('change', this.sliderChangeEvent.bind(this));
-    this.slider.event('input', this.sliderChangeEvent.bind(this));
-    this.slider.event('wheel', this.sliderWheelEvent.bind(this));
-    this.checkbox.event('change', this.checkboxEvent.bind(this));
-    document.addEventListener('spfdone', this.initApp.bind(this));
-  }
-
-  sliderChangeEvent(_: Event) {
-    this.updateSpeed(this.slider.getSpeed());
-  }
-
   checkboxEvent(_: Event) {
     this.rememberSpeed.set(this.checkbox.getValue());
   }
 
-  sliderWheelEvent(event: WheelEvent) {
-    const current = this.slider.getSpeed();
-    const diff = event.deltaY > 0 ? -0.05 : 0.05;
-    const value = Math.max(
-      Slider.MIN_VALUE,
-      Math.min(current + diff, Slider.MAX_VALUE)
-    );
-
-    if (current != value) {
-      this.slider.setSpeed(value);
-      this.updateSpeed(value);
-    }
-    event.preventDefault();
-  }
-
-  updateSpeed(speed: number) {
-    this.speed.set(speed);
-    this.player.setSpeed(speed);
-    this.label.updateSpeed(speed);
-  }
-
   getSpeed() {
     return this.rememberSpeed.get() ? this.speed.get(1) : 1;
-  }
-
-  mutationCallback() {
-    this.initApp();
   }
 
   async initApp() {
@@ -104,5 +68,42 @@ export class AppController {
     }
 
     return this.menu.addCustomSpeedItem(this.speedMenuItem);
+  }
+
+  initEvents() {
+    this.slider.event('change', this.sliderChangeEvent.bind(this));
+    this.slider.event('input', this.sliderChangeEvent.bind(this));
+    this.slider.event('wheel', this.sliderWheelEvent.bind(this));
+    this.checkbox.event('change', this.checkboxEvent.bind(this));
+    document.addEventListener('spfdone', this.initApp.bind(this));
+  }
+
+  mutationCallback() {
+    this.initApp();
+  }
+
+  sliderChangeEvent(_: Event) {
+    this.updateSpeed(this.slider.getSpeed());
+  }
+
+  sliderWheelEvent(event: WheelEvent) {
+    const current = this.slider.getSpeed();
+    const diff = event.deltaY > 0 ? -0.1 : 0.1;
+    const value = Math.max(
+      Slider.MIN_VALUE,
+      Math.min(current + diff, Slider.MAX_VALUE)
+    );
+
+    if (current != value) {
+      this.slider.setSpeed(value);
+      this.updateSpeed(value);
+    }
+    event.preventDefault();
+  }
+
+  updateSpeed(speed: number) {
+    this.speed.set(speed);
+    this.player.setSpeed(speed);
+    this.label.updateSpeed(speed);
   }
 }

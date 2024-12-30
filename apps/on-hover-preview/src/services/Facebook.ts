@@ -8,10 +8,10 @@ export class Facebook extends BaseService {
 
   public async embeddedVideoUrl(element: HTMLAnchorElement) {
     const params = this.params({
-      autoplay: 'true',
       width: '500',
-      show_text: 'false',
+      autoplay: 'true',
       href: element.href,
+      show_text: 'false',
     });
 
     return `https://www.facebook.com/plugins/video.php?${params}`;

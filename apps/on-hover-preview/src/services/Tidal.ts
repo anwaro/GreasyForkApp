@@ -1,13 +1,13 @@
 import { BaseService } from './BaseService';
 
 export class Tidal extends BaseService {
-  private regExp =
-    /tidal\.com\/(.+\/)?(?<type>track|album|video|playlist)\/(?<id>\d+|[\w-]+)/;
   public styles = {
     width: '500px',
     height: '300px',
     borderRadius: '10px',
   };
+  private regExp =
+    /tidal\.com\/(.+\/)?(?<type>track|album|video|playlist)\/(?<id>\d+|[\w-]+)/;
 
   public async embeddedVideoUrl({ href }: HTMLAnchorElement) {
     const props = this.match(href, this.regExp);

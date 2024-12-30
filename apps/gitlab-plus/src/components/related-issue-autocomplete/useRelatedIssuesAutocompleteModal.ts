@@ -39,7 +39,7 @@ export function useRelatedIssuesAutocompleteModal(
         setIsVisible(false);
       }
     });
-    input.addEventListener('click', () => setIsVisible(true))
+    input.addEventListener('click', () => setIsVisible(true));
   }, []);
 
   return {

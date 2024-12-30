@@ -1,16 +1,16 @@
 import { BaseService } from './BaseService';
 
 export class AppleMusic extends BaseService {
-  private regExp = /music\.apple\.com\/.{2}\/(?<id>music-video|artist|album)/;
   public styles = {
     width: '500px',
-    height: '450px',
     borderRadius: '12px',
+    height: '450px',
   };
+  private regExp = /music\.apple\.com\/.{2}\/(?<id>music-video|artist|album)/;
 
   public async embeddedVideoUrl({
-    pathname,
     href,
+    pathname,
   }: HTMLAnchorElement): Promise<string> {
     this.setStyle(href);
 

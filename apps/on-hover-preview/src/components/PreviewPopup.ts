@@ -1,6 +1,7 @@
-import { BaseService } from '../services/BaseService';
 import { Component } from '@ui/Component';
 import { Dom } from '@ui/Dom';
+
+import { BaseService } from '../services/BaseService';
 
 export class PreviewPopup extends Component<'div'> {
   static ID = 'play-on-hover-popup';
@@ -12,28 +13,28 @@ export class PreviewPopup extends Component<'div'> {
       attrs: {
         id: PreviewPopup.ID,
       },
-      styles: {
-        background: '#444',
-        height: '300px',
-        width: '500px',
-        position: 'absolute',
-        display: 'none',
-        zIndex: '9999',
-        overflow: 'hidden',
-        boxShadow: 'rgb(218, 218, 218) 1px 1px 5px',
-      },
       children: {
         tag: 'iframe',
         attrs: {
-          allowFullscreen: true,
           allow:
             'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share',
+          allowFullscreen: true,
         },
         styles: {
-          height: '100%',
           width: '100%',
           border: 'none',
+          height: '100%',
         },
+      },
+      styles: {
+        width: '500px',
+        background: '#444',
+        boxShadow: 'rgb(218, 218, 218) 1px 1px 5px',
+        display: 'none',
+        height: '300px',
+        overflow: 'hidden',
+        position: 'absolute',
+        zIndex: '9999',
       },
     });
 
@@ -45,22 +46,22 @@ export class PreviewPopup extends Component<'div'> {
     }
   }
 
+  hidePopup() {
+    this.iframeActive = false;
+    this.iframe.src = '';
+    this.element.style.display = 'none';
+  }
+
   showPopup(e: MouseEvent, url: string, service: BaseService) {
     if (!this.iframeActive) {
       this.iframe.src = url;
       this.iframeActive = true;
       Dom.applyStyles(this.element, {
         display: 'block',
-        top: `${e.pageY}px`,
         left: `${e.pageX}px`,
+        top: `${e.pageY}px`,
         ...service.styles,
       });
     }
-  }
-
-  hidePopup() {
-    this.iframeActive = false;
-    this.iframe.src = '';
-    this.element.style.display = 'none';
   }
 }

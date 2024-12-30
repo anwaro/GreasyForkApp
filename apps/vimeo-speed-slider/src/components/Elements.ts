@@ -1,10 +1,6 @@
 import { MenuItem } from './MenuItem';
 
 export class Elements {
-  static ref<T extends HTMLElement>(selector: string): T | null {
-    return document.querySelector<T>(selector);
-  }
-
   static menu() {
     return Elements.ref<HTMLDivElement>(
       '[data-menu="prefs"] [class^=Menu_module_menuPanel]'
@@ -35,18 +31,6 @@ export class Elements {
     );
   }
 
-  static menuSpeedItem() {
-    return Elements.menuItemWithLabel([
-      'Speed',
-      'Velocidad',
-      'Geschwindigkeit',
-      'Vitesse',
-      'Velocidade',
-      'スピード',
-      '속도',
-    ]);
-  }
-
   static menuQualityItem() {
     return Elements.menuItemWithLabel([
       'Quality',
@@ -59,8 +43,24 @@ export class Elements {
     ]);
   }
 
+  static menuSpeedItem() {
+    return Elements.menuItemWithLabel([
+      'Speed',
+      'Velocidad',
+      'Geschwindigkeit',
+      'Vitesse',
+      'Velocidade',
+      'スピード',
+      '속도',
+    ]);
+  }
+
   static menuSpeedLabel() {
     return Elements.menuSpeedItem()?.querySelector<HTMLSpanElement>('span');
+  }
+
+  static ref<T extends HTMLElement>(selector: string): null | T {
+    return document.querySelector<T>(selector);
   }
 
   static video() {

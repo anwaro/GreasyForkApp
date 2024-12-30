@@ -2,7 +2,7 @@ import { Component } from '@ui/Component';
 
 export class Label extends Component<'div'> {
   private label: string;
-  private speed: string = '1.0';
+  private speed = '1.0';
 
   constructor(speed: number, label = 'Speed') {
     super('div', { classes: 'ytp-menuitem-label' });

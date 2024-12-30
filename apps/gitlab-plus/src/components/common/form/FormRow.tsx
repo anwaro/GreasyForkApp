@@ -1,5 +1,5 @@
-
 import type { ComponentChild } from 'preact';
+
 type Props = {
   children: ComponentChild;
 };

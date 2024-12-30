@@ -1,15 +1,32 @@
-import { SpeedMenuItem } from './SpeedMenuItem';
 import { delay } from '@utils/delay';
+
+import { SpeedMenuItem } from './SpeedMenuItem';
 
 export class Menu {
   constructor() {
     this.getMenu();
   }
 
-  getMenu() {
-    return document.querySelector(
-      '.ytp-settings-menu .ytp-panel-menu'
-    ) as HTMLDivElement | null;
+  addCustomSpeedItem(item: SpeedMenuItem) {
+    const menu = this.getMenu();
+    const defaultItem = this.getDefaultMenuItem();
+
+    if (menu === null) {
+      return false;
+    }
+
+    if (this.menuHasCustomItem(menu)) {
+      defaultItem?.parentNode?.removeChild(defaultItem);
+      return true;
+    }
+
+    if (defaultItem) {
+      defaultItem.replaceWith(item.getElement());
+    } else {
+      menu.appendChild(item.getElement());
+    }
+
+    return true;
   }
 
   getDefaultMenuItem() {
@@ -37,6 +54,16 @@ export class Menu {
     return label?.innerText;
   }
 
+  getMenu() {
+    return document.querySelector(
+      '.ytp-settings-menu .ytp-panel-menu'
+    ) as HTMLDivElement | null;
+  }
+
+  menuHasCustomItem(menu: HTMLDivElement) {
+    return Boolean(menu.querySelector(`#${SpeedMenuItem.ID}`));
+  }
+
   async reopenMenu() {
     const menuButton = document.querySelector(
       '.ytp-settings-button'
@@ -55,31 +82,5 @@ export class Menu {
       menu?.style?.setProperty('opacity', '1');
       await delay(50);
     }
-  }
-
-  menuHasCustomItem(menu: HTMLDivElement) {
-    return Boolean(menu.querySelector(`#${SpeedMenuItem.ID}`));
-  }
-
-  addCustomSpeedItem(item: SpeedMenuItem) {
-    const menu = this.getMenu();
-    const defaultItem = this.getDefaultMenuItem();
-
-    if (menu === null) {
-      return false;
-    }
-
-    if (this.menuHasCustomItem(menu)) {
-      defaultItem?.parentNode?.removeChild(defaultItem);
-      return true;
-    }
-
-    if (defaultItem) {
-      defaultItem.replaceWith(item.getElement());
-    } else {
-      menu.appendChild(item.getElement());
-    }
-
-    return true;
   }
 }

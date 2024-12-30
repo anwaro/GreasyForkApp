@@ -1,20 +1,21 @@
-import { Elements } from './Elements';
-import { Slider } from './Slider';
-import { Checkbox } from './Checkbox';
-import { Label } from './Label';
 import { Component } from '@ui/Component';
 import { Dom } from '@ui/Dom';
+
+import { Checkbox } from './Checkbox';
+import { Elements } from './Elements';
+import { Label } from './Label';
+import { Slider } from './Slider';
 
 export class MenuItem extends Component<'div'> {
   public static readonly ID = 'vis-menu-speed-item';
   private checkbox = new Checkbox(false);
-  private slider = new Slider();
   private label = new Label();
+  private slider = new Slider();
   private wrapper = Dom.create({
     tag: 'div',
     styles: {
-      display: 'flex',
       alignItems: 'center',
+      display: 'flex',
     },
   });
 
@@ -28,15 +29,6 @@ export class MenuItem extends Component<'div'> {
     this.element.append(this.label.getElement(), this.wrapper);
     this.slider.initEvents(setSpeed);
     this.checkbox.initEvents(setRemember);
-  }
-
-  setSpeed(speed: number) {
-    this.slider.setSpeed(speed);
-    this.label.setSpeed(speed);
-  }
-
-  setRemember(state: boolean) {
-    this.checkbox.setValue(state);
   }
 
   mountItem() {
@@ -59,5 +51,14 @@ export class MenuItem extends Component<'div'> {
       this.element.className =
         Elements.menuItem()?.className || this.element.className;
     }
+  }
+
+  setRemember(state: boolean) {
+    this.checkbox.setValue(state);
+  }
+
+  setSpeed(speed: number) {
+    this.slider.setSpeed(speed);
+    this.label.setSpeed(speed);
   }
 }

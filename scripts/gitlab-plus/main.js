@@ -42,6 +42,7 @@ class GlobalStyle {
     style.textContent = styles;
   }
 }
+
 const style1 =
   '.glp-create-related-issue-layer {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 99999;\n  display: none;\n  background: rgba(0, 0, 0, 0.6);\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-create-related-issue-layer.glp-modal-visible {\n  display: flex;\n}\n\n.glp-create-related-issue-layer .glp-create-related-issue-modal {\n  width: 700px;\n  max-width: 95vw;\n}\n\n.gl-new-dropdown-item .glp-item-check {\n  opacity: 0;\n}\n\n.gl-new-dropdown-item.glp-active .gl-new-dropdown-item-content {\n  box-shadow: inset 0 0 0 2px var(--gl-focus-ring-outer-color), inset 0 0 0 3px var(--gl-focus-ring-inner-color), inset 0 0 0 1px var(--gl-focus-ring-inner-color);\n  background-color: var(--gl-dropdown-option-background-color-unselected-hover);\n  outline: none;\n}\n\n.gl-new-dropdown-item.glp-selected .glp-item-check {\n  opacity: 1;\n}\n\n';
 const style2 =
@@ -166,6 +167,7 @@ const iconUrl = (icon) => {
     `/assets/icons-${buildId}.svg`;
   return `${svgSprite}#${icon}`;
 };
+
 function GitlabIcon({ className, icon, size = 12 }) {
   return jsx('svg', {
     className: clsx('gl-icon gl-fill-current', `s${size}`, className),
@@ -320,6 +322,7 @@ const iconMap = {
   merged: 'merge',
   opened: 'merge-request',
 };
+
 function GitlabMergeRequest({ mr }) {
   return jsxs('div', {
     style: { marginTop: 10 },
@@ -332,7 +335,10 @@ function GitlabMergeRequest({ mr }) {
             className: 'merge-request-status',
             size: 16,
           }),
-          jsxs('span', { class: 'gl-text-gray-500', children: ['!', mr.iid] }),
+          jsxs('span', {
+            class: 'gl-text-gray-500',
+            children: ['!', mr.iid],
+          }),
           jsx(GitlabUser, { withLink: true, size: 16, user: mr.author }),
         ],
       }),
@@ -382,6 +388,7 @@ const relationMap = {
   is_blocked_by: 'Is blocked by:',
   relates_to: 'Related to:',
 };
+
 function IssueRelatedIssue({ isLoading, relatedIssues }) {
   const groups = useMemo(() => {
     const initValue = {
@@ -497,6 +504,7 @@ class Cache {
   constructor(prefix) {
     this.prefix = prefix;
   }
+
   clearInvalid() {
     for (const key in localStorage) {
       if (key.startsWith(this.prefix) && !this.isValid(this.getItem(key))) {
@@ -504,6 +512,7 @@ class Cache {
       }
     }
   }
+
   expirationDate(minutes) {
     if (typeof minutes === 'string') {
       return minutes;
@@ -512,6 +521,7 @@ class Cache {
     time.setMinutes(time.getMinutes() + minutes);
     return time;
   }
+
   get(key) {
     try {
       const data = this.getItem(this.key(key));
@@ -523,9 +533,11 @@ class Cache {
     }
     return void 0;
   }
+
   key(key) {
     return `${this.prefix}${key}`;
   }
+
   set(key, value, minutes) {
     localStorage.setItem(
       this.key(key),
@@ -535,6 +547,7 @@ class Cache {
       })
     );
   }
+
   getItem(key) {
     try {
       return JSON.parse(localStorage.getItem(key) || '');
@@ -542,6 +555,7 @@ class Cache {
       return void 0;
     }
   }
+
   isValid(item) {
     if (item) {
       return (
@@ -583,6 +597,7 @@ class GitlabProvider {
     __publicField(this, 'url', 'https://gitlab.com/api/v4/');
     __publicField(this, 'graphqlApi', 'https://gitlab.com/api/graphql');
   }
+
   async get(path) {
     const response = await fetch(`${this.url}${path}`, {
       method: 'GET',
@@ -591,6 +606,7 @@ class GitlabProvider {
     const data = await response.json();
     return camelizeKeys(data);
   }
+
   async post(path, body) {
     const response = await fetch(`${this.url}${path}`, {
       method: 'POST',
@@ -600,6 +616,7 @@ class GitlabProvider {
     const data = await response.json();
     return camelizeKeys(data);
   }
+
   async query(query, variables) {
     const response = await fetch(this.graphqlApi, {
       method: 'POST',
@@ -608,12 +625,15 @@ class GitlabProvider {
     });
     return response.json();
   }
+
   async queryCached(key, query, variables, minutes) {
     return this.cached(key, () => this.query(query, variables), minutes);
   }
+
   async getCached(key, path, minutes) {
     return this.cached(key, () => this.get(path), minutes);
   }
+
   async cached(key, getValue, minutes) {
     const cacheValue = this.cache.get(key);
     if (cacheValue) {
@@ -623,6 +643,7 @@ class GitlabProvider {
     this.cache.set(key, value, minutes);
     return value;
   }
+
   csrf() {
     const token = document.querySelector('meta[name=csrf-token]');
     if (token) {
@@ -630,6 +651,7 @@ class GitlabProvider {
     }
     return '';
   }
+
   headers() {
     const headers = {
       'content-type': 'application/json',
@@ -952,6 +974,7 @@ class IssueProvider extends GitlabProvider {
       2
     );
   }
+
   async getIssues(projectId, search) {
     const searchById = !!search.match(/^\d+$/);
     return await this.query(issuesQuery, {
@@ -967,9 +990,11 @@ class IssueProvider extends GitlabProvider {
       in: 'TITLE',
     });
   }
+
   async createIssue(input) {
     return await this.query(issueMutation, { input });
   }
+
   async createIssueRelation(input) {
     const path = [
       'projects/:PROJECT_ID',
@@ -986,6 +1011,7 @@ class IssueProvider extends GitlabProvider {
       .replace(':LINK_TYPE', input.linkType);
     return await this.post(path, {});
   }
+
   async getIssueLinks(projectId, issueId) {
     const path = 'projects/:PROJECT_ID/issues/:ISSUE_ID/links'
       .replace(':PROJECT_ID', `${projectId}`)
@@ -1004,6 +1030,7 @@ const initialRelatedIssuesData = {
   issues: [],
 };
 const issueProvider = new IssueProvider();
+
 function useFetchIssue() {
   const [issue, setIssue] = useState(initialIssueData);
   const [relatedIssues, setRelatedIssues] = useState(initialRelatedIssuesData);
@@ -1085,6 +1112,7 @@ class IssueLink {
       workspacePath,
     };
   }
+
   static validateLink(link) {
     return Boolean(typeof link === 'string' && link.includes('/-/issues/'));
   }
@@ -1213,6 +1241,7 @@ class Service {
     }
     return root;
   }
+
   rootBody(className) {
     return this.root(className, document.body);
   }
@@ -1691,6 +1720,7 @@ class RecentlyProvider {
     this.key = `recently-${key}`;
     this.eventName = `recently-${key}-change`;
   }
+
   add(...items) {
     const itemsId = items.map((i) => i.id);
     this.cache.set(
@@ -1700,12 +1730,15 @@ class RecentlyProvider {
     );
     this.triggerChange();
   }
+
   get() {
     return this.cache.get(this.key) || [];
   }
+
   onChange(callback) {
     document.addEventListener(this.eventName, callback);
   }
+
   remove(...items) {
     const itemsId = items.map((i) => i.id);
     this.cache.set(
@@ -1715,6 +1748,7 @@ class RecentlyProvider {
     );
     this.triggerChange();
   }
+
   triggerChange() {
     document.dispatchEvent(new CustomEvent(this.eventName));
   }
@@ -1941,6 +1975,7 @@ function iterationName(iteration) {
   const end = new Date(iteration.dueDate).toLocaleDateString();
   return `${iteration.iterationCadence.title}: ${start} - ${end}`;
 }
+
 function IterationField({ link, setValue, value }) {
   const getUsers = useCallback(
     async (search) => {
@@ -2266,6 +2301,7 @@ const labels = (relation) => {
       return 'is not related to current issue';
   }
 };
+
 function RelationField({ setValue, value }) {
   return jsx('div', {
     class: 'linked-issue-type-radio',
@@ -2329,6 +2365,7 @@ const initialError = () => ({
   relation: void 0,
   title: void 0,
 });
+
 function useCreateRelatedIssueForm(link, onClose, isVisible) {
   const [values, setValues] = useState(initialState());
   const [errors, setErrors] = useState(initialError());
@@ -2621,11 +2658,13 @@ class CreateRelatedIssue extends Service {
     super();
     __publicField(this, 'isMounted', false);
   }
+
   init() {
     this.mount();
     setTimeout(this.mount.bind(this), 1e3);
     setTimeout(this.mount.bind(this), 3e3);
   }
+
   mount() {
     if (this.isMounted) {
       return;
@@ -2725,12 +2764,14 @@ class RelatedIssueAutocomplete extends Service {
     __publicField(this, 'ready', false);
     __publicField(this, 'readyClass', 'glp-input-ready');
   }
+
   init() {
     this.initObserver();
     window.setTimeout(this.initObserver.bind(this), 1e3);
     window.setTimeout(this.initObserver.bind(this), 3e3);
     window.setTimeout(this.initObserver.bind(this), 5e3);
   }
+
   initAutocomplete(section) {
     const input = section.querySelector('#add-related-issues-form-input');
     const link = IssueLink.parseLink(window.location.href);
@@ -2744,6 +2785,7 @@ class RelatedIssueAutocomplete extends Service {
     const root = this.root('related-issues-autocomplete', container);
     render(jsx(RelatedIssuesAutocompleteModal, { input, link }), root);
   }
+
   initObserver() {
     const section = document.querySelector('#related-issues');
     if (this.ready || !section) {
@@ -2761,6 +2803,7 @@ class RelatedIssueAutocomplete extends Service {
       childList: true,
     });
   }
+
   isMounted(input) {
     return input.classList.contains(this.readyClass);
   }
@@ -2772,6 +2815,7 @@ class ClearCacheService extends Service {
     super();
     __publicField(this, 'cache', new Cache('glp-'));
   }
+
   init() {
     this.cache.clearInvalid();
     window.setInterval(this.cache.clearInvalid.bind(this.cache), 60 * 1e3);
@@ -2783,15 +2827,19 @@ class Component {
   constructor(tag, props = {}) {
     this.element = Dom.create({ tag, ...props });
   }
+
   addClassName(...className) {
     this.element.classList.add(...className);
   }
+
   event(event, callback) {
     this.element.addEventListener(event, callback);
   }
+
   getElement() {
     return this.element;
   }
+
   mount(parent) {
     parent.appendChild(this.element);
   }
@@ -2802,15 +2850,19 @@ class SvgComponent {
   constructor(tag, props = {}) {
     this.element = Dom.createSvg({ tag, ...props });
   }
+
   addClassName(...className) {
     this.element.classList.add(...className);
   }
+
   event(event, callback) {
     this.element.addEventListener(event, callback);
   }
+
   getElement() {
     return this.element;
   }
+
   mount(parent) {
     parent.appendChild(this.element);
   }
@@ -2845,6 +2897,7 @@ class Dom {
       );
     }
   }
+
   static applyAttrs(element, attrs) {
     if (attrs) {
       Object.entries(attrs).forEach(([key, value]) => {
@@ -2856,11 +2909,13 @@ class Dom {
       });
     }
   }
+
   static applyClass(element, classes) {
     if (classes) {
       element.classList.add(...classes.split(' ').filter(Boolean));
     }
   }
+
   static applyEvents(element, events) {
     if (events) {
       Object.entries(events).forEach(([name, callback]) => {
@@ -2868,6 +2923,7 @@ class Dom {
       });
     }
   }
+
   static applyStyles(element, styles) {
     if (styles) {
       Object.entries(styles).forEach(([key, value]) => {
@@ -2876,9 +2932,11 @@ class Dom {
       });
     }
   }
+
   static array(element) {
     return Array.isArray(element) ? element : [element];
   }
+
   static create(data) {
     const element = document.createElement(data.tag);
     Dom.appendChildren(element, data.children);
@@ -2888,6 +2946,7 @@ class Dom {
     Dom.applyStyles(element, data.styles);
     return element;
   }
+
   static createSvg(data) {
     const element = document.createElementNS(
       'http://www.w3.org/2000/svg',
@@ -2900,9 +2959,11 @@ class Dom {
     Dom.applyStyles(element, data.styles);
     return element;
   }
+
   static element(tag, classes, children) {
     return Dom.create({ tag, children, classes });
   }
+
   static elementSvg(tag, classes, children) {
     return Dom.createSvg({ tag, children, classes });
   }
@@ -2925,6 +2986,7 @@ class Observer {
       }
     );
   }
+
   stop() {
     if (this.observer) {
       this.observer.disconnect();
@@ -2941,6 +3003,7 @@ const sortWeight = {
   ['unknown']: 2,
   ['userStory']: 6,
 };
+
 class SortIssue extends Service {
   init() {
     const observer = new Observer();
@@ -2951,6 +3014,7 @@ class SortIssue extends Service {
     }
     observer.start(board, () => this.run(userName));
   }
+
   childType(child, userName) {
     if (child instanceof HTMLDivElement) {
       return 'label';
@@ -2976,6 +3040,7 @@ class SortIssue extends Service {
     }
     return 'issue';
   }
+
   initBoard(board, userName) {
     Dom.applyClass(board, 'glp-ready');
     const observer = new Observer();
@@ -2983,16 +3048,19 @@ class SortIssue extends Service {
       childList: true,
     });
   }
+
   run(userName) {
     [...document.querySelectorAll('.board-list:not(.glp-ready)')].forEach(
       (board) => this.initBoard(board, userName)
     );
   }
+
   shouldSort(items) {
     return items.some((item) => {
       return ['ownIssue', 'ownUserStory'].includes(item.type);
     });
   }
+
   sortBoard(board, userName) {
     Dom.applyStyles(board, {
       display: 'flex',
@@ -3011,11 +3079,13 @@ class SortIssue extends Service {
       element.style.order = `${order}`;
     });
   }
+
   sortChildren(items) {
     return items.toSorted((a, b) => {
       return Math.sign(sortWeight[b.type] - sortWeight[a.type]);
     });
   }
+
   userName() {
     const element = document.querySelector(
       '.user-bar-dropdown-toggle .gl-button-text .gl-sr-only'

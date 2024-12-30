@@ -1,5 +1,5 @@
 declare global {
-  var onurlchange: VoidFunction | null | undefined;
+  var onurlchange: null | undefined | VoidFunction;
 }
 
 export function activateUrlChangeEvents() {

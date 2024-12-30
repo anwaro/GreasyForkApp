@@ -1,7 +1,7 @@
 const banner = `// ==UserScript==
 // @name         Youtube Player Speed Slider
 // @namespace    lukaszmical.pl
-// @version      1.0.1
+// @version      1.0.2
 // @description  Add Speed Slider to Youtube Player Settings
 // @author       Łukasz Micał
 // @match        https://*.youtube.com/*

@@ -8,13 +8,13 @@ export class SoundCloud extends BaseService {
 
   public async embeddedVideoUrl({ href }: HTMLAnchorElement): Promise<string> {
     const params = this.params({
-      visual: 'false',
-      show_artwork: 'true',
-      auto_play: 'true',
       hide_related: 'true',
+      auto_play: 'true',
+      show_artwork: 'true',
       show_comments: 'false',
       show_teaser: 'false',
       url: encodeURIComponent(href),
+      visual: 'false',
     });
 
     return `https://w.soundcloud.com/player?${params}`;

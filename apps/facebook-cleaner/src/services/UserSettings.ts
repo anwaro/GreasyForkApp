@@ -10,19 +10,19 @@ declare global {
   ) => void;
   var GM_unregisterMenuCommand: (id: string) => void;
   var GM_setValue: (key: string, value: unknown) => void;
-  var GM_getValue: <T, D>(key: string, defaultValue: D) => T | D;
+  var GM_getValue: <T, D>(key: string, defaultValue: D) => D | T;
 }
 
 export enum SettingsItemId {
-  HideSponsored = 'fcc-hide-sponsored',
   HideReels = 'fcc-hide-reels',
+  HideSponsored = 'fcc-hide-sponsored',
   HideSuggestedGroups = 'fcc-hide-suggested-groups',
   HideSuggestedProfiles = 'fcc-hide-suggested-profiles',
 }
 
 const settingsMenuLabels: Record<SettingsItemId, string> = {
-  [SettingsItemId.HideSponsored]: 'sponsored posts',
   [SettingsItemId.HideReels]: 'reels',
+  [SettingsItemId.HideSponsored]: 'sponsored posts',
   [SettingsItemId.HideSuggestedGroups]: 'suggested groups',
   [SettingsItemId.HideSuggestedProfiles]: 'suggested profiles',
 };
@@ -31,8 +31,8 @@ export type UserSettingsType = Record<SettingsItemId, boolean>;
 
 export class UserSettings {
   private setting: UserSettingsType = {
-    [SettingsItemId.HideSponsored]: true,
     [SettingsItemId.HideReels]: true,
+    [SettingsItemId.HideSponsored]: true,
     [SettingsItemId.HideSuggestedGroups]: true,
     [SettingsItemId.HideSuggestedProfiles]: true,
   };
@@ -55,18 +55,18 @@ export class UserSettings {
     ) as UserSettingsType;
   }
 
+  private setSettingValue(id: SettingsItemId, value: boolean) {
+    this.setting[id] = value;
+    GM_setValue(id, value);
+    this.updateMenu();
+  }
+
   private settingLabel(id: SettingsItemId) {
     return [
       this.setting[id] ? 'Show' : 'Hide',
       settingsMenuLabels[id],
       'in feed news',
     ].join(' ');
-  }
-
-  private setSettingValue(id: SettingsItemId, value: boolean) {
-    this.setting[id] = value;
-    GM_setValue(id, value);
-    this.updateMenu();
   }
 
   private updateMenu() {

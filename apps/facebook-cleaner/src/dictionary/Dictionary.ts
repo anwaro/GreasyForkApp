@@ -1,12 +1,16 @@
 import { Lang, languages, LocaleDictionary, locales } from './locales';
 
 export class Dictionary {
-  private readonly lang: Lang | undefined;
   private readonly dictionary: LocaleDictionary | undefined;
+  private readonly lang: Lang | undefined;
 
   constructor() {
     this.lang = this.detectLanguage();
     this.dictionary = this.getDictionary();
+  }
+
+  getFeedLabel() {
+    return this.dictionary.feed;
   }
 
   getFollowLabel() {
@@ -15,10 +19,6 @@ export class Dictionary {
 
   getJoinLabel() {
     return this.dictionary.join;
-  }
-
-  getFeedLabel() {
-    return this.dictionary.feed;
   }
 
   getReelsLabel() {

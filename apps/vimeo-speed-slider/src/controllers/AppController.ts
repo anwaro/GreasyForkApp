@@ -1,17 +1,18 @@
-import { MenuItem } from '../components/MenuItem';
-import { Player } from '../components/Player';
-import { Elements } from '../components/Elements';
 import { Store } from '@store/Store';
 import { Observer } from '@ui/Observer';
 
-export class AppController {
-  private player = new Player();
-  private item: MenuItem;
-  private videoObserver = new Observer();
-  private menuObserver = new Observer();
+import { Elements } from '../components/Elements';
+import { MenuItem } from '../components/MenuItem';
+import { Player } from '../components/Player';
 
+export class AppController {
+  private item: MenuItem;
+  private menuObserver = new Observer();
+  private player = new Player();
   private rememberSpeed: Store<boolean>;
+
   private speed: Store<number>;
+  private videoObserver = new Observer();
 
   constructor() {
     this.rememberSpeed = new Store('vis-remember-speed');
@@ -24,23 +25,8 @@ export class AppController {
     this.setRemember(this.rememberSpeed.get(false));
   }
 
-  setSpeed(speed: number) {
-    this.speed.set(speed);
-    this.player.setSpeed(speed);
-    this.item.setSpeed(speed);
-  }
-
-  setRemember(state: boolean) {
-    this.rememberSpeed.set(state);
-    this.item.setRemember(state);
-  }
-
   getSpeed() {
     return this.rememberSpeed.get(false) ? this.speed.get(1) : 1;
-  }
-
-  mount() {
-    this.item.mountItem();
   }
 
   init() {
@@ -55,5 +41,20 @@ export class AppController {
     }
 
     return false;
+  }
+
+  mount() {
+    this.item.mountItem();
+  }
+
+  setRemember(state: boolean) {
+    this.rememberSpeed.set(state);
+    this.item.setRemember(state);
+  }
+
+  setSpeed(speed: number) {
+    this.speed.set(speed);
+    this.player.setSpeed(speed);
+    this.item.setSpeed(speed);
   }
 }

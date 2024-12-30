@@ -3,17 +3,17 @@ import { ElementDetector } from './ElementDetector';
 import { SettingsItemId, UserSettingsType } from './UserSettings';
 
 enum HiddenType {
-  SponsoredLink = 'sponsored-link',
-  SponsoredLabel = 'sponsored-label',
-  SponsoredHiddenLabel = 'sponsored-hidden-label',
   Follow = 'follow',
   Join = 'join',
   Reels = 'reels',
+  SponsoredHiddenLabel = 'sponsored-hidden-label',
+  SponsoredLabel = 'sponsored-label',
+  SponsoredLink = 'sponsored-link',
 }
 
 export class BannedPost {
-  private dictionary = new Dictionary();
   private detector = new ElementDetector();
+  private dictionary = new Dictionary();
 
   filter(posts: HTMLDivElement[], settings: UserSettingsType) {
     return posts.filter((post) => {
@@ -87,6 +87,11 @@ export class BannedPost {
     });
   }
 
+  hide(post: HTMLDivElement) {
+    post.dataset.fcc = '@';
+    post.dataset.fccType = '';
+  }
+
   isSponsoredElement(element: HTMLSpanElement) {
     const sponsoredLabel = this.dictionary.getSponsoredLabel();
     const items = (
@@ -101,9 +106,9 @@ export class BannedPost {
       .map((item) => {
         const styles = getComputedStyle(item);
         return {
-          text: item.innerText,
           isVisible: styles.position !== 'absolute',
           order: Number(styles.order),
+          text: item.innerText,
         };
       })
       .filter((item) => item.isVisible)
@@ -111,11 +116,6 @@ export class BannedPost {
       .map((item) => item.text)
       .join('');
     return elementLabel.includes(sponsoredLabel);
-  }
-
-  hide(post: HTMLDivElement) {
-    post.dataset.fcc = '@';
-    post.dataset.fccType = '';
   }
 
   showHiddenPostGroups() {

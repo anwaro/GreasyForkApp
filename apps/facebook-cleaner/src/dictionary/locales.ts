@@ -1,158 +1,158 @@
 export type LocaleDictionary = {
+  hiddenPost: string;
+  feed: string;
   follow: string;
   join: string;
-  feed: string;
   reels: string;
   sponsored: string;
-  hiddenPost: string;
 };
 
 export type Lang =
-  | 'pl'
+  | 'cs'
+  | 'de'
   | 'en'
   | 'es'
-  | 'pt'
-  | 'de'
-  | 'cs'
-  | 'sl'
-  | 'sk'
   | 'fr'
-  | 'tr'
-  | 'szl'
+  | 'id'
   | 'it'
+  | 'pl'
+  | 'pt'
+  | 'sk'
+  | 'sl'
+  | 'szl'
+  | 'tr'
   | 'uk'
   | 'zh-Hans'
-  | 'zh-Hant'
-  | 'id';
+  | 'zh-Hant';
 
 export const locales: Record<Lang, LocaleDictionary> = {
-  en: {
-    follow: 'Follow',
-    join: 'Join',
-    feed: 'News Feed posts',
-    reels: 'Reels',
-    sponsored: 'Sponsored',
-    hiddenPost: 'Hidden posts',
-  },
-  es: {
-    follow: 'Seguir',
-    join: 'Unirte',
-    feed: 'Publicaciones de la sección de noticias',
-    reels: 'Reels',
-    sponsored: 'Publicidad',
-    hiddenPost: 'Publicaciones ocultas',
-  },
-  pt: {
-    follow: 'Seguir',
-    join: 'Participar',
-    feed: 'Publicações do Feed de Notícias',
-    reels: 'Reels',
-    sponsored: 'Patrocinado',
-    hiddenPost: 'Postagens ocultas',
-  },
-  pl: {
-    follow: 'Obserwuj',
-    join: 'Dołącz',
-    feed: 'Posty w Aktualnościach',
-    reels: 'Rolki',
-    sponsored: 'Sponsorowane',
-    hiddenPost: 'Ukryte posty',
-  },
-  de: {
-    follow: 'Folgen',
-    join: 'Beitreten',
-    feed: 'News Feed-Beiträge',
-    reels: 'Reels',
-    sponsored: 'Anzeige',
-    hiddenPost: 'Versteckte Beiträge',
-  },
-  cs: {
-    follow: 'Sledovat',
-    join: 'Přidat se',
-    feed: 'Příspěvku v kanálu vybraných příspěvků',
-    reels: 'Reels',
-    sponsored: 'Sponzorováno',
-    hiddenPost: 'Skryté příspěvky',
-  },
-  sk: {
-    follow: 'Sledovať',
-    join: 'Pridať sa',
-    feed: 'Príspevky v Novinkách',
-    reels: 'Reels',
-    sponsored: 'Sponzorované',
-    hiddenPost: 'Skryté príspevky',
-  },
-  sl: {
-    follow: 'Sledi',
-    join: 'Pridruži se',
-    feed: 'Objave v viru novic',
-    reels: 'Interaktivni videi',
-    sponsored: 'Sponzorirano',
-    hiddenPost: 'Skrite objave',
-  },
-  fr: {
-    follow: 'Suivre',
-    join: 'Rejoindre',
-    feed: 'Nouvelles publications du fil d’actualité',
-    reels: 'Reels',
-    sponsored: 'Sponsorisé',
-    hiddenPost: 'Messages masqués',
-  },
-  tr: {
-    follow: 'Takip Et',
-    join: 'Katıl',
-    feed: 'Haber Kaynağı gönderileri',
-    reels: 'Reels',
-    sponsored: 'Sponsorlu',
-    hiddenPost: 'Gizli gönderiler',
-  },
   id: {
+    hiddenPost: 'Postingan tersembunyi',
+    feed: 'Postingan Kabar Beranda',
     follow: 'Ikuti',
     join: 'Gabung',
-    feed: 'Postingan Kabar Beranda',
     reels: 'Reels',
     sponsored: 'Bersponsor',
-    hiddenPost: 'Postingan tersembunyi',
+  },
+  cs: {
+    hiddenPost: 'Skryté příspěvky',
+    feed: 'Příspěvku v kanálu vybraných příspěvků',
+    follow: 'Sledovat',
+    join: 'Přidat se',
+    reels: 'Reels',
+    sponsored: 'Sponzorováno',
+  },
+  de: {
+    hiddenPost: 'Versteckte Beiträge',
+    feed: 'News Feed-Beiträge',
+    follow: 'Folgen',
+    join: 'Beitreten',
+    reels: 'Reels',
+    sponsored: 'Anzeige',
+  },
+  en: {
+    hiddenPost: 'Hidden posts',
+    feed: 'News Feed posts',
+    follow: 'Follow',
+    join: 'Join',
+    reels: 'Reels',
+    sponsored: 'Sponsored',
+  },
+  es: {
+    hiddenPost: 'Publicaciones ocultas',
+    feed: 'Publicaciones de la sección de noticias',
+    follow: 'Seguir',
+    join: 'Unirte',
+    reels: 'Reels',
+    sponsored: 'Publicidad',
+  },
+  fr: {
+    hiddenPost: 'Messages masqués',
+    feed: 'Nouvelles publications du fil d’actualité',
+    follow: 'Suivre',
+    join: 'Rejoindre',
+    reels: 'Reels',
+    sponsored: 'Sponsorisé',
   },
   it: {
+    hiddenPost: 'Post nascosti',
+    feed: 'Post della sezione Notizie',
     follow: 'Segui',
     join: 'Iscriviti',
-    feed: 'Post della sezione Notizie',
     reels: 'Reels',
     sponsored: 'Sponsorizzato',
-    hiddenPost: 'Post nascosti',
   },
-  'zh-Hans': {
-    follow: '关注',
-    join: '加入',
-    feed: '动态消息帖子',
-    reels: 'Reels',
-    sponsored: '赞助内容',
-    hiddenPost: '隐藏帖子',
-  },
-  'zh-Hant': {
-    follow: '追蹤',
-    join: '加入',
-    feed: '動態消息帖子',
-    reels: 'Reels',
-    sponsored: '贊助',
-    hiddenPost: '隱藏貼文',
-  },
-  szl: {
+  pl: {
+    hiddenPost: 'Ukryte posty',
+    feed: 'Posty w Aktualnościach',
     follow: 'Obserwuj',
     join: 'Dołącz',
+    reels: 'Rolki',
+    sponsored: 'Sponsorowane',
+  },
+  pt: {
+    hiddenPost: 'Postagens ocultas',
+    feed: 'Publicações do Feed de Notícias',
+    follow: 'Seguir',
+    join: 'Participar',
+    reels: 'Reels',
+    sponsored: 'Patrocinado',
+  },
+  sk: {
+    hiddenPost: 'Skryté príspevky',
+    feed: 'Príspevky v Novinkách',
+    follow: 'Sledovať',
+    join: 'Pridať sa',
+    reels: 'Reels',
+    sponsored: 'Sponzorované',
+  },
+  sl: {
+    hiddenPost: 'Skrite objave',
+    feed: 'Objave v viru novic',
+    follow: 'Sledi',
+    join: 'Pridruži se',
+    reels: 'Interaktivni videi',
+    sponsored: 'Sponzorirano',
+  },
+  szl: {
+    hiddenPost: 'Skryte posty',
     feed: 'Posty w Aktualnościach',
+    follow: 'Obserwuj',
+    join: 'Dołącz',
     reels: 'Rolki',
     sponsored: 'Szpōnzorowane',
-    hiddenPost: 'Skryte posty',
+  },
+  tr: {
+    hiddenPost: 'Gizli gönderiler',
+    feed: 'Haber Kaynağı gönderileri',
+    follow: 'Takip Et',
+    join: 'Katıl',
+    reels: 'Reels',
+    sponsored: 'Sponsorlu',
   },
   uk: {
+    hiddenPost: 'Приховані пости/Prykhovani posty',
+    feed: 'Дописи зі стрічки новин',
     follow: 'Стежити',
     join: 'Приєднатися',
-    feed: 'Дописи зі стрічки новин',
     reels: 'Відео Reels',
     sponsored: 'Реклама',
-    hiddenPost: 'Приховані пости/Prykhovani posty',
+  },
+  'zh-Hans': {
+    hiddenPost: '隐藏帖子',
+    feed: '动态消息帖子',
+    follow: '关注',
+    join: '加入',
+    reels: 'Reels',
+    sponsored: '赞助内容',
+  },
+  'zh-Hant': {
+    hiddenPost: '隱藏貼文',
+    feed: '動態消息帖子',
+    follow: '追蹤',
+    join: '加入',
+    reels: 'Reels',
+    sponsored: '贊助',
   },
 };
 

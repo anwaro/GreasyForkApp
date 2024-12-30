@@ -1,4 +1,3 @@
-
 import type { ComponentChild } from 'preact';
 
 import { clsx } from '@utils/clsx';

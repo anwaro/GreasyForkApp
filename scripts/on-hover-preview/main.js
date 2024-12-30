@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Play video on hover
 // @namespace    https://lukaszmical.pl/
-// @version      0.4.0
+// @version      0.4.1
 // @description  Facebook, Vimeo, Youtube, Streamable, Tiktok, Instagram, Twitter, X, Dailymotion, Coub, Spotify, Tableau, SoundCloud, Apple Music, Deezer, Tidal - play on hover
 // @author       Łukasz Micał
 // @match        *://*/*
@@ -9,7 +9,7 @@
 // ==/UserScript==
 
 // libs/share/src/ui/SvgComponent.ts
-var SvgComponent = class {
+const SvgComponent = class {
   constructor(tag, props = {}) {
     this.element = Dom.createSvg({ tag, ...props });
   }
@@ -32,70 +32,8 @@ var SvgComponent = class {
 };
 
 // libs/share/src/ui/Dom.ts
-var svgTags = [
-  'animate',
-  'animateMotion',
-  'animateTransform',
-  'circle',
-  'clipPath',
-  'defs',
-  'desc',
-  'ellipse',
-  'feBlend',
-  'feColorMatrix',
-  'feComponentTransfer',
-  'feComposite',
-  'feConvolveMatrix',
-  'feDiffuseLighting',
-  'feDisplacementMap',
-  'feDistantLight',
-  'feDropShadow',
-  'feFlood',
-  'feFuncA',
-  'feFuncB',
-  'feFuncG',
-  'feFuncR',
-  'feGaussianBlur',
-  'feImage',
-  'feMerge',
-  'feMergeNode',
-  'feMorphology',
-  'feOffset',
-  'fePointLight',
-  'feSpecularLighting',
-  'feSpotLight',
-  'feTile',
-  'feTurbulence',
-  'filter',
-  'foreignObject',
-  'g',
-  'image',
-  'line',
-  'linearGradient',
-  'marker',
-  'mask',
-  'metadata',
-  'mpath',
-  'path',
-  'pattern',
-  'polygon',
-  'polyline',
-  'radialGradient',
-  'rect',
-  'set',
-  'stop',
-  'svg',
-  'switch',
-  'symbol',
-  'text',
-  'textPath',
-  'tspan',
-  'use',
-  'view',
-];
-var commonTags = ['a', 'script', 'style', 'title'];
 var Dom = class _Dom {
-  static appendChildren(element, children) {
+  static appendChildren(element, children, isSvgMode = false) {
     if (children) {
       element.append(
         ..._Dom.array(children).map((item) => {
@@ -108,48 +46,19 @@ var Dom = class _Dom {
           if (item instanceof Component || item instanceof SvgComponent) {
             return item.getElement();
           }
-          if (_Dom.isSvgItem(item, element)) {
+          const isSvg =
+            'svg' === item.tag
+              ? true
+              : 'foreignObject' === item.tag
+              ? false
+              : isSvgMode;
+          if (isSvg) {
             return _Dom.createSvg(item);
           }
           return _Dom.create(item);
         })
       );
     }
-  }
-
-  static create(data) {
-    const element = document.createElement(data.tag);
-    _Dom.appendChildren(element, data.children);
-    _Dom.applyClass(element, data.classes);
-    _Dom.applyAttrs(element, data.attrs);
-    _Dom.applyEvents(element, data.events);
-    _Dom.applyStyles(element, data.styles);
-    return element;
-  }
-
-  static element(tag, classes, children) {
-    return _Dom.create({ tag, classes, children });
-  }
-
-  static createSvg(data) {
-    const element = document.createElementNS(
-      'http://www.w3.org/2000/svg',
-      data.tag
-    );
-    _Dom.appendChildren(element, data.children);
-    _Dom.applyClass(element, data.classes);
-    _Dom.applyAttrs(element, data.attrs);
-    _Dom.applyEvents(element, data.events);
-    _Dom.applyStyles(element, data.styles);
-    return element;
-  }
-
-  static array(element) {
-    return Array.isArray(element) ? element : [element];
-  }
-
-  static elementSvg(tag, classes, children) {
-    return _Dom.createSvg({ tag, classes, children });
   }
 
   static applyAttrs(element, attrs) {
@@ -164,12 +73,9 @@ var Dom = class _Dom {
     }
   }
 
-  static applyStyles(element, styles) {
-    if (styles) {
-      Object.entries(styles).forEach(([key, value]) => {
-        const name = key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
-        element.style.setProperty(name, value);
-      });
+  static applyClass(element, classes) {
+    if (classes) {
+      element.classList.add(...classes.split(' ').filter(Boolean));
     }
   }
 
@@ -181,17 +87,48 @@ var Dom = class _Dom {
     }
   }
 
-  static applyClass(element, classes) {
-    if (classes) {
-      element.setAttribute('class', classes);
+  static applyStyles(element, styles) {
+    if (styles) {
+      Object.entries(styles).forEach(([key, value]) => {
+        const name = key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+        element.style.setProperty(name, value);
+      });
     }
   }
 
-  static isSvgItem(item, parent) {
-    if (commonTags.includes(item.tag)) {
-      return parent instanceof SVGElement;
-    }
-    return svgTags.includes(item.tag);
+  static array(element) {
+    return Array.isArray(element) ? element : [element];
+  }
+
+  static create(data) {
+    const element = document.createElement(data.tag);
+    _Dom.appendChildren(element, data.children);
+    _Dom.applyClass(element, data.classes);
+    _Dom.applyAttrs(element, data.attrs);
+    _Dom.applyEvents(element, data.events);
+    _Dom.applyStyles(element, data.styles);
+    return element;
+  }
+
+  static createSvg(data) {
+    const element = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      data.tag
+    );
+    _Dom.appendChildren(element, data.children, true);
+    _Dom.applyClass(element, data.classes);
+    _Dom.applyAttrs(element, data.attrs);
+    _Dom.applyEvents(element, data.events);
+    _Dom.applyStyles(element, data.styles);
+    return element;
+  }
+
+  static element(tag, classes, children) {
+    return _Dom.create({ tag, children, classes });
+  }
+
+  static elementSvg(tag, classes, children) {
+    return _Dom.createSvg({ tag, children, classes });
   }
 };
 
@@ -219,34 +156,34 @@ var Component = class {
 };
 
 // apps/on-hover-preview/src/components/PreviewPopup.ts
-var PreviewPopup = class _PreviewPopup extends Component {
+const PreviewPopup = class _PreviewPopup extends Component {
   constructor() {
     super('div', {
       attrs: {
         id: _PreviewPopup.ID,
       },
-      styles: {
-        background: '#444',
-        height: '300px',
-        width: '500px',
-        position: 'absolute',
-        display: 'none',
-        zIndex: '9999',
-        overflow: 'hidden',
-        boxShadow: 'rgb(218, 218, 218) 1px 1px 5px',
-      },
       children: {
         tag: 'iframe',
         attrs: {
-          allowFullscreen: true,
           allow:
             'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share',
+          allowFullscreen: true,
         },
         styles: {
-          height: '100%',
           width: '100%',
           border: 'none',
+          height: '100%',
         },
+      },
+      styles: {
+        width: '500px',
+        background: '#444',
+        boxShadow: 'rgb(218, 218, 218) 1px 1px 5px',
+        display: 'none',
+        height: '300px',
+        overflow: 'hidden',
+        position: 'absolute',
+        zIndex: '9999',
       },
     });
     this.iframeActive = false;
@@ -261,28 +198,28 @@ var PreviewPopup = class _PreviewPopup extends Component {
     this.ID = 'play-on-hover-popup';
   }
 
+  hidePopup() {
+    this.iframeActive = false;
+    this.iframe.src = '';
+    this.element.style.display = 'none';
+  }
+
   showPopup(e, url, service) {
     if (!this.iframeActive) {
       this.iframe.src = url;
       this.iframeActive = true;
       Dom.applyStyles(this.element, {
         display: 'block',
-        top: `${e.pageY}px`,
         left: `${e.pageX}px`,
+        top: `${e.pageY}px`,
         ...service.styles,
       });
     }
   }
-
-  hidePopup() {
-    this.iframeActive = false;
-    this.iframe.src = '';
-    this.element.style.display = 'none';
-  }
 };
 
 // apps/on-hover-preview/src/services/BaseService.ts
-var BaseService = class {
+const BaseService = class {
   extractId(url, match) {
     const result = url.match(match);
     if (result) {
@@ -313,7 +250,7 @@ var BaseService = class {
 };
 
 // apps/on-hover-preview/src/services/Streamable.ts
-var Streamable = class extends BaseService {
+const Streamable = class extends BaseService {
   constructor() {
     super(...arguments);
     this.styles = {
@@ -333,7 +270,7 @@ var Streamable = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Vimeo.ts
-var Vimeo = class extends BaseService {
+const Vimeo = class extends BaseService {
   constructor() {
     super(...arguments);
     this.styles = {
@@ -362,7 +299,7 @@ var Vimeo = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Youtube.ts
-var Youtube = class extends BaseService {
+const Youtube = class extends BaseService {
   constructor() {
     super(...arguments);
     this.styles = {
@@ -393,9 +330,9 @@ var Youtube = class extends BaseService {
       }
     }
     const params = this.params({
-      fs: 1,
       autoplay: 1,
       enablejsapi: 1,
+      fs: 1,
       start,
     });
     return `https://www.youtube.com/embed/${id}?${params}`;
@@ -411,7 +348,7 @@ var Youtube = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Facebook.ts
-var Facebook = class extends BaseService {
+const Facebook = class extends BaseService {
   constructor() {
     super(...arguments);
     this.styles = {
@@ -422,10 +359,10 @@ var Facebook = class extends BaseService {
 
   async embeddedVideoUrl(element) {
     const params = this.params({
-      autoplay: 'true',
       width: '500',
-      show_text: 'false',
+      autoplay: 'true',
       href: element.href,
+      show_text: 'false',
     });
     return `https://www.facebook.com/plugins/video.php?${params}`;
   }
@@ -438,7 +375,7 @@ var Facebook = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Tiktok.ts
-var Tiktok = class extends BaseService {
+const Tiktok = class extends BaseService {
   constructor() {
     super(...arguments);
     this.styles = {
@@ -458,7 +395,7 @@ var Tiktok = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Instagram.ts
-var Instagram = class extends BaseService {
+const Instagram = class extends BaseService {
   constructor() {
     super(...arguments);
     this.styles = {
@@ -478,7 +415,7 @@ var Instagram = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Twitter.ts
-var Twitter = class extends BaseService {
+const Twitter = class extends BaseService {
   constructor() {
     super(...arguments);
     this.styles = {
@@ -503,7 +440,7 @@ var Twitter = class extends BaseService {
 };
 
 // libs/share/src/ui/Events.ts
-var Events = class {
+const Events = class {
   static intendHover(validate, mouseover, mouseleave, timeout = 500) {
     let hover = false;
     let id = 0;
@@ -534,7 +471,7 @@ var Events = class {
 };
 
 // apps/on-hover-preview/src/helpers/LinkHover.ts
-var LinkHover = class {
+const LinkHover = class {
   constructor(services2, onHover) {
     this.services = services2;
     this.onHover = onHover;
@@ -592,7 +529,7 @@ var LinkHover = class {
 };
 
 // apps/on-hover-preview/src/services/Dailymotion.ts
-var Dailymotion = class extends BaseService {
+const Dailymotion = class extends BaseService {
   constructor() {
     super(...arguments);
     this.styles = {
@@ -612,7 +549,7 @@ var Dailymotion = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Coub.ts
-var Coub = class extends BaseService {
+const Coub = class extends BaseService {
   constructor() {
     super(...arguments);
     this.styles = {
@@ -638,16 +575,16 @@ var Coub = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Spotify.ts
-var Spotify = class extends BaseService {
+const Spotify = class extends BaseService {
   constructor() {
     super(...arguments);
-    this.regExp =
-      /spotify\.com\/(.+\/)?(?<type>track|album|playlist|show)\/(?<id>[\w-]+)/;
     this.styles = {
       width: '600px',
-      height: '152px',
       borderRadius: '12px',
+      height: '152px',
     };
+    this.regExp =
+      /spotify\.com\/(.+\/)?(?<type>track|album|playlist|show)\/(?<id>[\w-]+)/;
   }
 
   async embeddedVideoUrl({ href }) {
@@ -680,7 +617,7 @@ var Spotify = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Tableau.ts
-var Tableau = class extends BaseService {
+const Tableau = class extends BaseService {
   constructor() {
     super(...arguments);
     this.styles = {
@@ -692,19 +629,19 @@ var Tableau = class extends BaseService {
   async embeddedVideoUrl({ href }) {
     const id = this.extractId(href, /views\/(?<id>[^/]+)\/?/);
     const params = this.params({
-      ':embed': 'y',
-      ':showVizHome': 'no',
-      ':host_url': 'https%3A%2F%2Fpublic.tableau.com%2F',
-      ':embed_code_version': '3',
-      ':tabs': 'yes',
-      ':toolbar': 'yes',
       ':animate_transition': 'yes',
-      ':display_static_image': 'no',
-      ':display_spinner': 'yes',
-      ':display_overlay': 'yes',
       ':display_count': 'yes',
+      ':display_overlay': 'yes',
+      ':display_spinner': 'yes',
+      ':display_static_image': 'no',
+      ':embed': 'y',
+      ':embed_code_version': '3',
+      ':host_url': 'https%3A%2F%2Fpublic.tableau.com%2F',
       ':language': 'en-US',
       ':loadOrderID': '0',
+      ':showVizHome': 'no',
+      ':tabs': 'yes',
+      ':toolbar': 'yes',
     });
     return `https://public.tableau.com/views/${id}/Video?${params}`;
   }
@@ -715,7 +652,7 @@ var Tableau = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/SoundCloud.ts
-var SoundCloud = class extends BaseService {
+const SoundCloud = class extends BaseService {
   constructor() {
     super(...arguments);
     this.styles = {
@@ -726,13 +663,13 @@ var SoundCloud = class extends BaseService {
 
   async embeddedVideoUrl({ href }) {
     const params = this.params({
-      visual: 'false',
-      show_artwork: 'true',
-      auto_play: 'true',
       hide_related: 'true',
+      auto_play: 'true',
+      show_artwork: 'true',
       show_comments: 'false',
       show_teaser: 'false',
       url: encodeURIComponent(href),
+      visual: 'false',
     });
     return `https://w.soundcloud.com/player?${params}`;
   }
@@ -743,18 +680,18 @@ var SoundCloud = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/AppleMusic.ts
-var AppleMusic = class extends BaseService {
+const AppleMusic = class extends BaseService {
   constructor() {
     super(...arguments);
-    this.regExp = /music\.apple\.com\/.{2}\/(?<id>music-video|artist|album)/;
     this.styles = {
       width: '500px',
-      height: '450px',
       borderRadius: '12px',
+      height: '450px',
     };
+    this.regExp = /music\.apple\.com\/.{2}\/(?<id>music-video|artist|album)/;
   }
 
-  async embeddedVideoUrl({ pathname, href }) {
+  async embeddedVideoUrl({ href, pathname }) {
     this.setStyle(href);
     return `https://embed.music.apple.com${pathname}`;
   }
@@ -774,24 +711,24 @@ var AppleMusic = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Deezer.ts
-var Deezer = class extends BaseService {
+const Deezer = class extends BaseService {
   constructor() {
     super(...arguments);
-    this.regExp =
-      /deezer\.com\/.{2}\/(?<type>album|playlist|track|artist|podcast|episode)\/(?<id>\d+)/;
     this.styles = {
       width: '500px',
-      height: '300px',
       borderRadius: '10px',
+      height: '300px',
     };
+    this.regExp =
+      /deezer\.com\/.{2}\/(?<type>album|playlist|track|artist|podcast|episode)\/(?<id>\d+)/;
   }
 
   async embeddedVideoUrl({ href }) {
     const theme = this.theme('light', 'dark');
     const props = this.match(href, this.regExp);
     const params = this.params({
-      radius: 'true',
       autoplay: 'true',
+      radius: 'true',
       tracklist: 'false',
     });
     if (!props) {
@@ -806,16 +743,16 @@ var Deezer = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Tidal.ts
-var Tidal = class extends BaseService {
+const Tidal = class extends BaseService {
   constructor() {
     super(...arguments);
-    this.regExp =
-      /tidal\.com\/(.+\/)?(?<type>track|album|video|playlist)\/(?<id>\d+|[\w-]+)/;
     this.styles = {
       width: '500px',
       height: '300px',
       borderRadius: '10px',
     };
+    this.regExp =
+      /tidal\.com\/(.+\/)?(?<type>track|album|video|playlist)\/(?<id>\d+|[\w-]+)/;
   }
 
   async embeddedVideoUrl({ href }) {
@@ -845,7 +782,7 @@ var Tidal = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/main.ts
-var services = [
+const services = [
   Youtube,
   Vimeo,
   Streamable,
@@ -865,5 +802,5 @@ var services = [
   // Odysee,
   // Rumble,
 ].map((Service) => new Service());
-var previewPopup = new PreviewPopup();
+const previewPopup = new PreviewPopup();
 new LinkHover(services, previewPopup.showPopup.bind(previewPopup));

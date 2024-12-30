@@ -1,7 +1,7 @@
 const banner = `// ==UserScript==
 // @name         Vimeo Player Speed Slider
 // @namespace    lukaszmical.pl
-// @version      1.1.3
+// @version      1.1.4
 // @description  Add Speed Slider to Vimeo Player Settings
 // @author       Łukasz Micał
 // @include      https://*.vimeo.com/*

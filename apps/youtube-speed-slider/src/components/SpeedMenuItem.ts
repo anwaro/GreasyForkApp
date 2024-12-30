@@ -7,10 +7,10 @@ export class SpeedMenuItem extends Component<'div'> {
 
   constructor() {
     super('div', {
-      classes: 'ytp-menuitem',
       attrs: {
         id: SpeedMenuItem.ID,
       },
+      classes: 'ytp-menuitem',
     });
   }
 

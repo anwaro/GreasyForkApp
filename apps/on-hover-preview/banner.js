@@ -22,7 +22,7 @@ const platforms = [
 const banner = `// ==UserScript==
 // @name         Play video on hover
 // @namespace    https://lukaszmical.pl/
-// @version      0.4.0
+// @version      0.4.1
 // @description  ${platforms} - play on hover
 // @author       Łukasz Micał
 // @match        *://*/*

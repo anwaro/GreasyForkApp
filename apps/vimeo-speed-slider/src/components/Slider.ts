@@ -2,27 +2,27 @@ import { Component } from '@ui/Component';
 import { GlobalStyle } from '@ui/GlobalStyle';
 
 export class Slider extends Component<'input'> {
-  static MIN_VALUE = 0.5;
   static MAX_VALUE = 4;
+  static MIN_VALUE = 0.5;
 
   constructor() {
     super('input', {
-      classes: 'vis-slider',
       attrs: {
-        type: 'range',
-        min: Slider.MIN_VALUE,
         max: Slider.MAX_VALUE,
-        step: 0.05,
+        min: Slider.MIN_VALUE,
+        step: 0.1,
+        type: 'range',
       },
+      classes: 'vis-slider',
       styles: {
-        background: '#ffffff66',
-        width: 'calc(100% - 30px)',
-        height: '6px',
-        outline: 'none',
-        margin: '0 10px',
-        padding: '0',
-        borderRadius: '3px',
         minWidth: '150px',
+        width: 'calc(100% - 30px)',
+        background: '#ffffff66',
+        borderRadius: '3px',
+        height: '6px',
+        margin: '0 10px',
+        outline: 'none',
+        padding: '0',
       },
     });
 
@@ -46,13 +46,17 @@ export class Slider extends Component<'input'> {
     );
   }
 
+  getSpeed(): number {
+    return parseFloat(this.element.value);
+  }
+
   initEvents(onChange: (speed: number) => void) {
     this.event('change', () => onChange(this.getSpeed()));
     this.event('input', () => onChange(this.getSpeed()));
     this.event('wheel', (event) => {
       event.stopPropagation();
       event.preventDefault();
-      const diff = event.deltaY > 0 ? -0.05 : 0.05;
+      const diff = event.deltaY > 0 ? -0.1 : 0.1;
       onChange(this.getSpeed() + diff);
       return false;
     });
@@ -61,10 +65,6 @@ export class Slider extends Component<'input'> {
   setSpeed(speed: number) {
     this.updateBg(speed);
     this.element.value = speed.toString();
-  }
-
-  getSpeed(): number {
-    return parseFloat(this.element.value);
   }
 
   updateBg(value: number) {

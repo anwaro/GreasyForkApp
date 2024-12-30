@@ -33,9 +33,9 @@ export class Youtube extends BaseService {
     }
 
     const params = this.params({
-      fs: 1,
       autoplay: 1,
       enablejsapi: 1,
+      fs: 1,
       start: start,
     });
 

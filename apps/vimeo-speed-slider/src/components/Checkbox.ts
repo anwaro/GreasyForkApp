@@ -3,18 +3,18 @@ import { Component } from '@ui/Component';
 export class Checkbox extends Component<'input'> {
   constructor(checked: boolean) {
     super('input', {
+      attrs: {
+        checked: checked,
+        title: 'Remember speed',
+        type: 'checkbox',
+      },
       styles: {
+        width: '16px',
         accentColor: 'var(--color-two)',
         appearance: 'auto',
-        width: '16px',
         height: '16px',
         margin: '0',
         padding: '0',
-      },
-      attrs: {
-        type: 'checkbox',
-        title: 'Remember speed',
-        checked: checked,
       },
     });
   }

@@ -6,22 +6,22 @@ const iconPath =
 export class Icon extends Component<'div'> {
   constructor() {
     super('div', {
-      classes: 'ytp-menuitem-icon',
       children: {
         tag: 'svg',
         attrs: {
-          height: '24',
           width: '24',
+          height: '24',
           viewBox: '0 0 24 24',
         },
         children: {
           tag: 'path',
           attrs: {
-            fill: 'white',
             d: iconPath,
+            fill: 'white',
           },
         },
       },
+      classes: 'ytp-menuitem-icon',
     });
   }
 }

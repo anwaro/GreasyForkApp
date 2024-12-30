@@ -1,5 +1,6 @@
-import { Elements } from './Elements';
 import { Component } from '@ui/Component';
+
+import { Elements } from './Elements';
 
 export class Label extends Component<'span'> {
   private label = 'Speed';

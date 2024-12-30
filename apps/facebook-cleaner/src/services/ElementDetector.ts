@@ -3,8 +3,16 @@ import { Dictionary } from '../dictionary/Dictionary';
 export class ElementDetector {
   private dictionary = new Dictionary();
 
+  getElement<E extends HTMLElement = HTMLElement>(
+    root: Document | HTMLElement,
+    query: string,
+    text?: string
+  ): E | undefined {
+    return this.getElements<E>(root, query, text)[0];
+  }
+
   getElements<E extends HTMLElement = HTMLElement>(
-    root: HTMLElement | Document,
+    root: Document | HTMLElement,
     query: string,
     text?: string
   ): E[] {
@@ -14,14 +22,6 @@ export class ElementDetector {
       }
       return element.textContent.includes(text);
     });
-  }
-
-  getElement<E extends HTMLElement = HTMLElement>(
-    root: HTMLElement | Document,
-    query: string,
-    text?: string
-  ): E | undefined {
-    return this.getElements<E>(root, query, text)[0];
   }
 
   getFeedElement() {
