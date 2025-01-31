@@ -4,11 +4,11 @@ export type UsersResponse = ApiResponse<{ users: User[] }>;
 
 export interface User {
   id: string;
-  avatarUrl: string;
   name: string;
+  avatarUrl: string;
+  status: null | string;
   username: string;
-  webUrl: string;
   webPath: string;
+  webUrl: string;
   __typename: string;
-  status: string | null;
 }

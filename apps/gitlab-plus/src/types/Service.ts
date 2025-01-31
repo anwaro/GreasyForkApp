@@ -1,11 +1,11 @@
 export abstract class Service {
   abstract init(): void;
 
-  root(className: string, parent?: HTMLElement) {
+  root(className: string, parent?: HTMLElement, usePrepend = false) {
     const root = document.createElement('div');
     root.classList.add(className);
     if (parent) {
-      parent.append(root);
+      parent[usePrepend ? 'prepend' : 'append'](root);
     }
     return root;
   }

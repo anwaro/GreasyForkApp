@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'preact/hooks';
 
-import { IssueLinkType } from '../../helpers/IssueLink';
+import {
+  GitlabEpicLink,
+  GitlabIssueLink,
+  LinkParser,
+} from '../../helpers/LinkParser';
+import { EpicProvider } from '../../providers/EpicProvider';
 import { IssueProvider } from '../../providers/IssueProvider';
 import { RecentlyProvider } from '../../providers/RecentlyProvider';
+import { LabelWidget } from '../../types/Epic';
 import { CreateIssueInput, Issuable, IssueRelation } from '../../types/Issue';
 import { Label } from '../../types/Label';
 import { Milestone } from '../../types/Milestone';
@@ -41,11 +47,14 @@ const initialError = (): FormErrors => ({
   title: undefined,
 });
 
-export function useCreateRelatedIssueForm(
-  link: IssueLinkType,
-  onClose: () => void,
-  isVisible: boolean
-) {
+type Props = {
+  isVisible: boolean;
+  link: GitlabEpicLink | GitlabIssueLink;
+  onClose: () => void;
+};
+
+export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
+  const [copyLabelsLoading, setCopyLabelsLoading] = useState(false);
   const [values, setValues] = useState<FormFields>(initialState());
   const [errors, setErrors] = useState<FormErrors>(initialError());
   const [isLoading, setIsLoading] = useState(false);
@@ -123,7 +132,11 @@ export function useCreateRelatedIssueForm(
     return await new IssueProvider().createIssue(payload);
   };
 
-  const createRelation = async (issue: Issuable, relation: IssueRelation) => {
+  const createRelation = async (
+    link: GitlabIssueLink,
+    issue: Issuable,
+    relation: IssueRelation
+  ) => {
     await new IssueProvider().createIssueRelation({
       targetIssueIid: link.issue,
       issueId: issue.iid,
@@ -133,29 +146,45 @@ export function useCreateRelatedIssueForm(
     });
   };
 
-  const submit = async () => {
-    setIsLoading(true);
+  const setIssueEpic = async (link: GitlabEpicLink, issue: Issuable) => {
+    const epic = await new EpicProvider().getEpic(
+      link.workspacePath,
+      link.epic
+    );
 
+    await new IssueProvider().issueSetEpic(
+      issue.id,
+      epic.data.workspace.workItem.id
+    );
+  };
+
+  const submit = async () => {
     if (!validate()) {
-      setIsLoading(false);
       return;
     }
+    setIsLoading(true);
     try {
       const payload = createPayload();
       const response = await createIssue(payload);
+      setMessage('Issue was created');
       persistRecently();
-      if (values.relation) {
+
+      if (values.relation && LinkParser.isIssueLink(link)) {
         await createRelation(
+          link,
           response.data.createIssuable.issuable,
           values.relation
         );
       }
+
+      if (LinkParser.isEpicLink(link)) {
+        await setIssueEpic(link, response.data.createIssuable.issuable);
+      }
+      window.setTimeout(() => onClose(), 3000);
     } catch (e) {
       setError((e as Error).message);
     }
     setIsLoading(false);
-    setMessage('Issue was created');
-    window.setTimeout(() => onClose(), 3000);
   };
 
   return {
@@ -177,6 +206,43 @@ export function useCreateRelatedIssueForm(
         value: values.iteration ? [values.iteration] : [],
       },
       labels: {
+        copy: async () => {
+          setCopyLabelsLoading(true);
+          try {
+            if (LinkParser.isEpicLink(link)) {
+              const epic = await new EpicProvider().getEpic(
+                link.workspacePath,
+                link.epic
+              );
+              const labelWidgets =
+                epic.data.workspace.workItem.widgets.find<LabelWidget>(
+                  (w): w is LabelWidget => w.type === 'LABELS'
+                );
+
+              if (labelWidgets) {
+                setValues({
+                  ...values,
+                  labels: labelWidgets.labels.nodes,
+                });
+              }
+            }
+            if (LinkParser.isIssueLink(link)) {
+              const issue = await new IssueProvider().getIssue(
+                link.projectPath,
+                link.issue
+              );
+              setValues({
+                ...values,
+                labels: issue.data.project.issue.labels.nodes,
+              });
+            }
+          } catch (_e) {
+            // pass
+          }
+
+          setCopyLabelsLoading(false);
+        },
+        copyLoading: copyLabelsLoading,
         errors: errors.labels,
         onChange: (labels: Label[]) => setValues({ ...values, labels }),
         value: values.labels,
@@ -200,6 +266,18 @@ export function useCreateRelatedIssueForm(
         value: values.relation,
       },
       title: {
+        copy: () => {
+          const issueTitle =
+            document.querySelector<HTMLHeadingElement>(
+              '[data-testid="issue-title"]'
+            ) ||
+            document.querySelector<HTMLHeadingElement>(
+              '[data-testid="work-item-title"]'
+            );
+          if (issueTitle) {
+            setValues({ ...values, title: issueTitle.textContent || '' });
+          }
+        },
         errors: errors.title,
         onChange: (title: string) => setValues({ ...values, title }),
         value: values.title,
@@ -207,5 +285,7 @@ export function useCreateRelatedIssueForm(
     },
     isLoading,
     message,
+    projectPath: values.project?.fullPath,
+    showRelations: LinkParser.isIssueLink(link),
   };
 }

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 
 import { delay } from '@utils/delay';
 
-import { IssueLinkType } from '../../helpers/IssueLink';
+import { GitlabIssueLink } from '../../helpers/LinkParser';
 import { useFetchIssue } from './useFetchIssue';
 import { useOnIssueHover } from './useOnIssueHover';
 
@@ -14,7 +14,7 @@ export function useIssuePreviewModal() {
     useOnIssueHover();
   const { fetch, issue, relatedIssues, reset } = useFetchIssue();
 
-  const fetchData = async (link: IssueLinkType) => {
+  const fetchData = async (link: GitlabIssueLink) => {
     await fetch(link);
     await delay(300);
 

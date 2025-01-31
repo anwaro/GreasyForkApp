@@ -1,27 +1,38 @@
 import { useCallback } from 'preact/hooks';
 
-import { IssueLinkType } from '../../../helpers/IssueLink';
 import { LabelsProvider } from '../../../providers/LabelsProvider';
 import { Label } from '../../../types/Label';
 import { AsyncAutocomplete } from '../../common/form/autocomplete/AsyncAutocomplete';
+import { GitlabButton } from '../../common/GitlabButton';
 import { GitlabLabel } from '../../common/GitlabLabel';
 
 type Props = {
-  link: IssueLinkType;
+  copyLabels?: VoidFunction;
+  copyLoading?: boolean;
+  projectPath?: string;
   setValue: (value: Label[]) => void;
   value: Label[];
 };
 
-export function LabelField({ link, setValue, value }: Props) {
+export function LabelField({
+  copyLabels,
+  copyLoading,
+  projectPath,
+  setValue,
+  value,
+}: Props) {
   const getLabels = useCallback(
     async (search: string) => {
+      if (!projectPath) {
+        return [];
+      }
       const response = await new LabelsProvider().getLabels(
-        link.projectPath,
+        projectPath,
         search
       );
       return response.data.workspace.labels.nodes;
     },
-    [link]
+    [projectPath]
   );
 
   const renderLabel = useCallback((items: Label[]) => {
@@ -57,15 +68,26 @@ export function LabelField({ link, setValue, value }: Props) {
           />
         ))}
       </div>
-      <AsyncAutocomplete
-        isMultiselect
-        onChange={setValue}
-        renderOption={renderOption}
-        getValues={getLabels}
-        name={'labels'}
-        renderLabel={renderLabel}
-        value={value}
-      />
+      <div className={'gl-flex gl-gap-1 gl-relative gl-pr-7'}>
+        <AsyncAutocomplete
+          isMultiselect
+          onChange={setValue}
+          renderOption={renderOption}
+          getValues={getLabels}
+          isDisabled={!projectPath}
+          name={'labels'}
+          renderLabel={renderLabel}
+          value={value}
+        />
+        <div className={'gl-flex gl-absolute gl-h-full gl-right-0'}>
+          <GitlabButton
+            icon={'labels'}
+            isLoading={copyLoading}
+            onClick={copyLabels}
+            title={'Copy labels from parent'}
+          />
+        </div>
+      </div>
     </>
   );
 }

@@ -1,7 +1,7 @@
 import { render } from 'preact';
 
 import { RelatedIssuesAutocompleteModal } from '../components/related-issue-autocomplete/RelatedIssuesAutocompleteModal';
-import { IssueLink } from '../helpers/IssueLink';
+import { LinkParser } from '../helpers/LinkParser';
 import { Service } from '../types/Service';
 
 export class RelatedIssueAutocomplete extends Service {
@@ -23,7 +23,7 @@ export class RelatedIssueAutocomplete extends Service {
     const input = section.querySelector<HTMLInputElement>(
       '#add-related-issues-form-input'
     );
-    const link = IssueLink.parseLink(window.location.href);
+    const link = LinkParser.parseIssueLink(window.location.href);
 
     if (!input || this.isMounted(input) || !link) {
       return;

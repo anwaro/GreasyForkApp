@@ -1,6 +1,6 @@
 import { useCallback } from 'preact/hooks';
 
-import { IssueLinkType } from '../../../helpers/IssueLink';
+import { GitlabLink } from '../../../helpers/LinkParser';
 import { IterationsProvider } from '../../../providers/IterationsProvider';
 import { Iteration } from '../../../types/Iteration';
 import { AsyncAutocomplete } from '../../common/form/autocomplete/AsyncAutocomplete';
@@ -8,7 +8,7 @@ import { AsyncAutocomplete } from '../../common/form/autocomplete/AsyncAutocompl
 export type IterationNamed = Iteration & { name: string };
 
 type Props = {
-  link: IssueLinkType;
+  link: GitlabLink;
   setValue: (value: IterationNamed[]) => void;
   value: IterationNamed[];
 };
@@ -27,6 +27,7 @@ export function IterationField({ link, setValue, value }: Props) {
         link.workspacePath,
         search
       );
+
       return response.data.workspace.attributes.nodes
         .map((iteration) => ({
           ...iteration,

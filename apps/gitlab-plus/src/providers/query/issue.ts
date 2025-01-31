@@ -226,3 +226,25 @@ fragment User on User {
   __typename
 }
 `;
+
+export const issueSetEpicMutation = `
+mutation projectIssueUpdateParent($input: WorkItemUpdateInput!) {
+  issuableSetAttribute: workItemUpdate(input: $input) {
+    workItem {
+      id
+      widgets {
+        ... on WorkItemWidgetHierarchy {
+          type
+          parent {
+            id
+            title
+            webUrl
+          }
+        }
+      }
+    }
+    errors
+  }
+}
+
+`;

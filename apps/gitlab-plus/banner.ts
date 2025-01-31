@@ -8,6 +8,6 @@ export const banner = `// ==UserScript==
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
 // @require      https://cdn.jsdelivr.net/combine/npm/preact@10.25.4/dist/preact.min.umd.min.js,npm/preact@10.25.4/hooks/dist/hooks.umd.min.js,npm/preact@10.25.4/jsx-runtime/dist/jsxRuntime.umd.min.js
-// @icon         https://www.google.com/s2/favicons?sz=64&gitlab.com
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=gitlab.com
 // ==/UserScript==
 `;

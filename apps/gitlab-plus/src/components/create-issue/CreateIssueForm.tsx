@@ -1,6 +1,7 @@
-import { IssueLinkType } from '../../helpers/IssueLink';
+import { GitlabEpicLink, GitlabIssueLink } from '../../helpers/LinkParser';
 import { FormField } from '../common/form/FormField';
 import { FormRow } from '../common/form/FormRow';
+import { GitlabButton } from '../common/GitlabButton';
 import { AssigneesField } from './fields/AssigneesField';
 import { ButtonField } from './fields/ButtonField';
 import { IterationField } from './fields/IterationField';
@@ -9,21 +10,24 @@ import { MilestoneField } from './fields/MilestoneField';
 import { ProjectField } from './fields/ProjectField';
 import { RelationField } from './fields/RelationField';
 import { TitleField } from './fields/TitleField';
-import { useCreateRelatedIssueForm } from './useCreateRelatedIssueForm';
+import { useCreateIssueForm } from './useCreateIssueForm';
 
 type Props = {
   isVisible: boolean;
-  link: IssueLinkType;
+  link: GitlabEpicLink | GitlabIssueLink;
   onClose: () => void;
 };
 
-export function CreateRelatedIssueModalContent({
-  isVisible,
-  link,
-  onClose,
-}: Props) {
-  const { actions, error, form, isLoading, message } =
-    useCreateRelatedIssueForm(link, onClose, isVisible);
+export function CreateIssueForm({ isVisible, link, onClose }: Props) {
+  const {
+    actions,
+    error,
+    form,
+    isLoading,
+    message,
+    projectPath,
+    showRelations,
+  } = useCreateIssueForm({ isVisible, link, onClose });
 
   return (
     <form class={'crud-body add-tree-form gl-mx-5 gl-my-4 gl-rounded-b-form'}>
@@ -32,11 +36,18 @@ export function CreateRelatedIssueModalContent({
         hint={'Maximum of 255 characters'}
         title={'Title'}
       >
-        <TitleField
-          error={form.title.errors}
-          onChange={form.title.onChange}
-          value={form.title.value}
-        />
+        <div className={'gl-flex gl-gap-1'}>
+          <TitleField
+            error={form.title.errors}
+            onChange={form.title.onChange}
+            value={form.title.value}
+          />
+          <GitlabButton
+            icon={'title'}
+            onClick={form.title.copy}
+            title={'Copy from parent title'}
+          />
+        </div>
       </FormField>
       <FormRow>
         <FormField error={form.project.errors} title={'Project'}>
@@ -48,7 +59,7 @@ export function CreateRelatedIssueModalContent({
         </FormField>
         <FormField error={form.assignees.errors} title={'Assignees'}>
           <AssigneesField
-            link={link}
+            projectPath={projectPath}
             setValue={form.assignees.onChange}
             value={form.assignees.value}
           />
@@ -64,7 +75,7 @@ export function CreateRelatedIssueModalContent({
         </FormField>
         <FormField error={form.milestone.errors} title={'Milestone'}>
           <MilestoneField
-            link={link}
+            projectPath={projectPath}
             setValue={form.milestone.onChange}
             value={form.milestone.value}
           />
@@ -72,17 +83,21 @@ export function CreateRelatedIssueModalContent({
       </FormRow>
       <FormField error={form.labels.errors} title={'Labels'}>
         <LabelField
-          link={link}
+          copyLabels={form.labels.copy}
+          copyLoading={form.labels.copyLoading}
+          projectPath={projectPath}
           setValue={form.labels.onChange}
           value={form.labels.value}
         />
       </FormField>
-      <FormField error={form.relation.errors} title={'New issue'}>
-        <RelationField
-          setValue={form.relation.onChange}
-          value={form.relation.value}
-        />
-      </FormField>
+      {showRelations && (
+        <FormField error={form.relation.errors} title={'New issue'}>
+          <RelationField
+            setValue={form.relation.onChange}
+            value={form.relation.value}
+          />
+        </FormField>
+      )}
       <FormField error={error} hint={message} title={''}>
         <FormRow>
           <ButtonField

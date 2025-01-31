@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 
 import { Events } from '@ui/Events';
 
-import { IssueLink, IssueLinkType } from '../../helpers/IssueLink';
+import { GitlabIssueLink, LinkParser } from '../../helpers/LinkParser';
 
 export type Position = {
   x: number;
@@ -10,13 +10,13 @@ export type Position = {
 };
 
 export function useOnIssueHover() {
-  const [hoverLink, setHoverLink] = useState<IssueLinkType | undefined>();
+  const [hoverLink, setHoverLink] = useState<GitlabIssueLink | undefined>();
   const hoverIssueRef = useRef(false);
   const [hoverPosition, setHoverPosition] = useState<Position>({ x: 0, y: 0 });
 
   const onHover = (event: HTMLElementEventMap['mouseenter']) => {
     const anchor = event.target as HTMLAnchorElement;
-    const link = IssueLink.parseLink(anchor.href);
+    const link = LinkParser.parseIssueLink(anchor.href);
     if (!link) {
       return;
     }
@@ -30,7 +30,8 @@ export function useOnIssueHover() {
 
   useEffect(() => {
     Events.intendHover<HTMLAnchorElement>(
-      (element) => IssueLink.validateLink((element as HTMLAnchorElement).href),
+      (element) =>
+        LinkParser.validateIssueLink((element as HTMLAnchorElement).href),
       onHover,
       () => {
         setTimeout(() => {

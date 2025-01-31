@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Play video on hover
 // @namespace    https://lukaszmical.pl/
-// @version      0.4.1
+// @version      0.5.0
 // @description  Facebook, Vimeo, Youtube, Streamable, Tiktok, Instagram, Twitter, X, Dailymotion, Coub, Spotify, Tableau, SoundCloud, Apple Music, Deezer, Tidal - play on hover
 // @author       Łukasz Micał
 // @match        *://*/*
@@ -218,6 +218,92 @@ const PreviewPopup = class _PreviewPopup extends Component {
   }
 };
 
+// libs/share/src/ui/Events.ts
+const Events = class {
+  static intendHover(validate, mouseover, mouseleave, timeout = 500) {
+    let hover = false;
+    let id = 0;
+    const onHover = (event) => {
+      if (!event.target || !validate(event.target)) {
+        return;
+      }
+      const element = event.target;
+      hover = true;
+      element.addEventListener(
+        'mouseleave',
+        (ev) => {
+          mouseleave.call(element, ev);
+          clearTimeout(id);
+          hover = false;
+        },
+        { once: true }
+      );
+      clearTimeout(id);
+      id = window.setTimeout(() => {
+        if (hover) {
+          mouseover.call(element, event);
+        }
+      }, timeout);
+    };
+    document.body.addEventListener('mouseover', onHover);
+  }
+};
+
+// apps/on-hover-preview/src/helpers/LinkHover.ts
+const LinkHover = class {
+  constructor(services, onHover) {
+    this.services = services;
+    this.onHover = onHover;
+    Events.intendHover(
+      this.isValidLink.bind(this),
+      this.onAnchorHover.bind(this),
+      () => {}
+    );
+  }
+
+  anchorElement(node) {
+    if (!(node instanceof HTMLElement)) {
+      return void 0;
+    }
+    if (node instanceof HTMLAnchorElement) {
+      return node;
+    }
+    const parent = node.closest('a');
+    if (parent instanceof HTMLElement) {
+      return parent;
+    }
+    return void 0;
+  }
+
+  findService(url = '') {
+    return this.services.find((service) => service.isValidUrl(url));
+  }
+
+  isValidLink(node) {
+    const anchor = this.anchorElement(node);
+    if (!anchor || !anchor.href || anchor.href === '#') {
+      return false;
+    }
+    return true;
+  }
+
+  async onAnchorHover(ev) {
+    const anchor = this.anchorElement(ev.target);
+    if (!anchor) {
+      return;
+    }
+    const service = this.findService(anchor.href);
+    if (!service) {
+      return;
+    }
+    const previewUrl = await service.embeddedVideoUrl(anchor);
+    if (!previewUrl) {
+      return;
+    }
+    this.onHover(ev, previewUrl, service);
+  }
+};
+
 // apps/on-hover-preview/src/services/BaseService.ts
 const BaseService = class {
   extractId(url, match) {
@@ -249,6 +335,230 @@ const BaseService = class {
   }
 };
 
+// apps/on-hover-preview/src/services/AppleMusic.ts
+const AppleMusic = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '500px',
+      borderRadius: '12px',
+      height: '450px',
+    };
+    this.regExp = /music\.apple\.com\/.{2}\/(?<id>music-video|artist|album)/;
+  }
+
+  async embeddedVideoUrl({ href, pathname }) {
+    this.setStyle(href);
+    return `https://embed.music.apple.com${pathname}`;
+  }
+
+  isValidUrl(url) {
+    return this.regExp.test(url);
+  }
+
+  setStyle(href) {
+    const type = this.extractId(href, this.regExp);
+    if (type === 'music-video') {
+      this.styles.height = '281px';
+    } else {
+      this.styles.height = '450px';
+    }
+  }
+};
+
+// apps/on-hover-preview/src/services/Coub.ts
+const Coub = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '500px',
+      height: '290px',
+    };
+  }
+
+  async embeddedVideoUrl({ href }) {
+    const id = this.extractId(href, /view\/(?<id>[^/]+)\/?/);
+    const params = this.params({
+      autostart: 'true',
+      muted: 'false',
+      originalSize: 'false',
+      startWithHD: 'true',
+    });
+    return `https://coub.com/embed/${id}?${params}`;
+  }
+
+  isValidUrl(url) {
+    return url.includes('coub.com/view');
+  }
+};
+
+// apps/on-hover-preview/src/services/Dailymotion.ts
+const Dailymotion = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '500px',
+      height: '280px',
+    };
+  }
+
+  async embeddedVideoUrl(element) {
+    const id = this.extractId(element.href, /video\/(?<id>[^/?]+)[/?]?/);
+    return `https://geo.dailymotion.com/player.html?video=${id}`;
+  }
+
+  isValidUrl(url) {
+    return url.includes('dailymotion.com/video');
+  }
+};
+
+// apps/on-hover-preview/src/services/Deezer.ts
+const Deezer = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '500px',
+      borderRadius: '10px',
+      height: '300px',
+    };
+    this.regExp =
+      /deezer\.com\/.{2}\/(?<type>album|playlist|track|artist|podcast|episode)\/(?<id>\d+)/;
+  }
+
+  async embeddedVideoUrl({ href }) {
+    const theme = this.theme('light', 'dark');
+    const props = this.match(href, this.regExp);
+    const params = this.params({
+      autoplay: 'true',
+      radius: 'true',
+      tracklist: 'false',
+    });
+    if (!props) {
+      return void 0;
+    }
+    return `https://widget.deezer.com/widget/${theme}/${props.type}/${props.id}?${params}`;
+  }
+
+  isValidUrl(url) {
+    return this.regExp.test(url);
+  }
+};
+
+// apps/on-hover-preview/src/services/Facebook.ts
+const Facebook = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '500px',
+      height: '282px',
+    };
+  }
+
+  async embeddedVideoUrl(element) {
+    const params = this.params({
+      width: '500',
+      autoplay: 'true',
+      href: element.href,
+      show_text: 'false',
+    });
+    return `https://www.facebook.com/plugins/video.php?${params}`;
+  }
+
+  isValidUrl(url) {
+    return /https:\/\/(www\.|m\.)?facebook\.com\/[\w\-_]+\/videos\//.test(url);
+  }
+};
+
+// apps/on-hover-preview/src/services/Instagram.ts
+const Instagram = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '300px',
+      height: '500px',
+    };
+  }
+
+  async embeddedVideoUrl({ href }) {
+    const id = this.extractId(href, /reel\/(?<id>[^/]+)\//);
+    return `https://www.instagram.com/p/${id}/embed/`;
+  }
+
+  isValidUrl(url) {
+    return /instagram\.com\/([a-zA-Z0-9._]{1,30}\/)?reel/.test(url);
+  }
+};
+
+// apps/on-hover-preview/src/services/SoundCloud.ts
+const SoundCloud = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '600px',
+      height: '166px',
+    };
+  }
+
+  async embeddedVideoUrl({ href }) {
+    const params = this.params({
+      hide_related: 'true',
+      auto_play: 'true',
+      show_artwork: 'true',
+      show_comments: 'false',
+      show_teaser: 'false',
+      url: encodeURIComponent(href),
+      visual: 'false',
+    });
+    return `https://w.soundcloud.com/player?${params}`;
+  }
+
+  isValidUrl(url) {
+    return /soundcloud\.com\/[^/]+\/[^/?]+/.test(url);
+  }
+};
+
+// apps/on-hover-preview/src/services/Spotify.ts
+const Spotify = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '600px',
+      borderRadius: '12px',
+      height: '152px',
+    };
+    this.regExp =
+      /spotify\.com\/(.+\/)?(?<type>track|album|playlist|show)\/(?<id>[\w-]+)/;
+  }
+
+  async embeddedVideoUrl({ href }) {
+    const props = this.match(href, this.regExp);
+    if (!props) {
+      return void 0;
+    }
+    this.setStyle(props.type);
+    const suffix = props.type === 'show' ? '/video' : '';
+    return `https://open.spotify.com/embed/${props.type}/${props.id}${suffix}`;
+  }
+
+  isValidUrl(url) {
+    return this.regExp.test(url);
+  }
+
+  setStyle(type) {
+    if (type === 'track') {
+      this.styles.height = '152px';
+    } else if (type === 'album') {
+      this.styles.height = '352px';
+    } else if (type === 'playlist') {
+      this.styles.height = '352px';
+    } else if (type === 'show') {
+      this.styles.height = '352px';
+    } else {
+      this.styles.height = '300px';
+    }
+  }
+};
+
 // apps/on-hover-preview/src/services/Streamable.ts
 const Streamable = class extends BaseService {
   constructor() {
@@ -266,6 +576,125 @@ const Streamable = class extends BaseService {
 
   isValidUrl(url) {
     return url.includes('streamable.com');
+  }
+};
+
+// apps/on-hover-preview/src/services/Tableau.ts
+const Tableau = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '850px',
+      height: '528px',
+    };
+  }
+
+  async embeddedVideoUrl({ href }) {
+    const id = this.extractId(href, /views\/(?<id>[^/]+)\/?/);
+    const params = this.params({
+      ':animate_transition': 'yes',
+      ':display_count': 'yes',
+      ':display_overlay': 'yes',
+      ':display_spinner': 'yes',
+      ':display_static_image': 'no',
+      ':embed': 'y',
+      ':embed_code_version': '3',
+      ':host_url': 'https%3A%2F%2Fpublic.tableau.com%2F',
+      ':language': 'en-US',
+      ':loadOrderID': '0',
+      ':showVizHome': 'no',
+      ':tabs': 'yes',
+      ':toolbar': 'yes',
+    });
+    return `https://public.tableau.com/views/${id}/Video?${params}`;
+  }
+
+  isValidUrl(url) {
+    return url.includes('public.tableau.com/views');
+  }
+};
+
+// apps/on-hover-preview/src/services/Tidal.ts
+const Tidal = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '500px',
+      height: '300px',
+      borderRadius: '10px',
+    };
+    this.regExp =
+      /tidal\.com\/(.+\/)?(?<type>track|album|video|playlist)\/(?<id>\d+|[\w-]+)/;
+  }
+
+  async embeddedVideoUrl({ href }) {
+    const props = this.match(href, this.regExp);
+    if (!props) {
+      return void 0;
+    }
+    this.setStyle(props.type);
+    return `https://embed.tidal.com/${props.type}s/${props.id}`;
+  }
+
+  isValidUrl(url) {
+    return this.regExp.test(url);
+  }
+
+  setStyle(type) {
+    if (type === 'track') {
+      this.styles.height = '120px';
+    } else if (type === 'playlist') {
+      this.styles.height = '400px';
+    } else if (type === 'video') {
+      this.styles.height = '281px';
+    } else {
+      this.styles.height = '300px';
+    }
+  }
+};
+
+// apps/on-hover-preview/src/services/Tiktok.ts
+const Tiktok = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '338px',
+      height: '575px',
+    };
+  }
+
+  async embeddedVideoUrl({ href }) {
+    const id = this.extractId(href, /video\/(?<id>\d+)/);
+    return `https://www.tiktok.com/embed/v2/${id}`;
+  }
+
+  isValidUrl(url) {
+    return url.includes('tiktok.com') && /video\/\d+/.test(url);
+  }
+};
+
+// apps/on-hover-preview/src/services/Twitter.ts
+const Twitter = class extends BaseService {
+  constructor() {
+    super(...arguments);
+    this.styles = {
+      width: '480px',
+      height: '300px',
+    };
+  }
+
+  async embeddedVideoUrl({ href }) {
+    const id = this.extractId(href, /status\/(?<id>[^/?]+)[\/?]?/);
+    const platform = href.includes('twitter.com') ? 'twitter' : 'x';
+    const params = this.params({
+      id,
+      maxWidth: '480',
+    });
+    return `https://platform.${platform}.com/embed/Tweet.html?${params}`;
+  }
+
+  isValidUrl(url) {
+    return /https:\/\/(twitter|x)\.com\/.+\/status\/\d+/.test(url);
   }
 };
 
@@ -347,460 +776,32 @@ const Youtube = class extends BaseService {
   }
 };
 
-// apps/on-hover-preview/src/services/Facebook.ts
-const Facebook = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      height: '282px',
-    };
-  }
-
-  async embeddedVideoUrl(element) {
-    const params = this.params({
-      width: '500',
-      autoplay: 'true',
-      href: element.href,
-      show_text: 'false',
-    });
-    return `https://www.facebook.com/plugins/video.php?${params}`;
-  }
-
-  isValidUrl(url) {
-    return /https:\/\/(www\.|m\.)?facebook\.com\/[\w\d\-_]+\/videos\//.test(
-      url
-    );
-  }
-};
-
-// apps/on-hover-preview/src/services/Tiktok.ts
-const Tiktok = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '338px',
-      height: '575px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /video\/(?<id>\d+)/);
-    return `https://www.tiktok.com/embed/v2/${id}`;
-  }
-
-  isValidUrl(url) {
-    return url.includes('tiktok.com') && /video\/\d+/.test(url);
-  }
-};
-
-// apps/on-hover-preview/src/services/Instagram.ts
-const Instagram = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '300px',
-      height: '500px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /reel\/(?<id>[^/]+)\//);
-    return `https://www.instagram.com/p/${id}/embed/`;
-  }
-
-  isValidUrl(url) {
-    return /instagram\.com\/([a-zA-Z0-9._]{1,30}\/)?reel/.test(url);
-  }
-};
-
-// apps/on-hover-preview/src/services/Twitter.ts
-const Twitter = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '480px',
-      height: '300px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /status\/(?<id>[^/?]+)[\/?]?/);
-    const platform = href.includes('twitter.com') ? 'twitter' : 'x';
-    const params = this.params({
-      id,
-      maxWidth: '480',
-    });
-    return `https://platform.${platform}.com/embed/Tweet.html?${params}`;
-  }
-
-  isValidUrl(url) {
-    return /https:\/\/(twitter|x)\.com\/.+\/status\/\d+/.test(url);
-  }
-};
-
-// libs/share/src/ui/Events.ts
-const Events = class {
-  static intendHover(validate, mouseover, mouseleave, timeout = 500) {
-    let hover = false;
-    let id = 0;
-    const onHover = (event) => {
-      if (!event.target || !validate(event.target)) {
-        return;
-      }
-      const element = event.target;
-      hover = true;
-      element.addEventListener(
-        'mouseleave',
-        (ev) => {
-          mouseleave.call(element, ev);
-          clearTimeout(id);
-          hover = false;
-        },
-        { once: true }
-      );
-      clearTimeout(id);
-      id = window.setTimeout(() => {
-        if (hover) {
-          mouseover.call(element, event);
-        }
-      }, timeout);
-    };
-    document.body.addEventListener('mouseover', onHover);
-  }
-};
-
-// apps/on-hover-preview/src/helpers/LinkHover.ts
-const LinkHover = class {
-  constructor(services2, onHover) {
-    this.services = services2;
-    this.onHover = onHover;
-    Events.intendHover(
-      this.isValidLink.bind(this),
-      this.onAnchorHover.bind(this),
-      () => {}
-    );
-  }
-
-  anchorElement(node) {
-    if (!(node instanceof HTMLElement)) {
-      return void 0;
-    }
-    if (node instanceof HTMLAnchorElement) {
-      return node;
-    }
-    const parent = node.closest('a');
-    if (parent instanceof HTMLElement) {
-      return parent;
-    }
-    return void 0;
-  }
-
-  isValidLink(node) {
-    const anchor = this.anchorElement(node);
-    if (!anchor || !anchor.href || anchor.href === '#') {
-      return false;
-    }
-    const origin = (url) => {
-      return new URL(url).host.split('.').slice(-2).join('.');
-    };
-    return origin(anchor.href) !== origin(location.href);
-  }
-
-  async onAnchorHover(ev) {
-    const anchor = this.anchorElement(ev.target);
-    if (!anchor) {
-      return;
-    }
-    const service = this.findService(anchor.href);
-    if (!service) {
-      return;
-    }
-    const previewUrl = await service.embeddedVideoUrl(anchor);
-    if (!previewUrl) {
-      return;
-    }
-    this.onHover(ev, previewUrl, service);
-  }
-
-  findService(url = '') {
-    return this.services.find((service) => service.isValidUrl(url));
-  }
-};
-
-// apps/on-hover-preview/src/services/Dailymotion.ts
-const Dailymotion = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      height: '280px',
-    };
-  }
-
-  async embeddedVideoUrl(element) {
-    const id = this.extractId(element.href, /video\/(?<id>[^/?]+)[\/?]?/);
-    return `https://geo.dailymotion.com/player.html?video=${id}`;
-  }
-
-  isValidUrl(url) {
-    return url.includes('dailymotion.com/video');
-  }
-};
-
-// apps/on-hover-preview/src/services/Coub.ts
-const Coub = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      height: '290px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /view\/(?<id>[^/]+)\/?/);
-    const params = this.params({
-      muted: 'false',
-      autostart: 'true',
-      originalSize: 'false',
-      startWithHD: 'true',
-    });
-    return `https://coub.com/embed/${id}?${params}`;
-  }
-
-  isValidUrl(url) {
-    return url.includes('coub.com/view');
-  }
-};
-
-// apps/on-hover-preview/src/services/Spotify.ts
-const Spotify = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '600px',
-      borderRadius: '12px',
-      height: '152px',
-    };
-    this.regExp =
-      /spotify\.com\/(.+\/)?(?<type>track|album|playlist|show)\/(?<id>[\w-]+)/;
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const props = this.match(href, this.regExp);
-    if (!props) {
-      return void 0;
-    }
-    this.setStyle(props.type);
-    const suffix = props.type === 'show' ? '/video' : '';
-    return `https://open.spotify.com/embed/${props.type}/${props.id}${suffix}`;
-  }
-
-  isValidUrl(url) {
-    return this.regExp.test(url);
-  }
-
-  setStyle(type) {
-    if (type === 'track') {
-      this.styles.height = '152px';
-    } else if (type === 'album') {
-      this.styles.height = '352px';
-    } else if (type === 'playlist') {
-      this.styles.height = '352px';
-    } else if (type === 'show') {
-      this.styles.height = '352px';
-    } else {
-      this.styles.height = '300px';
-    }
-  }
-};
-
-// apps/on-hover-preview/src/services/Tableau.ts
-const Tableau = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '850px',
-      height: '528px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /views\/(?<id>[^/]+)\/?/);
-    const params = this.params({
-      ':animate_transition': 'yes',
-      ':display_count': 'yes',
-      ':display_overlay': 'yes',
-      ':display_spinner': 'yes',
-      ':display_static_image': 'no',
-      ':embed': 'y',
-      ':embed_code_version': '3',
-      ':host_url': 'https%3A%2F%2Fpublic.tableau.com%2F',
-      ':language': 'en-US',
-      ':loadOrderID': '0',
-      ':showVizHome': 'no',
-      ':tabs': 'yes',
-      ':toolbar': 'yes',
-    });
-    return `https://public.tableau.com/views/${id}/Video?${params}`;
-  }
-
-  isValidUrl(url) {
-    return url.includes('public.tableau.com/views');
-  }
-};
-
-// apps/on-hover-preview/src/services/SoundCloud.ts
-const SoundCloud = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '600px',
-      height: '166px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const params = this.params({
-      hide_related: 'true',
-      auto_play: 'true',
-      show_artwork: 'true',
-      show_comments: 'false',
-      show_teaser: 'false',
-      url: encodeURIComponent(href),
-      visual: 'false',
-    });
-    return `https://w.soundcloud.com/player?${params}`;
-  }
-
-  isValidUrl(url) {
-    return /soundcloud\.com\/[^/]+\/[^/?]+/.test(url);
-  }
-};
-
-// apps/on-hover-preview/src/services/AppleMusic.ts
-const AppleMusic = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      borderRadius: '12px',
-      height: '450px',
-    };
-    this.regExp = /music\.apple\.com\/.{2}\/(?<id>music-video|artist|album)/;
-  }
-
-  async embeddedVideoUrl({ href, pathname }) {
-    this.setStyle(href);
-    return `https://embed.music.apple.com${pathname}`;
-  }
-
-  isValidUrl(url) {
-    return this.regExp.test(url);
-  }
-
-  setStyle(href) {
-    const type = this.extractId(href, this.regExp);
-    if (type === 'music-video') {
-      this.styles.height = '281px';
-    } else {
-      this.styles.height = '450px';
-    }
-  }
-};
-
-// apps/on-hover-preview/src/services/Deezer.ts
-const Deezer = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      borderRadius: '10px',
-      height: '300px',
-    };
-    this.regExp =
-      /deezer\.com\/.{2}\/(?<type>album|playlist|track|artist|podcast|episode)\/(?<id>\d+)/;
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const theme = this.theme('light', 'dark');
-    const props = this.match(href, this.regExp);
-    const params = this.params({
-      autoplay: 'true',
-      radius: 'true',
-      tracklist: 'false',
-    });
-    if (!props) {
-      return void 0;
-    }
-    return `https://widget.deezer.com/widget/${theme}/${props.type}/${props.id}?${params}`;
-  }
-
-  isValidUrl(url) {
-    return this.regExp.test(url);
-  }
-};
-
-// apps/on-hover-preview/src/services/Tidal.ts
-const Tidal = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      height: '300px',
-      borderRadius: '10px',
-    };
-    this.regExp =
-      /tidal\.com\/(.+\/)?(?<type>track|album|video|playlist)\/(?<id>\d+|[\w-]+)/;
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const props = this.match(href, this.regExp);
-    if (!props) {
-      return void 0;
-    }
-    this.setStyle(props.type);
-    return `https://embed.tidal.com/${props.type}s/${props.id}`;
-  }
-
-  isValidUrl(url) {
-    return this.regExp.test(url);
-  }
-
-  setStyle(type) {
-    if (type === 'track') {
-      this.styles.height = '120px';
-    } else if (type === 'playlist') {
-      this.styles.height = '400px';
-    } else if (type === 'video') {
-      this.styles.height = '281px';
-    } else {
-      this.styles.height = '300px';
-    }
-  }
-};
-
 // apps/on-hover-preview/src/main.ts
-const services = [
-  Youtube,
-  Vimeo,
-  Streamable,
-  Facebook,
-  Tiktok,
-  Instagram,
-  Twitter,
-  Dailymotion,
-  Dailymotion,
-  Coub,
-  Spotify,
-  Tableau,
-  SoundCloud,
-  AppleMusic,
-  Deezer,
-  Tidal,
-  // Odysee,
-  // Rumble,
-].map((Service) => new Service());
-const previewPopup = new PreviewPopup();
-new LinkHover(services, previewPopup.showPopup.bind(previewPopup));
+function run() {
+  const services = [
+    Youtube,
+    Vimeo,
+    Streamable,
+    Facebook,
+    Tiktok,
+    Instagram,
+    Twitter,
+    Dailymotion,
+    Dailymotion,
+    Coub,
+    Spotify,
+    Tableau,
+    SoundCloud,
+    AppleMusic,
+    Deezer,
+    Tidal,
+    // Odysee,
+    // Rumble,
+  ].map((Service) => new Service());
+  const previewPopup = new PreviewPopup();
+  new LinkHover(services, previewPopup.showPopup.bind(previewPopup));
+}
+
+if (window.top == window.self) {
+  run();
+}

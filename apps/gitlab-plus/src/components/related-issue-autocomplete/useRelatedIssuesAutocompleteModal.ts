@@ -1,30 +1,33 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useState } from 'preact/hooks';
 
-import { IssueLinkType } from '../../helpers/IssueLink';
+import { GitlabIssueLink } from '../../helpers/LinkParser';
 import { IssueProvider } from '../../providers/IssueProvider';
 import { IssueAutocomplete } from '../../types/Issue';
 import { useAsyncAutocompleteOptions } from '../common/form/autocomplete/useAsyncAutocompleteOptions';
 
 export function useRelatedIssuesAutocompleteModal(
-  link: IssueLinkType,
+  link: GitlabIssueLink,
   input: HTMLInputElement
 ) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+
+  const searchIssues = useCallback(async (term: string) => {
+    const response = await new IssueProvider().getIssues(
+      link.workspacePath,
+      term
+    );
+
+    return [
+      response.data.workspace.workItems,
+      response.data.workspace.workItemsByIid,
+      response.data.workspace.workItemsEmpty,
+    ].flatMap((item) => item?.nodes || []);
+  }, []);
+
   const options = useAsyncAutocompleteOptions<IssueAutocomplete>(
     searchTerm,
-    async (term: string) => {
-      const response = await new IssueProvider().getIssues(
-        link.workspacePath,
-        term
-      );
-
-      return [
-        response.data.workspace.workItems,
-        response.data.workspace.workItemsByIid,
-        response.data.workspace.workItemsEmpty,
-      ].flatMap((item) => item?.nodes || []);
-    }
+    searchIssues
   );
 
   const onSelect = (item: IssueAutocomplete) => {

@@ -2,20 +2,20 @@ import { useEffect, useState } from 'preact/hooks';
 
 import { clsx } from '@utils/clsx';
 
-import { IssueLinkType } from '../../helpers/IssueLink';
+import { GitlabIssueLink } from '../../helpers/LinkParser';
 import { CloseButton } from '../common/CloseButton';
-import { CreateRelatedIssueModalContent } from './CreateRelatedIssueModalContent';
-import { showModalEventName } from './event';
+import { CreateIssueForm } from './CreateIssueForm';
+import { showRelatedIssueModal } from './events';
 
 type Props = {
-  link: IssueLinkType;
+  link: GitlabIssueLink;
 };
 
 export function CreateRelatedIssueModal({ link }: Props) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    document.addEventListener(showModalEventName, () => setIsVisible(true));
+    document.addEventListener(showRelatedIssueModal, () => setIsVisible(true));
   }, []);
 
   return (
@@ -48,7 +48,7 @@ export function CreateRelatedIssueModal({ link }: Props) {
           </h2>
           <CloseButton onClick={() => setIsVisible(false)} />
         </div>
-        <CreateRelatedIssueModalContent
+        <CreateIssueForm
           onClose={() => setIsVisible(false)}
           isVisible={isVisible}
           link={link}

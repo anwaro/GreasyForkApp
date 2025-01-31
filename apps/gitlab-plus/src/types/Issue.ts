@@ -21,6 +21,15 @@ export type CreateIssueInput = {
   title: string;
 };
 
+export type IssueSetEpicInput = {
+  input: {
+    hierarchyWidget: {
+      parentId: string;
+    };
+    id: string;
+  };
+};
+
 export type CreateIssueLinkInput = {
   targetIssueIid: string;
   issueId: number | string;
@@ -38,25 +47,24 @@ export interface IssueData {
 }
 
 export interface CreateIssuable {
-  __typename: string;
   errors: string[];
   issuable: Issuable;
+  __typename: string;
 }
 
 export interface Issuable {
-  confidential: boolean;
-  hidden: boolean;
   id: string;
   iid: string;
-  __typename: string;
   assignees: Assignees;
   blocked: boolean;
   blockedByCount: number;
   closedAt: string;
+  confidential: boolean;
   dueDate: string;
   emailsDisabled: boolean;
   epic: unknown;
   healthStatus: unknown;
+  hidden: boolean;
   humanTimeEstimate: number;
   humanTotalTimeSpent: number;
   iteration: unknown;
@@ -72,16 +80,17 @@ export interface Issuable {
   type: string;
   webUrl: string;
   weight: unknown;
+  __typename: string;
 }
 
 export interface Assignees {
-  __typename: string;
   nodes: User[];
+  __typename: string;
 }
 
 export interface Labels {
-  __typename: string;
   nodes: Label[];
+  __typename: string;
 }
 
 export interface IssueResponse {
@@ -94,16 +103,15 @@ export interface ProjectData {
 
 export interface Project {
   id: string;
-  __typename: string;
   issue: Issue;
+  __typename: string;
 }
 
 export interface Issue {
-  confidential: boolean;
   id: string;
   iid: string;
-  __typename: string;
   assignees: Nodes<User>;
+  confidential: boolean;
   createdAt: string;
   description: string;
   dueDate: null | string;
@@ -115,14 +123,15 @@ export interface Issue {
   title: string;
   type: string;
   weight: null | number;
+  __typename: string;
 }
 
 export interface Milestone {
   id: string;
-  __typename: string;
   dueDate: string;
   startDate: string;
   title: string;
+  __typename: string;
 }
 
 export interface MergeRequest {
@@ -143,26 +152,26 @@ export interface IssuesResponseData {
 
 export interface IssuesResponseWorkspace {
   id: string;
-  workItemsByIid: WorkItems;
-  __typename: string;
   workItems: WorkItems;
+  workItemsByIid: WorkItems;
   workItemsEmpty: WorkItems;
+  __typename: string;
 }
 
 export interface WorkItems {
-  __typename: string;
   nodes: IssueAutocomplete[];
+  __typename: string;
 }
 
 export interface IssueAutocomplete {
-  confidential: boolean;
   id: string;
   iid: string;
-  __typename: string;
+  confidential: boolean;
   project: {
     fullPath: string;
   };
   title: string;
+  __typename: string;
 }
 
 export type RelatedIssue = {

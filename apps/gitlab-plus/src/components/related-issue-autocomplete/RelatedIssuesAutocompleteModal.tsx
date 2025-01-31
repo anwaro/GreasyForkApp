@@ -1,4 +1,4 @@
-import { IssueLinkType } from '../../helpers/IssueLink';
+import { GitlabIssueLink } from '../../helpers/LinkParser';
 import { IssueAutocomplete } from '../../types/Issue';
 import { AsyncAutocompleteDropdown } from '../common/form/autocomplete/AsyncAutocompleteDropdown';
 import { GitlabIcon } from '../common/GitlabIcon';
@@ -6,7 +6,7 @@ import { useRelatedIssuesAutocompleteModal } from './useRelatedIssuesAutocomplet
 
 type Props = {
   input: HTMLInputElement;
-  link: IssueLinkType;
+  link: GitlabIssueLink;
 };
 
 export function RelatedIssuesAutocompleteModal({ input, link }: Props) {

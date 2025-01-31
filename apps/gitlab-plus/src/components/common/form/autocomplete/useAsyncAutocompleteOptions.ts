@@ -11,14 +11,17 @@ export function useAsyncAutocompleteOptions<D extends OptionItem>(
   const [options, setOptions] = useState<D[]>([]);
   const term = useDebounce(searchTerm);
 
-  const loadOptions = useCallback(async (term: string) => {
-    const items = await getValues(term);
-    setOptions(items);
-  }, []);
+  const loadOptions = useCallback(
+    async (term: string) => {
+      const items = await getValues(term);
+      setOptions(items);
+    },
+    [getValues]
+  );
 
   useEffect(() => {
     loadOptions(term);
-  }, [term]);
+  }, [term, loadOptions]);
 
   return options;
 }

@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 
-import { IssueLinkType } from '../../helpers/IssueLink';
+import { GitlabIssueLink } from '../../helpers/LinkParser';
 import { IssueProvider } from '../../providers/IssueProvider';
 import { Issue, RelatedIssue } from '../../types/Issue';
 
@@ -30,7 +30,7 @@ export function useFetchIssue() {
   const [issue, setIssue] = useState(initialIssueData);
   const [relatedIssues, setRelatedIssues] = useState(initialRelatedIssuesData);
 
-  const fetch = async (link: IssueLinkType) => {
+  const fetch = async (link: GitlabIssueLink) => {
     setIssue({ ...initialIssueData, isLoading: true });
     setRelatedIssues({ ...initialRelatedIssuesData, isLoading: true });
 

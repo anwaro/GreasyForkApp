@@ -1,5 +1,6 @@
-import { BaseService } from '../services/BaseService';
 import { Events } from '@ui/Events';
+
+import { BaseService } from '../services/BaseService';
 
 export class LinkHover {
   constructor(
@@ -27,15 +28,20 @@ export class LinkHover {
     return undefined;
   }
 
+  private findService(url = '') {
+    return this.services.find((service) => service.isValidUrl(url));
+  }
+
   private isValidLink(node: EventTarget) {
     const anchor = this.anchorElement(node);
     if (!anchor || !anchor.href || anchor.href === '#') {
       return false;
     }
-    const origin = (url: string) => {
-      return new URL(url).host.split('.').slice(-2).join('.');
-    };
-    return origin(anchor.href) !== origin(location.href);
+    // const origin = (url: string) => {
+    //   return new URL(url).host.split('.').slice(-2).join('.');
+    // };
+    // return origin(anchor.href) !== origin(location.href);
+    return true;
   }
 
   private async onAnchorHover(ev: HTMLElementEventMap['mouseover']) {
@@ -52,9 +58,5 @@ export class LinkHover {
       return;
     }
     this.onHover(ev, previewUrl, service);
-  }
-
-  private findService(url: string = '') {
-    return this.services.find((service) => service.isValidUrl(url));
   }
 }

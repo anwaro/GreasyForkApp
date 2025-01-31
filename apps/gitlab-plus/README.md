@@ -3,7 +3,7 @@
 ### Script
 
 Link to script: [greasyfork](https://greasyfork.org/en/scripts/512719-gitlab-plus)
-Link to github: [Github](https://github.com/anwaro/GreasyForkApp/apps/gitlab-plus)
+Link to github: [Github](https://github.com/anwaro/GreasyForkApp/tree/main/apps/gitlab-plus)
 
 ### The script works in:
 

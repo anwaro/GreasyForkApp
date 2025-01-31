@@ -1,5 +1,7 @@
 import type { ComponentChild } from 'preact';
 
+import { clsx } from '@utils/clsx';
+
 import { AsyncAutocompleteButton } from './AsyncAutocompleteButton';
 import { AsyncAutocompleteDropdown } from './AsyncAutocompleteDropdown';
 import { OptionItem } from './types';
@@ -7,6 +9,7 @@ import { useAsyncAutocomplete } from './useAsyncAutocomplete';
 
 type Props<D extends OptionItem> = {
   getValues: (search: string) => Promise<D[]>;
+  isDisabled?: boolean;
   isMultiselect?: boolean;
   name: string;
   onChange: (values: D[]) => void;
@@ -17,6 +20,7 @@ type Props<D extends OptionItem> = {
 
 export function AsyncAutocomplete<D extends OptionItem>({
   getValues,
+  isDisabled,
   isMultiselect = false,
   name,
   onChange,
@@ -36,7 +40,12 @@ export function AsyncAutocomplete<D extends OptionItem>({
   } = useAsyncAutocomplete<D>(name, value, getValues, onChange, isMultiselect);
 
   return (
-    <div class={'gl-relative gl-w-full gl-new-dropdown !gl-block'}>
+    <div
+      class={clsx(
+        'gl-relative gl-w-full gl-new-dropdown !gl-block',
+        isDisabled && 'gl-pointer-events-none gl-opacity-5'
+      )}
+    >
       <AsyncAutocompleteButton<D>
         isOpen={isOpen}
         renderLabel={renderLabel}

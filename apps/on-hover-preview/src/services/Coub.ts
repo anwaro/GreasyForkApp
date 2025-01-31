@@ -10,8 +10,8 @@ export class Coub extends BaseService {
     const id = this.extractId(href, /view\/(?<id>[^/]+)\/?/);
 
     const params = this.params({
-      muted: 'false',
       autostart: 'true',
+      muted: 'false',
       originalSize: 'false',
       startWithHD: 'true',
     });

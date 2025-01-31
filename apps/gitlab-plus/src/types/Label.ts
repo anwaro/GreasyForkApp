@@ -3,15 +3,15 @@ import { ApiResponse } from './response';
 export type LabelsResponse = ApiResponse<{ labels: Labels }>;
 
 export interface Labels {
-  __typename: string;
   nodes: Label[];
+  __typename: string;
 }
 
 export interface Label {
   id: string;
-  __typename: string;
   color: string;
   description?: string;
   textColor: string;
   title: string;
+  __typename: string;
 }

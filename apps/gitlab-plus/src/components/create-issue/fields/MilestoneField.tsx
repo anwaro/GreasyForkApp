@@ -1,27 +1,28 @@
 import { useCallback } from 'preact/hooks';
-
-import { IssueLinkType } from '../../../helpers/IssueLink';
 import { MilestonesProvider } from '../../../providers/MilestonesProvider';
 import { Milestone } from '../../../types/Milestone';
 import { AsyncAutocomplete } from '../../common/form/autocomplete/AsyncAutocomplete';
 
 type Props = {
-  link: IssueLinkType;
+  projectPath?: string;
   setValue: (value: Milestone[]) => void;
   value: Milestone[];
 };
 
-export function MilestoneField({ link, setValue, value }: Props) {
+export function MilestoneField({ projectPath, setValue, value }: Props) {
   const getMilestones = useCallback(
     async (search: string) => {
+      if (!projectPath) {
+        return [];
+      }
       const response = await new MilestonesProvider().getMilestones(
-        link.projectPath,
+        projectPath,
         search
       );
 
       return response.data.workspace.attributes.nodes;
     },
-    [link]
+    [projectPath]
   );
 
   const renderLabel = useCallback(([item]: Milestone[]) => {
@@ -43,6 +44,7 @@ export function MilestoneField({ link, setValue, value }: Props) {
       onChange={setValue}
       renderOption={renderOption}
       getValues={getMilestones}
+      isDisabled={!projectPath}
       name={'milestones'}
       renderLabel={renderLabel}
       value={value}

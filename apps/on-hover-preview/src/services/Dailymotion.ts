@@ -7,7 +7,7 @@ export class Dailymotion extends BaseService {
   };
 
   public async embeddedVideoUrl(element: HTMLAnchorElement): Promise<string> {
-    const id = this.extractId(element.href, /video\/(?<id>[^/?]+)[\/?]?/);
+    const id = this.extractId(element.href, /video\/(?<id>[^/?]+)[/?]?/);
     return `https://geo.dailymotion.com/player.html?video=${id}`;
   }
 

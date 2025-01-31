@@ -18,7 +18,7 @@ export function GitlabMergeRequest({ mr }: Props) {
     <div style={{ marginTop: 10 }}>
       <div class={'item-title gl-flex gl-min-w-0 gl-gap-3'}>
         <GitlabIcon
-          icon={iconMap[mr.state] || 'empty'}
+          icon={iconMap[mr.state] || ''}
           className={'merge-request-status'}
           size={16}
         />

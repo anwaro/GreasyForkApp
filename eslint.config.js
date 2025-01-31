@@ -47,10 +47,19 @@ module.exports = [
         {
           type: 'natural',
           order: 'asc',
-          groups: ['top'],
-          customGroups: {
-            top: ['id', 'tag'],
-          },
+          groups: ['top', 'unknown', ['optional-multiline-member', 'bottom']],
+          customGroups: [
+            {
+              groupName: 'top',
+              selector: 'property',
+              elementNamePattern: '^(?:id|iid|tag|name)$',
+            },
+            {
+              groupName: 'bottom',
+              selector: 'property',
+              elementNamePattern: '^__typename$',
+            },
+          ],
         },
       ],
       'perfectionist/sort-union-types': [

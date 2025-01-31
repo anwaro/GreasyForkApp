@@ -18,8 +18,6 @@ export class Facebook extends BaseService {
   }
 
   isValidUrl(url: string): boolean {
-    return /https:\/\/(www\.|m\.)?facebook\.com\/[\w\d\-_]+\/videos\//.test(
-      url
-    );
+    return /https:\/\/(www\.|m\.)?facebook\.com\/[\w\-_]+\/videos\//.test(url);
   }
 }

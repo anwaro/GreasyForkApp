@@ -21,17 +21,17 @@ export interface Projects {
 export interface Project {
   id: string;
   name: string;
+  archived: boolean;
   avatarUrl: string;
   fullPath: string;
   nameWithNamespace: string;
-  archived: boolean;
   __typename: string;
 }
 
 export interface PageInfo {
+  endCursor: string;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
   startCursor: string;
-  endCursor: string;
   __typename: string;
 }

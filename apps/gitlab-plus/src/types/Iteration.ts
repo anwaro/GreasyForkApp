@@ -4,12 +4,12 @@ export type IterationsResponse = ApiResponse<{ attributes: Nodes<Iteration> }>;
 
 export interface Iteration {
   id: string;
-  title: string | null;
-  startDate: string;
   dueDate: string;
-  webUrl: string;
   iterationCadence: IterationCadence;
+  startDate: string;
   state: string;
+  title: null | string;
+  webUrl: string;
   __typename: string;
 }
 

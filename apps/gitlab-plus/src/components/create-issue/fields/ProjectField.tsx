@@ -1,13 +1,13 @@
 import { useCallback } from 'preact/hooks';
 
-import { IssueLinkType } from '../../../helpers/IssueLink';
+import { GitlabLink } from '../../../helpers/LinkParser';
 import { ProjectsProvider } from '../../../providers/ProjectsProvider';
 import { Project } from '../../../types/Project';
 import { AsyncAutocomplete } from '../../common/form/autocomplete/AsyncAutocomplete';
 import { GitlabProject } from '../../common/GitlabProject';
 
 type Props = {
-  link: IssueLinkType;
+  link: GitlabLink;
   setValue: (value: Project[]) => void;
   value: Project[];
 };

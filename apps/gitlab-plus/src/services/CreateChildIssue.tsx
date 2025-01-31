@@ -1,12 +1,12 @@
 import { render } from 'preact';
 
 import { GitlabButton } from '../components/common/GitlabButton';
-import { CreateRelatedIssueModal } from '../components/create-issue/CreateRelatedIssueModal';
-import { ShowRelatedIssueModalEvent } from '../components/create-issue/events';
+import { CreateChildIssueModal } from '../components/create-issue/CreateChildIssueModal';
+import { ShowChildIssueModalEvent } from '../components/create-issue/events';
 import { LinkParser } from '../helpers/LinkParser';
 import { Service } from '../types/Service';
 
-export class CreateRelatedIssue extends Service {
+export class CreateChildIssue extends Service {
   private isMounted = false;
 
   constructor() {
@@ -23,9 +23,9 @@ export class CreateRelatedIssue extends Service {
     if (this.isMounted) {
       return;
     }
-    const link = LinkParser.parseIssueLink(window.location.href);
+    const link = LinkParser.parseEpicLink(window.location.href);
     const parent = document.querySelector<HTMLDivElement>(
-      '#related-issues [data-testid="crud-actions"]'
+      '#childitems [data-testid="crud-actions"]'
     );
 
     if (!link || !parent) {
@@ -35,15 +35,15 @@ export class CreateRelatedIssue extends Service {
 
     render(
       <GitlabButton
-        onClick={() => document.dispatchEvent(ShowRelatedIssueModalEvent)}
+        onClick={() => document.dispatchEvent(ShowChildIssueModalEvent)}
       >
-        Create related issue
+        Create child item
       </GitlabButton>,
-      this.root('glp-related-issue-button', parent)
+      this.root('glp-child-issue-button', parent, true)
     );
     render(
-      <CreateRelatedIssueModal link={link} />,
-      this.rootBody('glp-related-issue-modal')
+      <CreateChildIssueModal link={link} />,
+      this.rootBody('glp-child-issue-modal')
     );
   }
 }
