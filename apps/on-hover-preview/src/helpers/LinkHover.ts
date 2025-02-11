@@ -9,8 +9,7 @@ export class LinkHover {
   ) {
     Events.intendHover(
       this.isValidLink.bind(this),
-      this.onAnchorHover.bind(this),
-      () => {}
+      this.onAnchorHover.bind(this)
     );
   }
 

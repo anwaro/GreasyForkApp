@@ -7,6 +7,7 @@ import { Issue, RelatedIssue } from '../../types/Issue';
 type IssueData = {
   isLoading: boolean;
   issue: Issue | null;
+  link: GitlabIssueLink | null;
 };
 
 type RelatedIssuesData = {
@@ -17,6 +18,7 @@ type RelatedIssuesData = {
 const initialIssueData: IssueData = {
   isLoading: false,
   issue: null,
+  link: null,
 };
 
 const initialRelatedIssuesData: RelatedIssuesData = {
@@ -24,30 +26,44 @@ const initialRelatedIssuesData: RelatedIssuesData = {
   issues: [],
 };
 
-const issueProvider = new IssueProvider();
-
 export function useFetchIssue() {
   const [issue, setIssue] = useState(initialIssueData);
   const [relatedIssues, setRelatedIssues] = useState(initialRelatedIssuesData);
 
-  const fetch = async (link: GitlabIssueLink) => {
+  const fetchIssue = async (link: GitlabIssueLink, force = false) => {
     setIssue({ ...initialIssueData, isLoading: true });
-    setRelatedIssues({ ...initialRelatedIssuesData, isLoading: true });
 
-    const response = await issueProvider.getIssue(link.projectPath, link.issue);
+    const response = await new IssueProvider(force).getIssue(
+      link.projectPath,
+      link.issue
+    );
     setIssue({
       isLoading: false,
       issue: response.data.project.issue,
+      link,
     });
+  };
 
-    const relatedIssues = await issueProvider.getIssueLinks(
-      response.data.project.id.replace(/\D/g, ''),
-      response.data.project.issue.iid
+  const fetchRelatedIssues = async (link: GitlabIssueLink, force = false) => {
+    const relatedIssues = await new IssueProvider(force).getIssueLinks(
+      link.projectPath,
+      link.issue
     );
     setRelatedIssues({
       isLoading: false,
       issues: relatedIssues,
     });
+  };
+
+  const fetch = async (link: GitlabIssueLink, force = false) => {
+    fetchIssue(link, force);
+    fetchRelatedIssues(link, force);
+  };
+
+  const refetch = async () => {
+    if (issue.link) {
+      fetch(issue.link, true);
+    }
   };
 
   const reset = () => {
@@ -58,6 +74,7 @@ export function useFetchIssue() {
   return {
     fetch,
     issue,
+    refetch,
     relatedIssues,
     reset,
   };

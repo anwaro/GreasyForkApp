@@ -1,6 +1,6 @@
+import { ProjectsResponse } from '../types/Project';
 import { GitlabProvider } from './GitlabProvider';
 import { projectsQuery } from './query/project';
-import { ProjectsResponse } from '../types/Project';
 
 export class ProjectsProvider extends GitlabProvider {
   async getProjects(workspacePath: string, search = '') {

@@ -3,8 +3,8 @@ import { BaseService } from './BaseService';
 export class Tidal extends BaseService {
   public styles = {
     width: '500px',
-    height: '300px',
     borderRadius: '10px',
+    height: '300px',
   };
   private regExp =
     /tidal\.com\/(.+\/)?(?<type>track|album|video|playlist)\/(?<id>\d+|[\w-]+)/;

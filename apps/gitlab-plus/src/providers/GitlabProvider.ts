@@ -3,52 +3,10 @@ import { camelizeKeys } from '@utils/camelizeKeys';
 
 export class GitlabProvider {
   private cache = new Cache('glp-');
-  private url = 'https://gitlab.com/api/v4/';
   private graphqlApi = 'https://gitlab.com/api/graphql';
+  private url = 'https://gitlab.com/api/v4/';
 
-  async get<R>(path: string): Promise<R> {
-    const response = await fetch(`${this.url}${path}`, {
-      method: 'GET',
-      headers: this.headers(),
-    });
-    const data = await response.json();
-    return camelizeKeys(data);
-  }
-
-  async post<D, R>(path: string, body: D): Promise<R> {
-    const response = await fetch(`${this.url}${path}`, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: this.headers(),
-    });
-    const data = await response.json();
-    return camelizeKeys(data);
-  }
-
-  async query<T>(
-    query: string,
-    variables: Record<string, unknown>
-  ): Promise<T> {
-    const response = await fetch(this.graphqlApi, {
-      method: 'POST',
-      body: JSON.stringify({ variables, query }),
-      headers: this.headers(),
-    });
-    return response.json();
-  }
-
-  async queryCached<T>(
-    key: string,
-    query: string,
-    variables: Record<string, unknown>,
-    minutes: number
-  ): Promise<T> {
-    return this.cached(key, () => this.query<T>(query, variables), minutes);
-  }
-
-  async getCached<T>(key: string, path: string, minutes: number): Promise<T> {
-    return this.cached(key, () => this.get<T>(path), minutes);
-  }
+  constructor(private force = false) {}
 
   async cached<T>(
     key: string,
@@ -56,7 +14,7 @@ export class GitlabProvider {
     minutes: number
   ): Promise<T> {
     const cacheValue = this.cache.get<T>(key);
-    if (cacheValue) {
+    if (cacheValue && !this.force) {
       return cacheValue;
     }
 
@@ -75,6 +33,19 @@ export class GitlabProvider {
     return '';
   }
 
+  async get<R>(path: string): Promise<R> {
+    const response = await fetch(`${this.url}${path}`, {
+      headers: this.headers(),
+      method: 'GET',
+    });
+    const data = await response.json();
+    return camelizeKeys(data);
+  }
+
+  async getCached<T>(key: string, path: string, minutes: number): Promise<T> {
+    return this.cached(key, () => this.get<T>(path), minutes);
+  }
+
   headers() {
     const headers: Record<string, string> = {
       'content-type': 'application/json',
@@ -86,5 +57,36 @@ export class GitlabProvider {
     }
 
     return headers;
+  }
+
+  async post<D, R>(path: string, body: D): Promise<R> {
+    const response = await fetch(`${this.url}${path}`, {
+      body: JSON.stringify(body),
+      headers: this.headers(),
+      method: 'POST',
+    });
+    const data = await response.json();
+    return camelizeKeys(data);
+  }
+
+  async query<T>(
+    query: string,
+    variables: Record<string, unknown>
+  ): Promise<T> {
+    const response = await fetch(this.graphqlApi, {
+      body: JSON.stringify({ query, variables }),
+      headers: this.headers(),
+      method: 'POST',
+    });
+    return response.json();
+  }
+
+  async queryCached<T>(
+    key: string,
+    query: string,
+    variables: Record<string, unknown>,
+    minutes: number
+  ): Promise<T> {
+    return this.cached(key, () => this.query<T>(query, variables), minutes);
   }
 }

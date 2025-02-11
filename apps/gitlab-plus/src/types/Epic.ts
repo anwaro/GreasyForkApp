@@ -1,5 +1,6 @@
 import { Label } from './Label';
 import { ApiResponse, Nodes } from './response';
+import { User } from './User';
 
 export type EpicResponse = ApiResponse<{ workItem: Epic }>;
 
@@ -7,14 +8,14 @@ export interface Epic {
   id: string;
   iid: string;
   archived: boolean;
-  author: Author;
-  closedAt: any;
+  author: User;
+  closedAt: string;
   confidential: boolean;
   createdAt: string;
-  createNoteEmail: any;
+  createNoteEmail: string;
   description: string;
   namespace: Namespace;
-  project: any;
+  project: { id: string };
   reference: string;
   state: string;
   title: string;
@@ -33,25 +34,30 @@ export interface Namespace {
   __typename: string;
 }
 
-export type EpicWidget = LabelWidget | UnknownWidget;
+export type EpicWidget = HierarchyWidget | LabelWidget | UnknownWidget;
 
 export type LabelWidget = {
   labels: Nodes<Label>;
   type: 'LABELS';
 };
+
+export type HierarchyWidget = {
+  children: {
+    count: number;
+  } & Nodes<{
+    id: string;
+    iid: string;
+    state: string;
+    title: string;
+    webUrl: string;
+  }>;
+  hasChildren: boolean;
+  type: 'HIERARCHY';
+};
+
 export type UnknownWidget = {
   type: string;
 };
-
-export interface Author {
-  id: string;
-  name: string;
-  avatarUrl: string;
-  username: string;
-  webPath: string;
-  webUrl: string;
-  __typename: string;
-}
 
 export interface WorkItemType {
   id: string;
@@ -83,26 +89,5 @@ export interface Node {
   description: string;
   textColor: string;
   title: string;
-  __typename: string;
-}
-
-export interface LinkedItems {
-  nodes: any[];
-  __typename: string;
-}
-
-export interface CurrentUserTodos {
-  nodes: any[];
-  __typename: string;
-}
-
-export interface WidgetDefinition {
-  editable: boolean;
-  rollUp: boolean;
-  __typename: string;
-}
-
-export interface Timelogs {
-  nodes: any[];
   __typename: string;
 }

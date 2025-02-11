@@ -1,4 +1,5 @@
 import { useCallback } from 'preact/hooks';
+
 import { MilestonesProvider } from '../../../providers/MilestonesProvider';
 import { Milestone } from '../../../types/Milestone';
 import { AsyncAutocomplete } from '../../common/form/autocomplete/AsyncAutocomplete';
@@ -41,12 +42,12 @@ export function MilestoneField({ projectPath, setValue, value }: Props) {
 
   return (
     <AsyncAutocomplete
-      onChange={setValue}
-      renderOption={renderOption}
       getValues={getMilestones}
       isDisabled={!projectPath}
       name={'milestones'}
+      onChange={setValue}
       renderLabel={renderLabel}
+      renderOption={renderOption}
       value={value}
     />
   );

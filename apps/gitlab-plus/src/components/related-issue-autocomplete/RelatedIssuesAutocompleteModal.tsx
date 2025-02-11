@@ -19,6 +19,9 @@ export function RelatedIssuesAutocompleteModal({ input, link }: Props) {
         onClick={onSelect}
         onClose={onClose}
         options={options}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        value={[]}
         renderOption={(item) => (
           <div class={'gl-flex gl-gap-x-2 gl-py-2'}>
             <GitlabIcon icon={'issue-type-issue'} size={16} />
@@ -26,9 +29,6 @@ export function RelatedIssuesAutocompleteModal({ input, link }: Props) {
             <span class={'gl-flex gl-flex-wrap'}>{item.title}</span>
           </div>
         )}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        value={[]}
       />
     </div>
   ) : null;

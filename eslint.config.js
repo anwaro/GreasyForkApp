@@ -104,9 +104,8 @@ module.exports = [
         {
           type: 'natural',
           order: 'asc',
-          groups: ['key', 'id', 'multiline', 'shorthand', 'callback'],
+          groups: ['key', 'id', 'unknown', 'shorthand', 'multiline'],
           customGroups: {
-            callback: 'on*',
             key: 'key',
             id: 'id',
           },

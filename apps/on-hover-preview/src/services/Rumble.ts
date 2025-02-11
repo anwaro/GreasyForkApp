@@ -6,7 +6,7 @@ export class Rumble extends BaseService {
     height: '290px',
   };
 
-  public async embeddedVideoUrl(element: HTMLAnchorElement): Promise<string> {
+  public async embeddedVideoUrl(_element: HTMLAnchorElement): Promise<string> {
     return undefined;
 
     // const content = await fetch(

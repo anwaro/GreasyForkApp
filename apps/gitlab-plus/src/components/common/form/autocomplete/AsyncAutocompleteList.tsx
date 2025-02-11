@@ -24,6 +24,7 @@ export function AsyncAutocompleteList<D extends OptionItem>({
 }: Props<D>) {
   return (
     <div
+      onClick={(e) => e.stopPropagation()}
       class={
         'gl-new-dropdown-contents gl-new-dropdown-contents-with-scrim-overlay bottom-scrim-visible gl-new-dropdown-contents'
       }
@@ -33,7 +34,6 @@ export function AsyncAutocompleteList<D extends OptionItem>({
         left: '0',
         top: '100%',
       }}
-      onClick={(e) => e.stopPropagation()}
     >
       <div class={'gl-new-dropdown-inner'}>
         <ul class={'gl-mb-0 gl-pl-0'}>
@@ -49,11 +49,11 @@ export function AsyncAutocompleteList<D extends OptionItem>({
               {recently.map((item, index) => (
                 <AsyncAutocompleteOption<D>
                   key={item.id}
+                  isActive={index === activeIndex}
                   onClick={onClick}
                   option={item}
                   removeFromRecent={removeRecently}
                   renderOption={renderOption}
-                  isActive={index === activeIndex}
                   selected={value}
                 />
               ))}
@@ -69,10 +69,10 @@ export function AsyncAutocompleteList<D extends OptionItem>({
               {options.map((item, index) => (
                 <AsyncAutocompleteOption<D>
                   key={item.id}
+                  isActive={recently.length + index === activeIndex}
                   onClick={onClick}
                   option={item}
                   renderOption={renderOption}
-                  isActive={recently.length + index === activeIndex}
                   selected={value}
                 />
               ))}

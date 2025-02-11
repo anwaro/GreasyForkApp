@@ -7,6 +7,7 @@ const buildId =
 
 declare global {
   type Gonn = { sprite_icons: string };
+  // eslint-disable-next-line no-var
   var unsafeWindow: { gon: Gonn };
 }
 
@@ -14,6 +15,7 @@ type Props = {
   className?: string;
   icon: GitlabIconNames;
   size?: GitlabIconSize;
+  title?: string;
 };
 
 const iconUrl = (icon: GitlabIconNames) => {
@@ -22,9 +24,12 @@ const iconUrl = (icon: GitlabIconNames) => {
   return `${svgSprite}#${icon}`;
 };
 
-export function GitlabIcon({ className, icon, size = 12 }: Props) {
+export function GitlabIcon({ className, icon, size = 12, title }: Props) {
   return (
-    <svg className={clsx('gl-icon gl-fill-current', `s${size}`, className)}>
+    <svg
+      className={clsx('gl-icon gl-fill-current', `s${size}`, className)}
+      title={title}
+    >
       <use href={iconUrl(icon)} />
     </svg>
   );

@@ -25,16 +25,16 @@ export function RelationField({ setValue, value }: Props) {
         <div key={relation} class={'gl-form-radio custom-control custom-radio'}>
           <input
             id={`create-related-issue-relation-${relation}`}
-            onChange={() => setValue(relation)}
             checked={value === relation}
             class={'custom-control-input'}
             name={'linked-issue-type-radio'}
+            onChange={() => setValue(relation)}
             type={'radio'}
             value={relation ?? ''}
           />
           <label
-            for={`create-related-issue-relation-${relation}`}
             class={'custom-control-label'}
+            for={`create-related-issue-relation-${relation}`}
           >
             {labels(relation)}
           </label>

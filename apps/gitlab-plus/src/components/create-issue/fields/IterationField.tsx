@@ -54,11 +54,11 @@ export function IterationField({ link, setValue, value }: Props) {
 
   return (
     <AsyncAutocomplete
-      onChange={setValue}
-      renderOption={renderOption}
       getValues={getUsers}
       name={'iterations'}
+      onChange={setValue}
       renderLabel={renderLabel}
+      renderOption={renderOption}
       value={value}
     />
   );

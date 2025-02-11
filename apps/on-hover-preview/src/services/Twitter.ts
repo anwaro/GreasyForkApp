@@ -7,7 +7,7 @@ export class Twitter extends BaseService {
   };
 
   public async embeddedVideoUrl({ href }: HTMLAnchorElement) {
-    const id = this.extractId(href, /status\/(?<id>[^/?]+)[\/?]?/);
+    const id = this.extractId(href, /status\/(?<id>[^/?]+)[/?]?/);
     const platform = href.includes('twitter.com') ? 'twitter' : 'x';
 
     const params = this.params({

@@ -1,9 +1,9 @@
-import { GitlabProvider } from './GitlabProvider';
 import { MilestonesResponse } from '../types/Milestone';
+import { GitlabProvider } from './GitlabProvider';
 import { milestoneQuery } from './query/milestone';
 
 export class MilestonesProvider extends GitlabProvider {
-  async getMilestones(projectId: string, title: string = '') {
+  async getMilestones(projectId: string, title = '') {
     return this.queryCached<MilestonesResponse>(
       `milestones-${projectId}-${title}`,
       milestoneQuery,

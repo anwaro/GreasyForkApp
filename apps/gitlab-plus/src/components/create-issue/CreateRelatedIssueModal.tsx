@@ -49,9 +49,9 @@ export function CreateRelatedIssueModal({ link }: Props) {
           <CloseButton onClick={() => setIsVisible(false)} />
         </div>
         <CreateIssueForm
-          onClose={() => setIsVisible(false)}
           isVisible={isVisible}
           link={link}
+          onClose={() => setIsVisible(false)}
         />
       </div>
     </div>

@@ -2,7 +2,7 @@ export class Events {
   static intendHover<Element extends HTMLElement>(
     validate: (node: EventTarget) => boolean,
     mouseover: (ev: HTMLElementEventMap['mouseover']) => void,
-    mouseleave: (ev: HTMLElementEventMap['mouseleave']) => void,
+    mouseleave?: (ev: HTMLElementEventMap['mouseleave']) => void,
     timeout = 500
   ) {
     let hover = false;
@@ -17,7 +17,7 @@ export class Events {
       element.addEventListener(
         'mouseleave',
         (ev) => {
-          mouseleave.call(element, ev);
+          mouseleave?.call(element, ev);
           clearTimeout(id);
           hover = false;
         },

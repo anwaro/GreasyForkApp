@@ -32,21 +32,21 @@ export function AssigneesField({ projectPath, setValue, value }: Props) {
   const renderOption = useCallback((item: User) => {
     return (
       <span class={'gl-new-dropdown-item-text-wrapper'}>
-        <GitlabUser showUsername user={item} />
+        <GitlabUser user={item} showUsername />
       </span>
     );
   }, []);
 
   return (
     <AsyncAutocomplete
-      isMultiselect
-      onChange={setValue}
-      renderOption={renderOption}
       getValues={getUsers}
       isDisabled={!projectPath}
       name={'assignees'}
+      onChange={setValue}
       renderLabel={renderLabel}
+      renderOption={renderOption}
       value={value}
+      isMultiselect
     />
   );
 }

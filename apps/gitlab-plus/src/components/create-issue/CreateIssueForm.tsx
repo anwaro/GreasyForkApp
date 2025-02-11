@@ -101,8 +101,8 @@ export function CreateIssueForm({ isVisible, link, onClose }: Props) {
       <FormField error={error} hint={message} title={''}>
         <FormRow>
           <ButtonField
-            isLoading={isLoading}
             create={actions.submit}
+            isLoading={isLoading}
             reset={actions.reset}
           />
         </FormRow>

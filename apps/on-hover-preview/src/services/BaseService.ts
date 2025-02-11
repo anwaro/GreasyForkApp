@@ -1,7 +1,7 @@
 type ServiceStyle = {
   width: string;
   height: string;
-} & Record<string, string | number>;
+} & Record<string, number | string>;
 
 export abstract class BaseService {
   abstract styles: ServiceStyle;
@@ -9,8 +9,6 @@ export abstract class BaseService {
   abstract embeddedVideoUrl(
     element: HTMLAnchorElement
   ): Promise<string | undefined>;
-
-  abstract isValidUrl(url: string): boolean;
 
   extractId(url: string, match: RegExp): string {
     const result = url.match(match);
@@ -21,6 +19,8 @@ export abstract class BaseService {
 
     return '';
   }
+
+  abstract isValidUrl(url: string): boolean;
 
   match<T extends Record<string, string>>(
     url: string,
@@ -35,7 +35,7 @@ export abstract class BaseService {
     return undefined;
   }
 
-  params(params: Record<string, string | number>) {
+  params(params: Record<string, number | string>) {
     return Object.entries(params)
       .map(([key, value]) => `${key}=${value}`)
       .join('&');

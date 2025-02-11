@@ -236,8 +236,8 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
                 labels: issue.data.project.issue.labels.nodes,
               });
             }
-          } catch (_e) {
-            // pass
+          } catch (e) {
+            console.error(e);
           }
 
           setCopyLabelsLoading(false);

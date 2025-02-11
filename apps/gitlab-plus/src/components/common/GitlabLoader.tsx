@@ -4,13 +4,13 @@ type Props = {
 
 export function GitlabLoader({ size = 24 }: Props) {
   return (
-    <span role={'status'} class={'gl-spinner-container'}>
+    <span class={'gl-spinner-container'} role={'status'}>
       <span
+        class={'gl-spinner gl-spinner-sm gl-spinner-dark !gl-align-text-bottom'}
         style={{
           width: size,
           height: size,
         }}
-        class={'gl-spinner gl-spinner-sm gl-spinner-dark !gl-align-text-bottom'}
       />
     </span>
   );

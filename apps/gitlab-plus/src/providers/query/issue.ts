@@ -20,6 +20,10 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
         dueDate
         __typename
       }
+      epic {
+        iid
+        title
+      }
       iteration {
         id
         title
@@ -52,6 +56,9 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
         nodes {
           ...User
         }
+      }
+      author {
+        ...User
       }
       weight
       type
@@ -246,5 +253,26 @@ mutation projectIssueUpdateParent($input: WorkItemUpdateInput!) {
     errors
   }
 }
+`;
 
+export const issueSetLabelsMutation = `
+mutation issueSetLabels($input: UpdateIssueInput!) {
+  updateIssuableLabels: updateIssue(input: $input) {
+    issuable: issue {
+      id
+      labels {
+        nodes {
+          ...Label
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    errors
+    __typename
+  }
+}
+
+${labelFragment}
 `;

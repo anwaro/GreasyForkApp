@@ -5,8 +5,8 @@
   background-color: var(--gl-background-color-default, var(--gl-color-neutral-0, #fff));
   border: 1px solid var(--gl-border-color-default);
   border-radius: .25rem;
-  width: 300px;
-  min-height: 300px;
+  width: 350px;
+  min-height: 200px;
   z-index: 99999;
   visibility: hidden;
   top: 0;
@@ -33,11 +33,6 @@
   border-bottom-color: var(--gl-border-color-subtle, var(--gl-color-neutral-50, #ececef));
   border-bottom-width: 1px;
   width: 100%;
-}
-
-.glp-issue-preview-modal .assignee-grid {
-  margin-top: 4px;
-  gap: 4px
 }
 
 

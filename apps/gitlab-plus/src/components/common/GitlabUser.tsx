@@ -1,19 +1,30 @@
 import { useMemo } from 'preact/hooks';
 
+import { clsx } from '@utils/clsx';
+
 import { User } from '../../types/User';
 
 type Props = {
   showUsername?: boolean;
   size?: 16 | 24 | 32;
+  smallText?: boolean;
   user: User;
   withLink?: boolean;
 };
 
-export function GitlabUser({ showUsername, size = 24, user, withLink }: Props) {
+export function GitlabUser({
+  showUsername,
+  size = 24,
+  smallText,
+  user,
+  withLink,
+}: Props) {
   const label = useMemo(() => {
     return (
       <>
-        <span class={'gl-mr-2 gl-block'}>{user.name}</span>
+        <span class={clsx('gl-mr-2 gl-block', smallText && '!gl-text-sm')}>
+          {user.name}
+        </span>
         {showUsername && (
           <span class={'gl-block gl-text-secondary !gl-text-sm'}>
             {user.username}
@@ -21,19 +32,27 @@ export function GitlabUser({ showUsername, size = 24, user, withLink }: Props) {
         )}
       </>
     );
-  }, [withLink, showUsername, user]);
+  }, [smallText, showUsername, user]);
+
+  const iconClsx = [
+    `gl-avatar gl-avatar-s${size}`,
+    smallText ? 'gl-mr-1' : 'gl-mr-3',
+  ];
 
   return (
-    <div class={'gl-flex gl-w-full gl-items-center'}>
+    <div class={'gl-flex gl-items-center'}>
       {user.avatarUrl ? (
         <img
           alt={`${user.name}'s avatar`}
-          class={`gl-mr-3 gl-avatar gl-avatar-circle gl-avatar-s${size}`}
+          class={clsx(...iconClsx, `gl-avatar-circle`)}
           src={user.avatarUrl}
         />
       ) : (
         <div
-          class={`gl-mr-3 gl-avatar gl-avatar-identicon gl-avatar-s${size} gl-avatar-identicon-bg1`}
+          class={clsx(
+            ...iconClsx,
+            `gl-avatar-identicon gl-avatar-identicon-bg1`
+          )}
         >
           {user.name[0].toUpperCase()}
         </div>

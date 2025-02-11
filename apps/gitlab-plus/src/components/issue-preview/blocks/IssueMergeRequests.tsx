@@ -1,6 +1,6 @@
 import { Issue } from '../../../types/Issue';
+import { InfoBlock } from '../../common/bolck/InfoBlock';
 import { GitlabMergeRequest } from '../../common/GitlabMergeRequest';
-import { IssueBlock } from './IssueBlock';
 
 type Props = {
   issue: Issue;
@@ -12,10 +12,10 @@ export function IssueMergeRequests({ issue }: Props) {
   }
 
   return (
-    <IssueBlock tile={'Merge requests'}>
+    <InfoBlock title={'Merge requests'}>
       {issue.relatedMergeRequests.nodes.map((mr) => (
         <GitlabMergeRequest key={mr.iid} mr={mr} />
       ))}
-    </IssueBlock>
+    </InfoBlock>
   );
 }

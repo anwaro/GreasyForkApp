@@ -14,7 +14,7 @@ export function ImagePreviewModal() {
       )}
     >
       <img alt={'Image preview'} className={'glp-modal-img'} src={src} />
-      <div onClick={onClose} className={'glp-modal-close'}>
+      <div className={'glp-modal-close'} onClick={onClose}>
         <GitlabIcon icon={'close-xs'} size={24} />
       </div>
     </div>

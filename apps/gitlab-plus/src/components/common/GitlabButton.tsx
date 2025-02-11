@@ -46,8 +46,8 @@ export function GitlabButton({
 
   return (
     <button
-      onClick={onClick}
       class={clsx('btn btn-sm gl-button', buttonVariantClass[variant])}
+      onClick={onClick}
       title={title}
       type={'button'}
     >

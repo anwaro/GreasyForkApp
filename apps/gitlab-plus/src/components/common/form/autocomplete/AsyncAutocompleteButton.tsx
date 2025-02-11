@@ -33,6 +33,8 @@ export function AsyncAutocompleteButton<D extends OptionItem>({
 
   return (
     <button
+      ref={ref}
+      type={'button'}
       class={
         'btn btn-default btn-md btn-block gl-button gl-new-dropdown-toggle'
       }
@@ -40,8 +42,6 @@ export function AsyncAutocompleteButton<D extends OptionItem>({
         e.preventDefault();
         setIsOpen(true);
       }}
-      ref={ref}
-      type={'button'}
     >
       <span class={'gl-button-text gl-w-full'}>
         <span class={'gl-new-dropdown-button-text'}>{renderLabel(value)}</span>

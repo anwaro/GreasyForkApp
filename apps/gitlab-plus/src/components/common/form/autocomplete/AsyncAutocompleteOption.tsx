@@ -29,28 +29,28 @@ export function AsyncAutocompleteOption<D extends OptionItem>({
 
   return (
     <li
+      onClick={() => onClick(option)}
       class={clsx(
         'gl-new-dropdown-item',
         selectedClass(option.id),
         isActive && 'glp-active'
       )}
-      onClick={() => onClick(option)}
     >
       <span class={'gl-new-dropdown-item-content'}>
         <GitlabIcon
-          icon={'mobile-issue-close'}
           className={'glp-item-check gl-pr-2'}
+          icon={'mobile-issue-close'}
           size={16}
         />
         {renderOption(option)}
         {removeFromRecent && (
           <CloseButton
+            title={'Remove from recently used'}
             onClick={(e: Event) => {
               e.preventDefault();
               e.stopPropagation();
               removeFromRecent(option);
             }}
-            title={'Remove from recently used'}
           />
         )}
       </span>

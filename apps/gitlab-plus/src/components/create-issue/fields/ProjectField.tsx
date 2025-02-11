@@ -39,11 +39,11 @@ export function ProjectField({ link, setValue, value }: Props) {
 
   return (
     <AsyncAutocomplete
-      onChange={setValue}
-      renderOption={renderOption}
       getValues={getProjects}
       name={'projects'}
+      onChange={setValue}
       renderLabel={renderLabel}
+      renderOption={renderOption}
       value={value}
     />
   );

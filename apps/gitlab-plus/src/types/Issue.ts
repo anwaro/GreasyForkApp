@@ -30,6 +30,14 @@ export type IssueSetEpicInput = {
   };
 };
 
+export type IssueSetLabelsInput = {
+  input: {
+    iid: string;
+    labelIds: string[];
+    projectPath: string;
+  };
+};
+
 export type CreateIssueLinkInput = {
   targetIssueIid: string;
   issueId: number | string;
@@ -111,10 +119,12 @@ export interface Issue {
   id: string;
   iid: string;
   assignees: Nodes<User>;
+  author: User;
   confidential: boolean;
   createdAt: string;
   description: string;
   dueDate: null | string;
+  epic: IssueEpic | null;
   iteration: Iteration | null;
   labels: Nodes<Label>;
   milestone: Milestone | null;
@@ -132,6 +142,11 @@ export interface Milestone {
   startDate: string;
   title: string;
   __typename: string;
+}
+
+export interface IssueEpic {
+  iid: string;
+  title: string;
 }
 
 export interface MergeRequest {

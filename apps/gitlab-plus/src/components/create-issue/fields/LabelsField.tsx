@@ -61,23 +61,23 @@ export function LabelField({
         {value.map((label) => (
           <GitlabLabel
             key={label.id}
+            label={label}
             onRemove={() =>
               setValue(value.filter((item) => label.id !== item.id))
             }
-            label={label}
           />
         ))}
       </div>
       <div className={'gl-flex gl-gap-1 gl-relative gl-pr-7'}>
         <AsyncAutocomplete
-          isMultiselect
-          onChange={setValue}
-          renderOption={renderOption}
           getValues={getLabels}
           isDisabled={!projectPath}
           name={'labels'}
+          onChange={setValue}
           renderLabel={renderLabel}
+          renderOption={renderOption}
           value={value}
+          isMultiselect
         />
         <div className={'gl-flex gl-absolute gl-h-full gl-right-0'}>
           <GitlabButton

@@ -1,4 +1,5 @@
 declare global {
+  // eslint-disable-next-line no-var
   var GM_registerMenuCommand: (
     label: string,
     callback: (event: MouseEvent) => void,
@@ -8,8 +9,11 @@ declare global {
       tile?: string;
     }
   ) => void;
+  // eslint-disable-next-line no-var
   var GM_unregisterMenuCommand: (id: string) => void;
+  // eslint-disable-next-line no-var
   var GM_setValue: (key: string, value: unknown) => void;
+  // eslint-disable-next-line no-var
   var GM_getValue: <T, D>(key: string, defaultValue: D) => D | T;
 }
 

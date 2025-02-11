@@ -4,6 +4,7 @@ import {
   CreateIssueResponse,
   IssueResponse,
   IssueSetEpicInput,
+  IssueSetLabelsInput,
   IssuesResponse,
   RelatedIssue,
 } from '../types/Issue';
@@ -12,6 +13,7 @@ import {
   issueMutation,
   issueQuery,
   issueSetEpicMutation,
+  issueSetLabelsMutation,
   issuesQuery,
 } from './query/issue';
 
@@ -52,7 +54,7 @@ export class IssueProvider extends GitlabProvider {
 
   async getIssueLinks(projectId: string, issueId: string) {
     const path = 'projects/:PROJECT_ID/issues/:ISSUE_ID/links'
-      .replace(':PROJECT_ID', `${projectId}`)
+      .replace(':PROJECT_ID', projectId.replaceAll('/', '%2F'))
       .replace(':ISSUE_ID', `${issueId}`);
 
     return await this.getCached<RelatedIssue[]>(
@@ -88,5 +90,11 @@ export class IssueProvider extends GitlabProvider {
         id: issueId,
       },
     } satisfies IssueSetEpicInput);
+  }
+
+  async issueSetLabels(input: IssueSetLabelsInput['input']) {
+    return await this.query(issueSetLabelsMutation, {
+      input,
+    } satisfies IssueSetLabelsInput);
   }
 }

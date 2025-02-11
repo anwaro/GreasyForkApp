@@ -39,14 +39,15 @@ export function AsyncAutocompleteDropdown<D extends OptionItem>({
 
   return (
     <div
+      class={clsx('gl-new-dropdown-panel gl-absolute !gl-block')}
+      onClick={(e) => e.stopPropagation()}
       style={{
         maxWidth: '800px',
         width: '100%',
-        left: '0',
+        left: 'auto',
+        right: '0',
         top: '100%',
       }}
-      onClick={(e) => e.stopPropagation()}
-      class={clsx('gl-new-dropdown-panel gl-absolute !gl-block')}
     >
       <div class={'gl-new-dropdown-inner'}>
         <AsyncAutocompleteSearch
@@ -55,12 +56,12 @@ export function AsyncAutocompleteDropdown<D extends OptionItem>({
           value={searchTerm}
         />
         <AsyncAutocompleteList
+          activeIndex={activeIndex}
           onClick={onClick}
           options={options}
+          recently={recently}
           removeRecently={removeRecently}
           renderOption={renderOption}
-          activeIndex={activeIndex}
-          recently={recently}
           value={value}
         />
       </div>

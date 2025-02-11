@@ -1,8 +1,9 @@
 import { useMemo } from 'preact/hooks';
 
 import { Issue } from '../../../types/Issue';
+import { Row } from '../../common/base/Row';
+import { InfoBlock } from '../../common/bolck/InfoBlock';
 import { GitlabIcon } from '../../common/GitlabIcon';
-import { IssueBlock } from './IssueBlock';
 
 type Props = {
   issue: Issue;
@@ -35,9 +36,14 @@ export function IssueIteration({ issue }: Props) {
   }
 
   return (
-    <IssueBlock tile={'Iteration'}>
-      <GitlabIcon icon={'iteration'} className={'gl-mr-2'} size={16} />
-      <span>{label}</span>
-    </IssueBlock>
+    <InfoBlock
+      title={'Iteration'}
+      rightTitle={
+        <Row>
+          <GitlabIcon className={'gl-mr-2'} icon={'iteration'} size={16} />
+          <span>{label}</span>
+        </Row>
+      }
+    />
   );
 }

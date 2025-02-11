@@ -2,21 +2,24 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 
 import { Events } from '@ui/Events';
 
-import { GitlabIssueLink, LinkParser } from '../../helpers/LinkParser';
+import { Position } from './PreviewModal';
 
-export type Position = {
-  x: number;
-  y: number;
-};
+export type LinkParserFunction<LinkType> = (
+  link: string
+) => LinkType | undefined;
+export type LinkValidatorFunction = (link?: string) => boolean;
 
-export function useOnIssueHover() {
-  const [hoverLink, setHoverLink] = useState<GitlabIssueLink | undefined>();
-  const hoverIssueRef = useRef(false);
+export function useOnLinkHover<LinkType>(
+  parser: LinkParserFunction<LinkType>,
+  validator: LinkValidatorFunction
+) {
   const [hoverPosition, setHoverPosition] = useState<Position>({ x: 0, y: 0 });
+  const [hoverLink, setHoverLink] = useState<LinkType | undefined>();
+  const hoverLinkRef = useRef(false);
 
   const onHover = (event: HTMLElementEventMap['mouseenter']) => {
     const anchor = event.target as HTMLAnchorElement;
-    const link = LinkParser.parseIssueLink(anchor.href);
+    const link = parser(anchor.href);
     if (!link) {
       return;
     }
@@ -30,12 +33,11 @@ export function useOnIssueHover() {
 
   useEffect(() => {
     Events.intendHover<HTMLAnchorElement>(
-      (element) =>
-        LinkParser.validateIssueLink((element as HTMLAnchorElement).href),
+      (element) => validator((element as HTMLAnchorElement).href),
       onHover,
       () => {
         setTimeout(() => {
-          if (!hoverIssueRef.current) {
+          if (!hoverLinkRef.current) {
             setHoverLink(undefined);
           }
         }, 50);
@@ -46,9 +48,9 @@ export function useOnIssueHover() {
   return {
     hoverLink,
     hoverPosition,
-    onIssueEnter: () => (hoverIssueRef.current = true),
-    onIssueLeave: () => {
-      hoverIssueRef.current = false;
+    onLinkEnter: () => (hoverLinkRef.current = true),
+    onLinkLeave: () => {
+      hoverLinkRef.current = false;
       setHoverLink(undefined);
     },
   };

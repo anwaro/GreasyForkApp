@@ -43,11 +43,11 @@ export function GitlabLabel({ label, onRemove }: Props) {
       </span>
       {onRemove && (
         <button
+          onClick={onRemove}
+          type={'button'}
           class={
             'btn gl-label-close !gl-p-0 btn-reset btn-sm gl-button btn-reset-tertiary'
           }
-          onClick={onRemove}
-          type={'button'}
         >
           <span class={'gl-button-text'}>
             <GitlabIcon icon={'close-xs'} />

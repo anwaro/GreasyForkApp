@@ -9,13 +9,13 @@ type Props = {
 export function TitleField({ error, onChange, value }: Props) {
   return (
     <input
+      onInput={(e) => onChange((e.target as HTMLInputElement).value)}
+      placeholder={'Add a title'}
+      value={value}
       class={clsx(
         'gl-form-input form-control',
         error && 'gl-field-error-outline'
       )}
-      onInput={(e) => onChange((e.target as HTMLInputElement).value)}
-      placeholder={'Add a title'}
-      value={value}
     />
   );
 }

@@ -1,6 +1,7 @@
 import { Issue } from '../../../types/Issue';
+import { Row } from '../../common/base/Row';
+import { InfoBlock } from '../../common/bolck/InfoBlock';
 import { GitlabIcon } from '../../common/GitlabIcon';
-import { IssueBlock } from './IssueBlock';
 
 type Props = {
   issue: Issue;
@@ -12,9 +13,14 @@ export function IssueMilestone({ issue }: Props) {
   }
 
   return (
-    <IssueBlock tile={'Milestone'}>
-      <GitlabIcon icon={'milestone'} className={'gl-mr-2'} size={16} />
-      <span>{issue.milestone.title}</span>
-    </IssueBlock>
+    <InfoBlock
+      title={'Milestone'}
+      rightTitle={
+        <Row>
+          <GitlabIcon className={'gl-mr-2'} icon={'milestone'} size={16} />
+          <span>{issue.milestone.title}</span>
+        </Row>
+      }
+    />
   );
 }

@@ -1,13 +1,9 @@
 import { MergeRequest } from '../../types/Issue';
-import { GitlabIcon, GitlabIconNames } from './GitlabIcon';
+import { Link } from './base/Link';
+import { Row } from './base/Row';
+import { Text } from './base/Text';
 import { GitlabUser } from './GitlabUser';
-
-const iconMap: Record<MergeRequest['state'], GitlabIconNames> = {
-  closed: 'merge-request-close',
-  locked: 'search',
-  merged: 'merge',
-  opened: 'merge-request',
-};
+import { MrStatus } from './MrStatus';
 
 type Props = {
   mr: MergeRequest;
@@ -16,25 +12,12 @@ type Props = {
 export function GitlabMergeRequest({ mr }: Props) {
   return (
     <div style={{ marginTop: 10 }}>
-      <div class={'item-title gl-flex gl-min-w-0 gl-gap-3'}>
-        <GitlabIcon
-          icon={iconMap[mr.state] || ''}
-          className={'merge-request-status'}
-          size={16}
-        />
-        <span class={'gl-text-gray-500'}>!{mr.iid}</span>
-        <GitlabUser withLink size={16} user={mr.author} />
-      </div>
-      <a
-        style={{
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-        class={'gl-block gl-link sortable-link'}
-        href={mr.webUrl}
-      >
-        {mr.title}
-      </a>
+      <Row gap={2}>
+        <MrStatus state={mr.state} withIcon withLabel />
+        <Text variant={'secondary'}>!{mr.iid}</Text>
+        <GitlabUser size={16} user={mr.author} withLink />
+      </Row>
+      <Link href={mr.webUrl}>{mr.title}</Link>
     </div>
   );
 }

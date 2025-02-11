@@ -66,44 +66,32 @@ fragment WorkItem on WorkItem {
 
 fragment WorkItemWidgets on WorkItemWidget {
   type
-  ... on WorkItemWidgetDescription {
-    description
-    descriptionHtml
-    lastEditedAt
-    lastEditedBy {
-      name
-      webPath
-      __typename
-    }
-    taskCompletionStatus {
-      completedCount
+    ... on WorkItemWidgetHierarchy {
+    hasChildren
+    children(first: 100) {
       count
-      __typename
+      nodes {
+        id
+        iid
+        title
+        state
+        webUrl
+      }
     }
-    __typename
   }
   ... on WorkItemWidgetAssignees {
-    allowsMultipleAssignees
-    canInviteMembers
     assignees {
       nodes {
         ...User
-        __typename
       }
-      __typename
     }
-    __typename
   }
   ... on WorkItemWidgetLabels {
-    allowsScopedLabels
     labels {
       nodes {
         ...Label
-        __typename
       }
-      __typename
     }
-    __typename
   }
   ... on WorkItemWidgetStartAndDueDate {
     dueDate
@@ -112,66 +100,9 @@ fragment WorkItemWidgets on WorkItemWidget {
     isFixed
     __typename
   }
-  ... on WorkItemWidgetTimeTracking {
-    timeEstimate
-    timelogs {
-      nodes {
-        ...TimelogFragment
-        __typename
-      }
-      __typename
-    }
-    totalTimeSpent
-    __typename
-  }
-  ... on WorkItemWidgetWeight {
-    weight
-    rolledUpWeight
-    rolledUpCompletedWeight
-    widgetDefinition {
-      editable
-      rollUp
-      __typename
-    }
-    __typename
-  }
   ... on WorkItemWidgetProgress {
     progress
     updatedAt
-    __typename
-  }
-  ... on WorkItemWidgetHierarchy {
-    hasChildren
-    hasParent
-    rolledUpCountsByType {
-      countsByState {
-        opened
-        all
-        closed
-        __typename
-      }
-      workItemType {
-        id
-        name
-        iconName
-        __typename
-      }
-      __typename
-    }
-    parent {
-      id
-      iid
-      title
-      confidential
-      webUrl
-      workItemType {
-        id
-        name
-        iconName
-        __typename
-      }
-      __typename
-    }
     __typename
   }
   ... on WorkItemWidgetIteration {
@@ -184,7 +115,6 @@ fragment WorkItemWidgets on WorkItemWidget {
       iterationCadence {
         id
         title
-        __typename
       }
       __typename
     }
@@ -286,28 +216,6 @@ fragment MilestoneFragment on Milestone {
   __typename
 }
 
-fragment TimelogFragment on WorkItemTimelog {
-  __typename
-  id
-  timeSpent
-  user {
-    id
-    name
-    __typename
-  }
-  spentAt
-  note {
-    id
-    body
-    __typename
-  }
-  summary
-  userPermissions {
-    adminTimelog
-    __typename
-  }
-}
-
 fragment Author on User {
   id
   avatarUrl
@@ -317,5 +225,6 @@ fragment Author on User {
   webPath
   __typename
 }
+
 ${labelFragment}
 `;

@@ -12,16 +12,16 @@ export function AsyncAutocompleteSearch({ navigate, setValue, value }: Props) {
     <div class={'gl-border-b-1 gl-border-b-solid gl-border-b-dropdown'}>
       <div class={'gl-listbox-search gl-listbox-topmost'}>
         <GitlabIcon
-          icon={'search'}
           className={'gl-search-box-by-type-search-icon'}
+          icon={'search'}
           size={16}
         />
         <input
-          autofocus
+          class={'gl-listbox-search-input'}
           onInput={(e) => setValue((e.target as HTMLInputElement).value)}
           onKeyDown={(e) => navigate(e.key)}
-          class={'gl-listbox-search-input'}
           value={value}
+          autofocus
         />
         {Boolean(value) && (
           <div class={'gl-search-box-by-type-right-icons'} style={{ top: '0' }}>

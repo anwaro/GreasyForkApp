@@ -9,7 +9,9 @@ export class EpicProvider extends GitlabProvider {
       epicQuery,
       {
         iid: epicId,
+        cursor: '',
         fullPath: workspacePath,
+        pageSize: 50,
       },
       2
     );

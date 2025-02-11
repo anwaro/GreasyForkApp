@@ -58,9 +58,9 @@ export function AsyncAutocomplete<D extends OptionItem>({
           onClick={onClick}
           onClose={() => setIsOpen(false)}
           options={options}
+          recently={recently}
           removeRecently={removeRecently}
           renderOption={renderOption}
-          recently={recently}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           value={value}

@@ -1,4 +1,5 @@
 declare global {
+  // eslint-disable-next-line no-var
   var onurlchange: null | undefined | VoidFunction;
 }
 
