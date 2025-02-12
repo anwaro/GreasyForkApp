@@ -1,11 +1,12 @@
 import { ComponentChild } from 'preact';
 
+import { clsx } from '@utils/clsx';
+
 import { User } from '../../../types/User';
 import { Row } from '../base/Row';
 import { Text } from '../base/Text';
 import { GitlabIcon, GitlabIconNames } from '../GitlabIcon';
 import { GitlabUser } from '../GitlabUser';
-import { InfoBlock } from './InfoBlock';
 
 type Props = {
   author: User;
@@ -13,6 +14,7 @@ type Props = {
   createdAt: string;
   entityId: string;
   icon: GitlabIconNames;
+  onRefresh?: () => void;
   title: string;
 };
 
@@ -22,32 +24,51 @@ export function HeadingBlock({
   createdAt,
   entityId,
   icon,
+  onRefresh,
   title,
 }: Props) {
   return (
-    <>
-      <Row className={'-gl-mb-2 gl-mt-4'} items={'center'} justify={'between'}>
-        {badge}
-        <Text size={'sm'} variant={'secondary'}>
-          created at {new Date(createdAt).toLocaleDateString()}
-        </Text>
+    <div className={'glp-block gl-relative'}>
+      <Row className={''} items={'center'} justify={'between'}>
+        <span
+          dangerouslySetInnerHTML={{ __html: title }}
+          className={clsx(
+            'gl-font-bold gl-leading-20 gl-text-gray-900',
+            onRefresh && 'gl-pr-5'
+          )}
+        />
+        {onRefresh && (
+          <div
+            onClick={onRefresh}
+            className={
+              'gl-absolute gl-right-0 gl-top-0 gl-p-2 gl-cursor-pointer'
+            }
+          >
+            <GitlabIcon icon={'repeat'} />
+          </div>
+        )}
       </Row>
-      <InfoBlock title={title}>
-        <Row className={'gl-mt-1'} items={'center'} justify={'between'}>
-          <Row items={'center'}>
-            <GitlabIcon icon={icon} size={16} />
-            <Text className={'gl-ml-2'} size={'sm'} variant={'secondary'}>
-              {entityId}
-            </Text>
-          </Row>
-          <Row items={'center'}>
-            <Text className={'gl-mr-2'} size={'sm'} variant={'secondary'}>
-              created by
-            </Text>
-            <GitlabUser size={16} user={author} smallText withLink />
-          </Row>
+      <Row className={'gl-mt-2'} gap={2} items={'center'}>
+        <Row gap={2} items={'center'}>
+          <GitlabIcon icon={icon} size={16} />
+          <Text className={'gl-ml-2'} size={'sm'} variant={'secondary'}>
+            {entityId}
+          </Text>
         </Row>
-      </InfoBlock>
-    </>
+        {badge}
+      </Row>
+      <Row className={'gl-mt-1'} gap={2} items={'center'}>
+        <Text size={'sm'} variant={'secondary'}>
+          Created at
+        </Text>
+        <Text size={'sm'} weight={'bold'}>
+          {new Date(createdAt).toLocaleDateString()}
+        </Text>
+        <Text size={'sm'} variant={'secondary'}>
+          by
+        </Text>
+        <GitlabUser size={16} user={author} smallText withLink />
+      </Row>
+    </div>
   );
 }

@@ -6,5 +6,11 @@ type Props = {
 };
 
 export function IssueAssignee({ issue }: Props) {
-  return <UsersBlock assignees={issue.assignees.nodes} label={'Assignee'} />;
+  return (
+    <UsersBlock
+      assignees={issue.assignees.nodes}
+      icon={'assignee'}
+      label={'Assignee'}
+    />
+  );
 }

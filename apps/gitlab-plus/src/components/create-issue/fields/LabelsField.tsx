@@ -26,7 +26,7 @@ export function LabelField({
       if (!projectPath) {
         return [];
       }
-      const response = await new LabelsProvider().getLabels(
+      const response = await new LabelsProvider().getProjectLabels(
         projectPath,
         search
       );

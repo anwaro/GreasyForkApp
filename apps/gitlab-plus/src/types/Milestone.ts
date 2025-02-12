@@ -1,6 +1,8 @@
-import { ApiResponse, Nodes } from './response';
+import { ApiResponseWorkspace, Nodes } from './response';
 
-export type MilestonesResponse = ApiResponse<{ attributes: Nodes<Milestone> }>;
+export type MilestonesResponse = ApiResponseWorkspace<{
+  attributes: Nodes<Milestone>;
+}>;
 
 export interface Milestone {
   id: string;

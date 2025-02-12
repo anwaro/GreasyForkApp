@@ -8,7 +8,7 @@ type Props = {
 
 export function MrBranch({ mr }: Props) {
   return (
-    <InfoBlock title={'Merge'}>
+    <InfoBlock icon={'branch'} title={'Merge'}>
       <span>
         <Text>{mr.sourceBranch}</Text>
         <Text className={'gl-mx-2'} variant={'secondary'}>

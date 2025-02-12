@@ -17,7 +17,9 @@ export function GitlabMergeRequest({ mr }: Props) {
         <Text variant={'secondary'}>!{mr.iid}</Text>
         <GitlabUser size={16} user={mr.author} withLink />
       </Row>
-      <Link href={mr.webUrl}>{mr.title}</Link>
+      <Link href={mr.webUrl} title={mr.title}>
+        {mr.title}
+      </Link>
     </div>
   );
 }

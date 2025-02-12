@@ -1,6 +1,6 @@
-import { EpicResponse } from '../types/Epic';
+import { EpicResponse, EpicSetLabelsInput } from '../types/Epic';
 import { GitlabProvider } from './GitlabProvider';
-import { epicQuery } from './query/epic';
+import { epicQuery, epicSetLabelsMutation } from './query/epic';
 
 export class EpicProvider extends GitlabProvider {
   async getEpic(workspacePath: string, epicId: string) {
@@ -15,5 +15,21 @@ export class EpicProvider extends GitlabProvider {
       },
       2
     );
+  }
+
+  async updateEpicLabels(
+    id: string,
+    addLabelIds: string[],
+    removeLabelIds: string[]
+  ) {
+    return await this.query(epicSetLabelsMutation, {
+      input: {
+        id,
+        labelsWidget: {
+          addLabelIds,
+          removeLabelIds,
+        },
+      },
+    } satisfies EpicSetLabelsInput);
   }
 }

@@ -1,33 +1,17 @@
-import { useMemo } from 'preact/hooks';
-
-import { Epic, LabelWidget } from '../../../types/Epic';
-import { InfoBlock } from '../../common/bolck/InfoBlock';
-import { GitlabLabel } from '../../common/GitlabLabel';
+import { Epic } from '../../../types/Epic';
+import { LabelsBlock } from '../../common/bolck/LabelsBlock';
+import { useEpicLabels } from './useEpicLabels';
 
 type Props = {
   epic: Epic;
+  refresh: () => Promise<void>;
 };
 
-export function EpicLabels({ epic }: Props) {
-  const labels = useMemo(() => {
-    const labelWidget = epic.widgets.find(
-      (widget): widget is LabelWidget => widget.type === 'LABELS'
-    );
-    if (labelWidget) {
-      return labelWidget.labels.nodes;
-    }
-    return [];
-  }, [epic]);
-
+export function EpicLabels({ epic, refresh }: Props) {
+  const { labels, updateStatus } = useEpicLabels(epic, refresh);
   if (!labels.length) {
     return null;
   }
 
-  return (
-    <InfoBlock className={'issuable-show-labels'} title={'Labels'}>
-      {labels.map((label) => (
-        <GitlabLabel key={label.id} label={label} />
-      ))}
-    </InfoBlock>
-  );
+  return <LabelsBlock labels={labels} updateStatus={updateStatus} />;
 }

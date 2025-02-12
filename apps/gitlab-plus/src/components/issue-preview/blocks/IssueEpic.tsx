@@ -1,6 +1,6 @@
 import { Issue } from '../../../types/Issue';
+import { Link } from '../../common/base/Link';
 import { InfoBlock } from '../../common/bolck/InfoBlock';
-import { GitlabIcon } from '../../common/GitlabIcon';
 
 type Props = {
   issue: Issue;
@@ -12,9 +12,10 @@ export function IssueEpic({ issue }: Props) {
   }
 
   return (
-    <InfoBlock title={'Epic'}>
-      <GitlabIcon className={'gl-mr-2'} icon={'epic'} size={16} />
-      <span>{issue.epic.title}</span>
+    <InfoBlock icon={'epic'} title={'Epic'}>
+      <Link href={issue.epic.webUrl} title={issue.epic.title}>
+        {issue.epic.title}
+      </Link>
     </InfoBlock>
   );
 }

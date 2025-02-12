@@ -1,8 +1,8 @@
 import { Label } from './Label';
-import { ApiResponse } from './response';
+import { ApiResponseWorkspace } from './response';
 import { User } from './User';
 
-export type MrResponse = ApiResponse<{ mergeRequest: MergeRequest }>;
+export type MrResponse = ApiResponseWorkspace<{ mergeRequest: MergeRequest }>;
 
 export interface MergeRequest {
   id: string;

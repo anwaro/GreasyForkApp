@@ -4,6 +4,7 @@ import type { ComponentChild } from 'preact';
 
 import { clsx } from '@utils/clsx';
 
+import { Row } from './base/Row';
 import { GitlabLoader } from './GitlabLoader';
 import {
   LinkParserFunction,
@@ -23,6 +24,7 @@ type Props<LinkType> = {
   fetch: FetchFunction<LinkType>;
   isError?: boolean;
   isLoading?: boolean;
+  isRefreshing?: boolean;
   parser: LinkParserFunction<LinkType>;
   reset: () => void;
 };
@@ -33,10 +35,11 @@ export function PreviewModal<LinkType>({
   fetch,
   isError,
   isLoading = false,
+  isRefreshing = false,
   parser,
   reset,
 }: Props<LinkType>) {
-  const { hoverLink, hoverPosition, onLinkEnter, onLinkLeave } =
+  const { hoverLink, hoverPosition, onLinkEnter, onLinkLeave, zIndex } =
     useOnLinkHover<LinkType>(parser, validator);
   const { isVisible, offset, ref } = usePreviewModal<LinkType>(
     hoverLink,
@@ -48,20 +51,33 @@ export function PreviewModal<LinkType>({
   const content = useMemo(() => {
     if (isLoading || !isVisible) {
       return (
-        <div class={'gl-flex gl-flex-1 gl-items-center gl-justify-center'}>
+        <Row className={'gl-flex-1'} items={'center'} justify={'center'}>
           <GitlabLoader size={'3em'} />
-        </div>
+        </Row>
       );
     }
     if (isError) {
       return (
-        <div class={'gl-flex gl-flex-1 gl-items-center gl-justify-center'}>
-          <span>Error</span>
-        </div>
+        <Row className={'gl-flex-1'} items={'center'} justify={'center'}>
+          Error
+        </Row>
       );
     }
-    return <div className={'gl-flex gl-w-full gl-flex-col'}>{children}</div>;
-  }, [isLoading, isError, isVisible, children]);
+    return (
+      <div className={'gl-flex gl-w-full gl-flex-col'}>
+        {children}
+        {isRefreshing && (
+          <Row
+            className={'gl-h-full gl-w-full gl-absolute gl-bg-overlay'}
+            items={'center'}
+            justify={'center'}
+          >
+            <GitlabLoader size={'3em'} />
+          </Row>
+        )}
+      </div>
+    );
+  }, [isLoading, isRefreshing, isError, isVisible, children]);
 
   return (
     <div
@@ -76,6 +92,7 @@ export function PreviewModal<LinkType>({
         left: hoverPosition.x,
         top: hoverPosition.y,
         transform: `translate(-${offset.x}px, -${offset.y}px )`,
+        zIndex,
       }}
     >
       {content}

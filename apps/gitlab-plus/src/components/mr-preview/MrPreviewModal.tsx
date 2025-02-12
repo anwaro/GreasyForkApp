@@ -10,26 +10,30 @@ import { MrLabels } from './blocks/MrLabels';
 import { useFetchMr } from './useFetchMr';
 
 export function MrPreviewModal() {
-  const { fetch, mr, reset } = useFetchMr();
+  const { entityData, fetch, isLoading, isRefreshing, reset } = useFetchMr();
 
   return (
     <PreviewModal<GitlabMrLink>
       validator={LinkParser.validateMrLink}
       fetch={fetch}
-      isError={!mr}
-      isLoading={mr.isLoading}
+      isError={!entityData}
+      isLoading={isLoading}
+      isRefreshing={isRefreshing}
       parser={LinkParser.parseMrLink}
       reset={reset}
     >
-      {mr.mr && (
+      {entityData && (
         <>
-          <MrHeader mr={mr.mr} />
-          <MrBranch mr={mr.mr} />
-          <MrAssignee mr={mr.mr} />
-          <MrApprovedBy mr={mr.mr} />
-          <MrLabels mr={mr.mr} />
-          <MrDiff mr={mr.mr} />
-          <MrDiscussion mr={mr.mr} />
+          <MrHeader
+            mr={entityData.entity}
+            onRefresh={() => fetch(entityData.link, true)}
+          />
+          <MrBranch mr={entityData.entity} />
+          <MrAssignee mr={entityData.entity} />
+          <MrApprovedBy mr={entityData.entity} />
+          <MrLabels mr={entityData.entity} />
+          <MrDiff mr={entityData.entity} />
+          <MrDiscussion mr={entityData.entity} />
         </>
       )}
     </PreviewModal>

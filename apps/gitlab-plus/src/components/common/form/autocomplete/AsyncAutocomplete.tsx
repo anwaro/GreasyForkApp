@@ -8,6 +8,7 @@ import { OptionItem } from './types';
 import { useAsyncAutocomplete } from './useAsyncAutocomplete';
 
 type Props<D extends OptionItem> = {
+  buttonSize?: 'md' | 'sm';
   getValues: (search: string) => Promise<D[]>;
   isDisabled?: boolean;
   isMultiselect?: boolean;
@@ -19,6 +20,7 @@ type Props<D extends OptionItem> = {
 };
 
 export function AsyncAutocomplete<D extends OptionItem>({
+  buttonSize,
   getValues,
   isDisabled,
   isMultiselect = false,
@@ -51,6 +53,7 @@ export function AsyncAutocomplete<D extends OptionItem>({
         renderLabel={renderLabel}
         reset={() => onChange([])}
         setIsOpen={setIsOpen}
+        size={buttonSize}
         value={value}
       />
       {isOpen && (

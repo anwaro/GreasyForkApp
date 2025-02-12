@@ -1,6 +1,6 @@
-import { ApiResponse } from './response';
+import { ApiResponseWorkspace } from './response';
 
-export type LabelsResponse = ApiResponse<{ labels: Labels }>;
+export type LabelsResponse = ApiResponseWorkspace<{ labels: Labels }>;
 
 export interface Labels {
   nodes: Label[];

@@ -1,9 +1,8 @@
 import { useMemo } from 'preact/hooks';
 
-import { IssueRelation, RelatedIssue } from '../../../types/Issue';
+import { Issue, IssueRelation, RelatedIssue } from '../../../types/Issue';
 import { Link } from '../../common/base/Link';
 import { InfoBlock } from '../../common/bolck/InfoBlock';
-import { GitlabLoader } from '../../common/GitlabLoader';
 
 const relationMap: Record<IssueRelation, string> = {
   blocks: 'Blocks:',
@@ -14,11 +13,10 @@ const relationMap: Record<IssueRelation, string> = {
 type Groups = Record<IssueRelation, RelatedIssue[]>;
 
 type Props = {
-  isLoading: boolean;
-  relatedIssues: RelatedIssue[];
+  issue: Issue;
 };
 
-export function IssueRelatedIssue({ isLoading, relatedIssues }: Props) {
+export function IssueRelatedIssue({ issue }: Props) {
   const groups = useMemo(() => {
     const initValue: Groups = {
       blocks: [],
@@ -26,7 +24,7 @@ export function IssueRelatedIssue({ isLoading, relatedIssues }: Props) {
       relates_to: [],
     };
     return Object.entries(
-      relatedIssues.reduce(
+      issue.linkedWorkItems.nodes.reduce(
         (acc, issue) => ({
           ...acc,
           [issue.linkType]: [...acc[issue.linkType], issue],
@@ -34,17 +32,9 @@ export function IssueRelatedIssue({ isLoading, relatedIssues }: Props) {
         initValue
       )
     ).filter(([_, issues]) => issues.length);
-  }, [relatedIssues]);
+  }, [issue]);
 
-  if (isLoading) {
-    return (
-      <div className={'gl-flex gl-items-center gl-justify-center'}>
-        <GitlabLoader />
-      </div>
-    );
-  }
-
-  if (!relatedIssues.length) {
+  if (!issue.linkedWorkItems.nodes.length) {
     return null;
   }
 
@@ -56,8 +46,12 @@ export function IssueRelatedIssue({ isLoading, relatedIssues }: Props) {
             <span>{relationMap[key as IssueRelation]}</span>
           </div>
           {issues.map((issue) => (
-            <Link key={issue.iid} href={issue.webUrl} blockHover>
-              #{issue.iid} {issue.title}
+            <Link
+              key={issue.workItem.iid}
+              href={issue.workItem.webUrl}
+              blockHover
+            >
+              #{issue.workItem.iid} {issue.workItem.title}
             </Link>
           ))}
         </div>

@@ -7,6 +7,7 @@ import { ImagePreview } from './services/ImagePreview';
 import { IssuePreview } from './services/IssuePreview';
 import { MrPreview } from './services/MrPreview';
 import { RelatedIssueAutocomplete } from './services/RelatedIssueAutocomplete';
+import { RelatedIssuesLabelStatus } from './services/RelatedIssuesLabelStatus';
 import { SortIssue } from './services/SortIssue';
 
 [
@@ -18,5 +19,6 @@ import { SortIssue } from './services/SortIssue';
   CreateRelatedIssue,
   CreateChildIssue,
   RelatedIssueAutocomplete,
+  RelatedIssuesLabelStatus,
   SortIssue,
 ].forEach((Service) => new Service().init());

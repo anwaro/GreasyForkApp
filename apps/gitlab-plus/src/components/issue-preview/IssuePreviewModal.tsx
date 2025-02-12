@@ -11,36 +11,37 @@ import { IssueRelatedIssue } from './blocks/IssueRelatedIssue';
 import { useFetchIssue } from './useFetchIssue';
 
 export function IssuePreviewModal() {
-  const { fetch, issue, refetch, relatedIssues, reset } = useFetchIssue();
+  const { entityData, fetch, isLoading, isRefreshing, reset } = useFetchIssue();
 
   return (
     <PreviewModal<GitlabIssueLink>
       validator={LinkParser.validateIssueLink}
       fetch={fetch}
-      isError={!issue}
-      isLoading={issue.isLoading}
+      isError={!entityData}
+      isLoading={isLoading}
+      isRefreshing={isRefreshing}
       parser={LinkParser.parseIssueLink}
       reset={reset}
     >
-      {issue.issue && (
+      {entityData && (
         <>
-          <IssueHeader issue={issue.issue} />
-          <IssueAssignee issue={issue.issue} />
-          <IssueLabels
-            issue={issue.issue}
-            projectPath={issue.link?.projectPath}
-            refetch={refetch}
+          <IssueHeader
+            issue={entityData.entity}
+            onRefresh={() => fetch(entityData.link, true)}
           />
-          <IssueEpic issue={issue.issue} />
-          <IssueMilestone issue={issue.issue} />
-          <IssueIteration issue={issue.issue} />
-          <IssueMergeRequests issue={issue.issue} />
+          <IssueAssignee issue={entityData.entity} />
+          <IssueLabels
+            issue={entityData.entity}
+            link={entityData.link}
+            refetch={() => fetch(entityData.link, true)}
+          />
+          <IssueEpic issue={entityData.entity} />
+          <IssueMilestone issue={entityData.entity} />
+          <IssueIteration issue={entityData.entity} />
+          <IssueMergeRequests issue={entityData.entity} />
+          <IssueRelatedIssue issue={entityData.entity} />
         </>
       )}
-      <IssueRelatedIssue
-        isLoading={relatedIssues.isLoading}
-        relatedIssues={relatedIssues.issues}
-      />
     </PreviewModal>
   );
 }

@@ -7,15 +7,17 @@ import { MrStatus } from '../../common/MrStatus';
 
 type Props = {
   mr: MergeRequest;
+  onRefresh: () => void;
 };
 
-export function MrHeader({ mr }: Props) {
+export function MrHeader({ mr, onRefresh }: Props) {
   return (
     <HeadingBlock
       author={mr.author}
       createdAt={mr.createdAt}
       entityId={`!${mr.iid}`}
       icon={'merge-request'}
+      onRefresh={onRefresh}
       title={mr.titleHtml}
       badge={
         <Row className={'gl-gap-2'} items={'center'}>

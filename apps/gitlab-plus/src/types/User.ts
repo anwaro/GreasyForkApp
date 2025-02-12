@@ -1,6 +1,6 @@
-import { ApiResponse } from './response';
+import { ApiResponseWorkspace } from './response';
 
-export type UsersResponse = ApiResponse<{ users: User[] }>;
+export type UsersResponse = ApiResponseWorkspace<{ users: User[] }>;
 
 export interface User {
   id: string;

@@ -11,6 +11,7 @@ type Props<D extends OptionItem> = {
   renderLabel: (value: D[]) => ComponentChild;
   reset: () => void;
   setIsOpen: (isOpen: boolean) => void;
+  size?: 'md' | 'sm';
   value: D[];
 };
 
@@ -19,6 +20,7 @@ export function AsyncAutocompleteButton<D extends OptionItem>({
   renderLabel,
   reset,
   setIsOpen,
+  size = 'md',
   value,
 }: Props<D>) {
   const ref = useAsyncAutocompleteButton(() => setIsOpen(false));
@@ -33,11 +35,9 @@ export function AsyncAutocompleteButton<D extends OptionItem>({
 
   return (
     <button
+      class={`btn btn-default btn-${size} btn-block gl-button gl-new-dropdown-toggle`}
       ref={ref}
       type={'button'}
-      class={
-        'btn btn-default btn-md btn-block gl-button gl-new-dropdown-toggle'
-      }
       onClick={(e) => {
         e.preventDefault();
         setIsOpen(true);

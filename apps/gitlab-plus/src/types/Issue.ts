@@ -1,6 +1,7 @@
+import { LabelWidget, UnknownWidget } from './Epic';
 import { Iteration } from './Iteration';
 import { Label } from './Label';
-import { Nodes } from './response';
+import { ApiResponseProject, Nodes } from './response';
 import { User } from './User';
 
 export type IssueRelation = 'blocks' | 'is_blocked_by' | 'relates_to';
@@ -101,19 +102,7 @@ export interface Labels {
   __typename: string;
 }
 
-export interface IssueResponse {
-  data: ProjectData;
-}
-
-export interface ProjectData {
-  project: Project;
-}
-
-export interface Project {
-  id: string;
-  issue: Issue;
-  __typename: string;
-}
+export type IssueResponse = ApiResponseProject<{ issue: Issue }>;
 
 export interface Issue {
   id: string;
@@ -127,13 +116,23 @@ export interface Issue {
   epic: IssueEpic | null;
   iteration: Iteration | null;
   labels: Nodes<Label>;
+  linkedWorkItems: Nodes<RelatedIssue>;
   milestone: Milestone | null;
+  projectId: string;
   relatedMergeRequests: Nodes<MergeRequest>;
   state: string;
   title: string;
   type: string;
   weight: null | number;
   __typename: string;
+}
+
+export type IssueWithIssuesLabelsResponse = ApiResponseProject<{
+  issue: IssueWithIssuesLabels;
+}>;
+
+export interface IssueWithIssuesLabels {
+  linkedWorkItems: Nodes<RelatedIssueWithLabels>;
 }
 
 export interface Milestone {
@@ -145,8 +144,10 @@ export interface Milestone {
 }
 
 export interface IssueEpic {
+  id: string;
   iid: string;
   title: string;
+  webUrl: string;
 }
 
 export interface MergeRequest {
@@ -190,17 +191,20 @@ export interface IssueAutocomplete {
 }
 
 export type RelatedIssue = {
-  id: number;
-  iid: number;
-  author: User;
-  closedAt: string;
-  closedBy: string;
-  createdAt: string;
-  description: string;
   linkType: IssueRelation;
-  projectId: number;
-  state: string;
-  title: string;
-  updatedAt: string;
-  webUrl: string;
+  workItem: {
+    id: string;
+    iid: string;
+    title: string;
+    webUrl: string;
+  };
+  workItemState: string;
+};
+
+export type RelatedIssueWithLabels = {
+  workItem: {
+    id: string;
+    iid: string;
+    widgets: (LabelWidget | UnknownWidget)[];
+  };
 };

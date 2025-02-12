@@ -1,8 +1,8 @@
 import { Label } from './Label';
-import { ApiResponse, Nodes } from './response';
+import { ApiResponseWorkspace, Nodes } from './response';
 import { User } from './User';
 
-export type EpicResponse = ApiResponse<{ workItem: Epic }>;
+export type EpicResponse = ApiResponseWorkspace<{ workItem: Epic }>;
 
 export interface Epic {
   id: string;
@@ -25,6 +25,16 @@ export interface Epic {
   workItemType: WorkItemType;
   __typename: string;
 }
+
+export type EpicSetLabelsInput = {
+  input: {
+    id: string;
+    labelsWidget: {
+      addLabelIds: string[];
+      removeLabelIds: string[];
+    };
+  };
+};
 
 export interface Namespace {
   id: string;

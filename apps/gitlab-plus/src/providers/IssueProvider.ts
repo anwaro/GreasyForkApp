@@ -6,7 +6,7 @@ import {
   IssueSetEpicInput,
   IssueSetLabelsInput,
   IssuesResponse,
-  RelatedIssue,
+  IssueWithIssuesLabelsResponse,
 } from '../types/Issue';
 import { GitlabProvider } from './GitlabProvider';
 import {
@@ -15,6 +15,7 @@ import {
   issueSetEpicMutation,
   issueSetLabelsMutation,
   issuesQuery,
+  issueWithRelatedIssuesLabelsQuery,
 } from './query/issue';
 
 export class IssueProvider extends GitlabProvider {
@@ -40,37 +41,25 @@ export class IssueProvider extends GitlabProvider {
     return await this.post(path, {});
   }
 
-  async getIssue(projectId: string, issueId: string) {
+  async getIssue(projectPath: string, iid: string) {
     return this.queryCached<IssueResponse>(
-      `issue-${projectId}-${issueId}`,
+      `issue-${projectPath}-${iid}`,
       issueQuery,
       {
-        iid: issueId,
-        projectPath: projectId,
+        iid,
+        projectPath,
       },
       2
     );
   }
 
-  async getIssueLinks(projectId: string, issueId: string) {
-    const path = 'projects/:PROJECT_ID/issues/:ISSUE_ID/links'
-      .replace(':PROJECT_ID', projectId.replaceAll('/', '%2F'))
-      .replace(':ISSUE_ID', `${issueId}`);
-
-    return await this.getCached<RelatedIssue[]>(
-      `issue-${projectId}-${issueId}-links`,
-      path,
-      2
-    );
-  }
-
-  async getIssues(projectId: string, search: string) {
+  async getIssues(projectPath: string, search: string) {
     const searchById = !!search.match(/^\d+$/);
 
     return await this.query<IssuesResponse>(issuesQuery, {
       iid: searchById ? search : null,
       searchByIid: searchById,
-      fullPath: projectId,
+      fullPath: projectPath,
       in: 'TITLE',
       includeAncestors: true,
       includeDescendants: true,
@@ -79,6 +68,18 @@ export class IssueProvider extends GitlabProvider {
       searchTerm: search,
       types: ['ISSUE'],
     });
+  }
+
+  async getIssueWithRelatedIssuesLabels(projectPath: string, iid: string) {
+    return this.queryCached<IssueWithIssuesLabelsResponse>(
+      `issue-related-issues-${projectPath}-${iid}`,
+      issueWithRelatedIssuesLabelsQuery,
+      {
+        iid,
+        projectPath,
+      },
+      0.02
+    );
   }
 
   async issueSetEpic(issueId: string, epicId: string) {

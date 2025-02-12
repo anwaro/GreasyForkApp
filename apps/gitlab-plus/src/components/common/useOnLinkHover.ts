@@ -9,12 +9,15 @@ export type LinkParserFunction<LinkType> = (
 ) => LinkType | undefined;
 export type LinkValidatorFunction = (link?: string) => boolean;
 
+export const modalZIndex = 200;
+
 export function useOnLinkHover<LinkType>(
   parser: LinkParserFunction<LinkType>,
   validator: LinkValidatorFunction
 ) {
   const [hoverPosition, setHoverPosition] = useState<Position>({ x: 0, y: 0 });
   const [hoverLink, setHoverLink] = useState<LinkType | undefined>();
+  const [zIndex, setZIndex] = useState(modalZIndex);
   const hoverLinkRef = useRef(false);
 
   const onHover = (event: HTMLElementEventMap['mouseenter']) => {
@@ -25,6 +28,9 @@ export function useOnLinkHover<LinkType>(
     }
     anchor.title = '';
     setHoverLink(link);
+    setZIndex(
+      anchor.dataset.zIndex ? Number(anchor.dataset.zIndex) : modalZIndex
+    );
     setHoverPosition({
       x: event.clientX,
       y: event.clientY,
@@ -53,5 +59,6 @@ export function useOnLinkHover<LinkType>(
       hoverLinkRef.current = false;
       setHoverLink(undefined);
     },
+    zIndex,
   };
 }

@@ -13,6 +13,7 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
       state
       confidential
       dueDate
+      projectId
       milestone {
         id
         title
@@ -21,8 +22,10 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
         __typename
       }
       epic {
+        id
         iid
         title
+        webUrl
       }
       iteration {
         id
@@ -62,6 +65,18 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
       }
       weight
       type
+      linkedWorkItems {
+        nodes {
+          linkType
+          workItemState
+          workItem {
+            id
+            iid
+            webUrl
+            title
+          }
+        }
+      }
       __typename
     }
     __typename
@@ -70,6 +85,36 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
 
 ${labelFragment}
 ${userFragment}
+`;
+
+export const issueWithRelatedIssuesLabelsQuery = `query issueEE($projectPath: ID!, $iid: String!) {
+  project(fullPath: $projectPath) {
+    issue(iid: $iid) {
+      linkedWorkItems {
+        nodes {
+          workItem {
+            id
+            iid
+            widgets {
+              type
+              ...LabelsWidget
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment LabelsWidget on WorkItemWidgetLabels {
+  labels {
+    nodes {
+      ...Label
+    }
+  }
+}
+
+${labelFragment}
 `;
 
 export const issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath: ID!, $types: [IssueType!], $in: [IssuableSearchableField!], $includeAncestors: Boolean = false, $includeDescendants: Boolean = false, $iid: String = null, $searchByIid: Boolean = false, $searchByText: Boolean = true, $searchEmpty: Boolean = true) {
@@ -259,20 +304,10 @@ export const issueSetLabelsMutation = `
 mutation issueSetLabels($input: UpdateIssueInput!) {
   updateIssuableLabels: updateIssue(input: $input) {
     issuable: issue {
-      id
-      labels {
-        nodes {
-          ...Label
-          __typename
-        }
-        __typename
-      }
       __typename
     }
     errors
     __typename
   }
 }
-
-${labelFragment}
 `;

@@ -228,3 +228,14 @@ fragment Author on User {
 
 ${labelFragment}
 `;
+
+export const epicSetLabelsMutation = `
+mutation workItemUpdate($input: WorkItemUpdateInput!) {
+  workItemUpdate(input: $input) {
+    workItem {
+      __typename
+    }
+    errors
+  }
+}
+`;

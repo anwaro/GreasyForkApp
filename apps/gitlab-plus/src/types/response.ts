@@ -1,12 +1,20 @@
-export interface ApiResponse<D> {
-  data: ResponseData<D>;
+export interface ApiResponseWorkspace<D> {
+  data: ResponseWorkspace<D>;
 }
 
-export interface ResponseData<D> {
-  workspace: Workspace<D>;
+export interface ApiResponseProject<D> {
+  data: ResponseProject<D>;
 }
 
-export type Workspace<D> = {
+export interface ResponseWorkspace<D> {
+  workspace: ResponseData<D>;
+}
+
+export interface ResponseProject<D> {
+  project: ResponseData<D>;
+}
+
+export type ResponseData<D> = {
   id: string;
   __typename: string;
 } & D;

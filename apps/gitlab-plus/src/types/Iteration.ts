@@ -1,6 +1,8 @@
-import { ApiResponse, Nodes } from './response';
+import { ApiResponseWorkspace, Nodes } from './response';
 
-export type IterationsResponse = ApiResponse<{ attributes: Nodes<Iteration> }>;
+export type IterationsResponse = ApiResponseWorkspace<{
+  attributes: Nodes<Iteration>;
+}>;
 
 export interface Iteration {
   id: string;

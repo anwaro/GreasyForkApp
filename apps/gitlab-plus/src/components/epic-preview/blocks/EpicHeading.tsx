@@ -4,9 +4,10 @@ import { IssueStatus } from '../../common/IssueStatus';
 
 type Props = {
   epic: Epic;
+  onRefresh: () => void;
 };
 
-export function EpicHeader({ epic }: Props) {
+export function EpicHeader({ epic, onRefresh }: Props) {
   return (
     <HeadingBlock
       author={epic.author}
@@ -14,6 +15,7 @@ export function EpicHeader({ epic }: Props) {
       createdAt={epic.createdAt}
       entityId={`&${epic.iid}`}
       icon={'epic'}
+      onRefresh={onRefresh}
       title={epic.title}
     />
   );

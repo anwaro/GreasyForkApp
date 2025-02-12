@@ -20,6 +20,7 @@ export function MrDiff({ mr }: Props) {
 
   return (
     <InfoBlock
+      icon={'commit'}
       title={`Commit: ${mr.commitCount}`}
       rightTitle={
         <Row gap={2} items={'center'}>

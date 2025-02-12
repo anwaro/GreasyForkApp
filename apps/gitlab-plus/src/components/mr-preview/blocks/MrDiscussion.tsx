@@ -9,16 +9,20 @@ type Props = {
 };
 
 export function MrDiscussion({ mr }: Props) {
-  if (!mr.resolvableDiscussionsCount) {
+  const [resolved, total] = [
+    mr.resolvedDiscussionsCount,
+    mr.resolvableDiscussionsCount,
+  ];
+  if (!total) {
     return null;
   }
 
   const { label, title } = useMemo(() => {
-    const plural = mr.resolvableDiscussionsCount !== 1 ? 's' : '';
+    const plural = total !== 1 ? 's' : '';
 
     return {
-      label: `${mr.resolvedDiscussionsCount} of ${mr.resolvableDiscussionsCount}`,
-      title: `${mr.resolvedDiscussionsCount} of ${mr.resolvableDiscussionsCount} thread${plural} resolved`,
+      label: `${resolved} of ${total}`,
+      title: `${resolved} of ${total} thread${plural} resolved`,
     };
   }, [mr]);
 
@@ -30,7 +34,7 @@ export function MrDiscussion({ mr }: Props) {
           icon={'comments'}
           label={label}
           title={title}
-          variant={'muted'}
+          variant={resolved === total ? 'success' : 'muted'}
         />
       }
     />

@@ -12,7 +12,7 @@ export function IssueMergeRequests({ issue }: Props) {
   }
 
   return (
-    <InfoBlock title={'Merge requests'}>
+    <InfoBlock icon={'merge-request'} title={'Merge requests'}>
       {issue.relatedMergeRequests.nodes.map((mr) => (
         <GitlabMergeRequest key={mr.iid} mr={mr} />
       ))}

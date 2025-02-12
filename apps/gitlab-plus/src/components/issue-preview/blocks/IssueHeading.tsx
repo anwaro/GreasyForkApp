@@ -4,9 +4,10 @@ import { IssueStatus } from '../../common/IssueStatus';
 
 type Props = {
   issue: Issue;
+  onRefresh: () => void;
 };
 
-export function IssueHeader({ issue }: Props) {
+export function IssueHeader({ issue, onRefresh }: Props) {
   return (
     <HeadingBlock
       author={issue.author}
@@ -14,6 +15,7 @@ export function IssueHeader({ issue }: Props) {
       createdAt={issue.createdAt}
       entityId={`#${issue.iid}`}
       icon={'issue-type-issue'}
+      onRefresh={onRefresh}
       title={issue.title}
     />
   );

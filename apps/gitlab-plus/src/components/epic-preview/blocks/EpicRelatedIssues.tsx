@@ -34,7 +34,10 @@ export function EpicRelatedIssues({ epic }: Props) {
   }
 
   return (
-    <InfoBlock title={`Child issues (${issues.length})`}>
+    <InfoBlock
+      icon={'issue-type-issue'}
+      title={`Child issues (${issues.length})`}
+    >
       {issues.map((issue) => (
         <Link key={issue.iid} href={issue.webUrl} title={issue.title}>
           #{issue.iid} {issue.title}

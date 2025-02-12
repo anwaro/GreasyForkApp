@@ -2,30 +2,30 @@ import { Label } from '../../../types/Label';
 import { GitlabLabel } from '../GitlabLabel';
 import { InfoBlock } from './InfoBlock';
 import { LabelsBlockChangeStatus } from './LabelsBlockChangeStatus';
-import { useLabelBlock } from './useLabelBlock';
+import { UpdateStatus, useLabelBlock } from './useLabelBlock';
 
 type Props = {
   labels: Label[];
-  onStatusChange?: (projectPath: string, label: Label) => Promise<void>;
-  projectPath?: string;
+  updateStatus?: UpdateStatus;
 };
 
-export function LabelsBlock({ labels, onStatusChange, projectPath }: Props) {
+export function LabelsBlock({ labels, updateStatus }: Props) {
   const {
     isLoading,
     name,
     onSelectStatus,
     showChangeStatusComponent,
     statusLabels,
-  } = useLabelBlock(onStatusChange, projectPath);
+  } = useLabelBlock(updateStatus);
 
-  if (!labels.length && !onStatusChange) {
+  if (!labels.length && !updateStatus) {
     return null;
   }
 
   return (
     <InfoBlock
       className={'issuable-show-labels'}
+      icon={'labels'}
       title={'Labels'}
       rightTitle={
         showChangeStatusComponent && (

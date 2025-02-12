@@ -43,8 +43,9 @@ export function LabelsBlockChangeStatus({
   }, []);
 
   return (
-    <div style={{ width: 150 }}>
+    <div className={'gl-py-2'} style={{ width: 130 }}>
       <AsyncAutocomplete<Label>
+        buttonSize={'sm'}
         getValues={getValues}
         name={name}
         onChange={([label]) => label && onChange(label)}

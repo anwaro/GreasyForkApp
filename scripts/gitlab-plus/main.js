@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2025-02-11
+// @version      2025-02-12
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -26,7 +26,8 @@ const __publicField = (obj, key, value) =>
 // App code
 const { jsx, jsxs, Fragment } = this.jsxRuntime;
 const { render } = this.preact;
-const { useMemo, useRef, useEffect, useState, useCallback } = this.preactHooks;
+const { useMemo, useRef, useEffect, useState, useCallback, useLayoutEffect } =
+  this.preactHooks;
 
 // libs/share/src/ui/GlobalStyle.ts
 class GlobalStyle {
@@ -48,7 +49,7 @@ const style1 =
 const style2 =
   '.glp-image-preview-modal {\n  position: fixed;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.6);\n  visibility: hidden;\n  opacity: 0;\n  pointer-events: none;\n  z-index: 99999;\n}\n\n.glp-image-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n  pointer-events: auto;\n}\n\n.glp-image-preview-modal .glp-modal-img {\n  max-width: 95%;\n  max-height: 95%;\n}\n\n.glp-image-preview-modal .glp-modal-close {\n  position: absolute;\n  z-index: 2;\n  top: 20px;\n  right: 20px;\n  color: black;\n  width: 40px;\n  height: 40px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background: white;\n  border-radius: 20px;\n  cursor: pointer;\n}\n\n';
 const style3 =
-  '.glp-issue-preview-modal {\n  position: fixed;\n  display: flex;\n  padding: 0 15px;\n  background-color: var(--gl-background-color-default, var(--gl-color-neutral-0, #fff));\n  border: 1px solid var(--gl-border-color-default);\n  border-radius: .25rem;\n  width: 350px;\n  min-height: 200px;\n  z-index: 99999;\n  visibility: hidden;\n  top: 0;\n  left: 0;\n  opacity: 0;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n}\n\n.glp-issue-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n\n.glp-issue-preview-modal .glp-issue-modal-inner {\n  display: flex;\n  flex-direction: column;\n  max-width: 100%;\n}\n\n.glp-issue-preview-modal .glp-block {\n  padding: .5rem 0 .5rem;\n  border-bottom-style: solid;\n  border-bottom-color: var(--gl-border-color-subtle, var(--gl-color-neutral-50, #ececef));\n  border-bottom-width: 1px;\n  width: 100%;\n}\n\n\n.glp-issue-preview-modal * {\n  max-width: 100%;\n}\n';
+  '.glp-issue-preview-modal {\n  position: fixed;\n  display: flex;\n  background-color: var(--gl-background-color-default, var(--gl-color-neutral-0, #fff));\n  border: 1px solid var(--gl-border-color-default);\n  border-radius: .25rem;\n  width: 350px;\n  min-height: 200px;\n  z-index: 99999;\n  visibility: hidden;\n  top: 0;\n  left: 0;\n  opacity: 0;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n}\n\n.glp-issue-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n\n.glp-issue-preview-modal .glp-issue-modal-inner {\n  display: flex;\n  flex-direction: column;\n  max-width: 100%;\n}\n\n.glp-issue-preview-modal .glp-block {\n  padding: .4rem .5em;\n  border-bottom-style: solid;\n  border-bottom-color: var(--gl-border-color-subtle, var(--gl-color-neutral-50, #ececef));\n  border-bottom-width: 1px;\n  width: 100%;\n}\n\n\n.glp-issue-preview-modal * {\n  max-width: 100%;\n}\n';
 
 // apps/gitlab-plus/src/styles/index.ts
 GlobalStyle.addStyle('glp-style', [style1, style2, style3].join('\n'));
@@ -272,7 +273,10 @@ function FormField({ children, error, hint, title }) {
       children,
       Boolean(!error && hint) && jsx('small', { children: hint }),
       Boolean(error) &&
-        jsx('small', { class: 'gl-field-error', children: error }),
+        jsx('small', {
+          class: 'gl-field-error',
+          children: error,
+        }),
     ],
   });
 }
@@ -462,6 +466,7 @@ function AsyncAutocompleteButton({
   renderLabel,
   reset,
   setIsOpen,
+  size = 'md',
   value,
 }) {
   const ref = useAsyncAutocompleteButton(() => setIsOpen(false));
@@ -472,9 +477,9 @@ function AsyncAutocompleteButton({
     return isOpen ? 'chevron-lg-up' : 'chevron-lg-down';
   }, [isOpen, value]);
   return jsx('button', {
+    class: `btn btn-default btn-${size} btn-block gl-button gl-new-dropdown-toggle`,
     ref,
     type: 'button',
-    class: 'btn btn-default btn-md btn-block gl-button gl-new-dropdown-toggle',
     onClick: (e) => {
       e.preventDefault();
       setIsOpen(true);
@@ -865,6 +870,7 @@ function useAsyncAutocomplete(
 
 // apps/gitlab-plus/src/components/common/form/autocomplete/AsyncAutocomplete.tsx
 function AsyncAutocomplete({
+  buttonSize,
   getValues,
   isDisabled,
   isMultiselect = false,
@@ -895,6 +901,7 @@ function AsyncAutocomplete({
         renderLabel,
         reset: () => onChange([]),
         setIsOpen,
+        size: buttonSize,
         value,
       }),
       isOpen &&
@@ -1004,7 +1011,10 @@ function ButtonField({ create, isLoading, reset }) {
         onClick: create,
         type: 'button',
         children: [
-          jsx('span', { class: 'gl-button-text', children: 'Add' }),
+          jsx('span', {
+            class: 'gl-button-text',
+            children: 'Add',
+          }),
           isLoading
             ? jsx(GitlabLoader, { size: 12 })
             : jsx(GitlabIcon, { icon: 'plus', size: 12 }),
@@ -1130,10 +1140,32 @@ const labelFragment = `
     __typename
   }
 `;
-const labelsQuery = `query projectLabels($fullPath: ID!, $searchTerm: String) {
+const projectLabelsQuery = `query projectLabels($fullPath: ID!, $searchTerm: String) {
   workspace: project(fullPath: $fullPath) {
     id
-    labels(searchTerm: $searchTerm, includeAncestorGroups: true) {
+    labels(
+      searchTerm: $searchTerm
+      includeAncestorGroups: true
+    ) {
+      nodes {
+        ...Label
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}
+${labelFragment}
+`;
+const workspaceLabelsQuery = `query groupLabels($fullPath: ID!, $searchTerm: String) {
+  workspace: group(fullPath: $fullPath) {
+    id
+    labels(
+      searchTerm: $searchTerm
+      onlyGroupLabels: true
+      includeAncestorGroups: true
+    ) {
       nodes {
         ...Label
         __typename
@@ -1149,12 +1181,24 @@ ${labelFragment}
 
 // apps/gitlab-plus/src/providers/LabelsProvider.ts
 class LabelsProvider extends GitlabProvider {
-  async getLabels(projectId, search = '') {
+  async getProjectLabels(projectPath, search = '') {
     return this.queryCached(
-      `labels-${projectId}-${search}`,
-      labelsQuery,
+      `project-${projectPath}-labels-${search}`,
+      projectLabelsQuery,
       {
-        fullPath: projectId,
+        fullPath: projectPath,
+        searchTerm: search,
+      },
+      search === '' ? 20 : 0.5
+    );
+  }
+
+  async getWorkspaceLabels(workspacePath, search = '') {
+    return this.queryCached(
+      `workspace-${workspacePath}-labels-${search}`,
+      workspaceLabelsQuery,
+      {
+        fullPath: workspacePath,
         searchTerm: search,
       },
       search === '' ? 20 : 0.5
@@ -1191,7 +1235,10 @@ function GitlabLabel({ label, onRemove }) {
       jsxs('span', {
         class: 'gl-link gl-label-link gl-label-link-underline',
         children: [
-          jsx('span', { class: 'gl-label-text', children: scope }),
+          jsx('span', {
+            class: 'gl-label-text',
+            children: scope,
+          }),
           text &&
             jsx('span', { class: 'gl-label-text-scoped', children: text }),
         ],
@@ -1218,7 +1265,7 @@ function LabelField({ copyLabels, copyLoading, projectPath, setValue, value }) {
       if (!projectPath) {
         return [];
       }
-      const response = await new LabelsProvider().getLabels(
+      const response = await new LabelsProvider().getProjectLabels(
         projectPath,
         search
       );
@@ -1846,6 +1893,16 @@ fragment Author on User {
 
 ${labelFragment}
 `;
+const epicSetLabelsMutation = `
+mutation workItemUpdate($input: WorkItemUpdateInput!) {
+  workItemUpdate(input: $input) {
+    workItem {
+      __typename
+    }
+    errors
+  }
+}
+`;
 
 // apps/gitlab-plus/src/providers/EpicProvider.ts
 class EpicProvider extends GitlabProvider {
@@ -1862,6 +1919,18 @@ class EpicProvider extends GitlabProvider {
       2
     );
   }
+
+  async updateEpicLabels(id, addLabelIds, removeLabelIds) {
+    return await this.query(epicSetLabelsMutation, {
+      input: {
+        id,
+        labelsWidget: {
+          addLabelIds,
+          removeLabelIds,
+        },
+      },
+    });
+  }
 }
 
 // apps/gitlab-plus/src/providers/query/issue.ts
@@ -1877,6 +1946,7 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
       state
       confidential
       dueDate
+      projectId
       milestone {
         id
         title
@@ -1885,8 +1955,10 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
         __typename
       }
       epic {
+        id
         iid
         title
+        webUrl
       }
       iteration {
         id
@@ -1926,6 +1998,18 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
       }
       weight
       type
+      linkedWorkItems {
+        nodes {
+          linkType
+          workItemState
+          workItem {
+            id
+            iid
+            webUrl
+            title
+          }
+        }
+      }
       __typename
     }
     __typename
@@ -1934,6 +2018,35 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
 
 ${labelFragment}
 ${userFragment}
+`;
+const issueWithRelatedIssuesLabelsQuery = `query issueEE($projectPath: ID!, $iid: String!) {
+  project(fullPath: $projectPath) {
+    issue(iid: $iid) {
+      linkedWorkItems {
+        nodes {
+          workItem {
+            id
+            iid
+            widgets {
+              type
+              ...LabelsWidget
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment LabelsWidget on WorkItemWidgetLabels {
+  labels {
+    nodes {
+      ...Label
+    }
+  }
+}
+
+${labelFragment}
 `;
 const issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath: ID!, $types: [IssueType!], $in: [IssuableSearchableField!], $includeAncestors: Boolean = false, $includeDescendants: Boolean = false, $iid: String = null, $searchByIid: Boolean = false, $searchByText: Boolean = true, $searchEmpty: Boolean = true) {
   workspace: group(fullPath: $fullPath) {
@@ -2119,22 +2232,12 @@ const issueSetLabelsMutation = `
 mutation issueSetLabels($input: UpdateIssueInput!) {
   updateIssuableLabels: updateIssue(input: $input) {
     issuable: issue {
-      id
-      labels {
-        nodes {
-          ...Label
-          __typename
-        }
-        __typename
-      }
       __typename
     }
     errors
     __typename
   }
 }
-
-${labelFragment}
 `;
 
 // apps/gitlab-plus/src/providers/IssueProvider.ts
@@ -2160,31 +2263,24 @@ class IssueProvider extends GitlabProvider {
     return await this.post(path, {});
   }
 
-  async getIssue(projectId, issueId) {
+  async getIssue(projectPath, iid) {
     return this.queryCached(
-      `issue-${projectId}-${issueId}`,
+      `issue-${projectPath}-${iid}`,
       issueQuery,
       {
-        iid: issueId,
-        projectPath: projectId,
+        iid,
+        projectPath,
       },
       2
     );
   }
 
-  async getIssueLinks(projectId, issueId) {
-    const path = 'projects/:PROJECT_ID/issues/:ISSUE_ID/links'
-      .replace(':PROJECT_ID', projectId.replaceAll('/', '%2F'))
-      .replace(':ISSUE_ID', `${issueId}`);
-    return await this.getCached(`issue-${projectId}-${issueId}-links`, path, 2);
-  }
-
-  async getIssues(projectId, search) {
+  async getIssues(projectPath, search) {
     const searchById = !!search.match(/^\d+$/);
     return await this.query(issuesQuery, {
       iid: searchById ? search : null,
       searchByIid: searchById,
-      fullPath: projectId,
+      fullPath: projectPath,
       in: 'TITLE',
       includeAncestors: true,
       includeDescendants: true,
@@ -2193,6 +2289,18 @@ class IssueProvider extends GitlabProvider {
       searchTerm: search,
       types: ['ISSUE'],
     });
+  }
+
+  async getIssueWithRelatedIssuesLabels(projectPath, iid) {
+    return this.queryCached(
+      `issue-related-issues-${projectPath}-${iid}`,
+      issueWithRelatedIssuesLabelsQuery,
+      {
+        iid,
+        projectPath,
+      },
+      0.02
+    );
   }
 
   async issueSetEpic(issueId, epicId) {
@@ -2726,6 +2834,20 @@ class CreateRelatedIssue extends Service {
   }
 }
 
+// apps/gitlab-plus/src/components/common/base/Row.tsx
+function Row({ children, className, gap, items, justify }) {
+  return jsx('div', {
+    class: clsx(
+      'gl-flex gl-flex-row',
+      justify && `gl-justify-${justify}`,
+      items && `gl-items-${items}`,
+      gap && `gl-gap-${gap}`,
+      className
+    ),
+    children,
+  });
+}
+
 // libs/share/src/ui/Events.ts
 class Events {
   static intendHover(validate, mouseover, mouseleave, timeout = 500) {
@@ -2758,9 +2880,12 @@ class Events {
 }
 
 // apps/gitlab-plus/src/components/common/useOnLinkHover.ts
+const modalZIndex = 200;
+
 function useOnLinkHover(parser, validator) {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const [hoverLink, setHoverLink] = useState();
+  const [zIndex, setZIndex] = useState(modalZIndex);
   const hoverLinkRef = useRef(false);
   const onHover = (event) => {
     const anchor = event.target;
@@ -2770,6 +2895,9 @@ function useOnLinkHover(parser, validator) {
     }
     anchor.title = '';
     setHoverLink(link);
+    setZIndex(
+      anchor.dataset.zIndex ? Number(anchor.dataset.zIndex) : modalZIndex
+    );
     setHoverPosition({
       x: event.clientX,
       y: event.clientY,
@@ -2796,6 +2924,7 @@ function useOnLinkHover(parser, validator) {
       hoverLinkRef.current = false;
       setHoverLink(void 0);
     },
+    zIndex,
   };
 }
 
@@ -2845,13 +2974,12 @@ function PreviewModal({
   fetch: fetch2,
   isError,
   isLoading = false,
+  isRefreshing = false,
   parser,
   reset,
 }) {
-  const { hoverLink, hoverPosition, onLinkEnter, onLinkLeave } = useOnLinkHover(
-    parser,
-    validator
-  );
+  const { hoverLink, hoverPosition, onLinkEnter, onLinkLeave, zIndex } =
+    useOnLinkHover(parser, validator);
   const { isVisible, offset, ref } = usePreviewModal(
     hoverLink,
     fetch2,
@@ -2860,19 +2988,35 @@ function PreviewModal({
   );
   const content = useMemo(() => {
     if (isLoading || !isVisible) {
-      return jsx('div', {
-        class: 'gl-flex gl-flex-1 gl-items-center gl-justify-center',
+      return jsx(Row, {
+        className: 'gl-flex-1',
+        items: 'center',
+        justify: 'center',
         children: jsx(GitlabLoader, { size: '3em' }),
       });
     }
     if (isError) {
-      return jsx('div', {
-        class: 'gl-flex gl-flex-1 gl-items-center gl-justify-center',
-        children: jsx('span', { children: 'Error' }),
+      return jsx(Row, {
+        className: 'gl-flex-1',
+        items: 'center',
+        justify: 'center',
+        children: 'Error',
       });
     }
-    return jsx('div', { className: 'gl-flex gl-w-full gl-flex-col', children });
-  }, [isLoading, isError, isVisible, children]);
+    return jsxs('div', {
+      className: 'gl-flex gl-w-full gl-flex-col',
+      children: [
+        children,
+        isRefreshing &&
+          jsx(Row, {
+            className: 'gl-h-full gl-w-full gl-absolute gl-bg-overlay',
+            items: 'center',
+            justify: 'center',
+            children: jsx(GitlabLoader, { size: '3em' }),
+          }),
+      ],
+    });
+  }, [isLoading, isRefreshing, isError, isVisible, children]);
   return jsx('div', {
     onMouseEnter: onLinkEnter,
     onMouseLeave: onLinkLeave,
@@ -2885,22 +3029,9 @@ function PreviewModal({
       left: hoverPosition.x,
       top: hoverPosition.y,
       transform: `translate(-${offset.x}px, -${offset.y}px )`,
+      zIndex,
     },
     children: content,
-  });
-}
-
-// apps/gitlab-plus/src/components/common/base/Row.tsx
-function Row({ children, className, gap, items, justify }) {
-  return jsx('div', {
-    class: clsx(
-      'gl-flex gl-flex-row',
-      justify && `gl-justify-${justify}`,
-      items && `gl-items-${items}`,
-      gap && `gl-gap-${gap}`,
-      className
-    ),
-    children,
   });
 }
 
@@ -2918,83 +3049,84 @@ function Text({ children, className, color, size, variant, weight }) {
   });
 }
 
-// apps/gitlab-plus/src/components/common/bolck/InfoBlock.tsx
-function InfoBlock({ children, className, rightTitle, title }) {
-  const HeaderComponent = useMemo(() => {
-    const titleComponent = jsx('span', {
-      className: 'gl-font-bold gl-leading-20 gl-text-gray-900',
-      dangerouslySetInnerHTML: { __html: title },
-    });
-    if (rightTitle) {
-      return jsxs(Row, {
-        items: 'center',
-        justify: 'between',
-        children: [titleComponent, rightTitle],
-      });
-    }
-    return titleComponent;
-  }, [title, rightTitle]);
-  return jsxs('div', {
-    class: 'glp-block',
-    children: [HeaderComponent, jsx('div', { class: className, children })],
-  });
-}
-
 // apps/gitlab-plus/src/components/common/bolck/HeadingBlock.tsx
-function HeadingBlock({ author, badge, createdAt, entityId, icon, title }) {
-  return jsxs(Fragment, {
+function HeadingBlock({
+  author,
+  badge,
+  createdAt,
+  entityId,
+  icon,
+  onRefresh,
+  title,
+}) {
+  return jsxs('div', {
+    className: 'glp-block gl-relative',
     children: [
       jsxs(Row, {
-        className: '-gl-mb-2 gl-mt-4',
+        className: '',
         items: 'center',
         justify: 'between',
         children: [
-          badge,
-          jsxs(Text, {
-            size: 'sm',
-            variant: 'secondary',
-            children: ['created at ', new Date(createdAt).toLocaleDateString()],
+          jsx('span', {
+            dangerouslySetInnerHTML: { __html: title },
+            className: clsx(
+              'gl-font-bold gl-leading-20 gl-text-gray-900',
+              onRefresh && 'gl-pr-5'
+            ),
           }),
+          onRefresh &&
+            jsx('div', {
+              onClick: onRefresh,
+              className:
+                'gl-absolute gl-right-0 gl-top-0 gl-p-2 gl-cursor-pointer',
+              children: jsx(GitlabIcon, { icon: 'repeat' }),
+            }),
         ],
       }),
-      jsx(InfoBlock, {
-        title,
-        children: jsxs(Row, {
-          className: 'gl-mt-1',
-          items: 'center',
-          justify: 'between',
-          children: [
-            jsxs(Row, {
-              items: 'center',
-              children: [
-                jsx(GitlabIcon, { icon, size: 16 }),
-                jsx(Text, {
-                  className: 'gl-ml-2',
-                  size: 'sm',
-                  variant: 'secondary',
-                  children: entityId,
-                }),
-              ],
-            }),
-            jsxs(Row, {
-              items: 'center',
-              children: [
-                jsx(Text, {
-                  className: 'gl-mr-2',
-                  size: 'sm',
-                  variant: 'secondary',
-                  children: 'created by',
-                }),
-                jsx(GitlabUser, {
-                  size: 16,
-                  user: author,
-                  smallText: true,
-                  withLink: true,
-                }),
-              ],
-            }),
-          ],
-        }),
+      jsxs(Row, {
+        className: 'gl-mt-2',
+        gap: 2,
+        items: 'center',
+        children: [
+          jsxs(Row, {
+            gap: 2,
+            items: 'center',
+            children: [
+              jsx(GitlabIcon, { icon, size: 16 }),
+              jsx(Text, {
+                className: 'gl-ml-2',
+                size: 'sm',
+                variant: 'secondary',
+                children: entityId,
+              }),
+            ],
+          }),
+          badge,
+        ],
+      }),
+      jsxs(Row, {
+        className: 'gl-mt-1',
+        gap: 2,
+        items: 'center',
+        children: [
+          jsx(Text, {
+            size: 'sm',
+            variant: 'secondary',
+            children: 'Created at',
+          }),
+          jsx(Text, {
+            size: 'sm',
+            weight: 'bold',
+            children: new Date(createdAt).toLocaleDateString(),
+          }),
+          jsx(Text, { size: 'sm', variant: 'secondary', children: 'by' }),
+          jsx(GitlabUser, {
+            size: 16,
+            user: author,
+            smallText: true,
+            withLink: true,
+          }),
+        ],
       }),
     ],
   });
@@ -3007,7 +3139,11 @@ function GitlabBadge({ icon, label, title, variant }) {
     title,
     children: [
       icon && jsx(GitlabIcon, { icon }),
-      label && jsx('span', { className: 'gl-badge-content', children: label }),
+      label &&
+        jsx('span', {
+          className: 'gl-badge-content',
+          children: label,
+        }),
     ],
   });
 }
@@ -3022,19 +3158,142 @@ function IssueStatus({ isOpen }) {
 }
 
 // apps/gitlab-plus/src/components/epic-preview/blocks/EpicHeading.tsx
-function EpicHeader({ epic }) {
+function EpicHeader({ epic, onRefresh }) {
   return jsx(HeadingBlock, {
     author: epic.author,
     badge: jsx(IssueStatus, { isOpen: epic.state === 'OPEN' }),
     createdAt: epic.createdAt,
     entityId: `&${epic.iid}`,
     icon: 'epic',
+    onRefresh,
     title: epic.title,
   });
 }
 
-// apps/gitlab-plus/src/components/epic-preview/blocks/EpicLabels.tsx
-function EpicLabels({ epic }) {
+// apps/gitlab-plus/src/components/common/bolck/InfoBlock.tsx
+function InfoBlock({ children, className, icon, rightTitle, title }) {
+  return jsxs('div', {
+    class: 'glp-block gl-relative',
+    children: [
+      jsxs(Row, {
+        items: 'center',
+        justify: 'between',
+        children: [
+          jsxs(Row, {
+            gap: 2,
+            items: 'center',
+            children: [
+              icon && jsx(GitlabIcon, { icon, size: 16 }),
+              jsx('span', {
+                className: 'gl-font-bold gl-leading-20 gl-text-gray-900',
+                dangerouslySetInnerHTML: { __html: title },
+              }),
+            ],
+          }),
+          rightTitle,
+        ],
+      }),
+      jsx('div', { class: className, children }),
+    ],
+  });
+}
+
+// apps/gitlab-plus/src/components/common/bolck/LabelsBlockChangeStatus.tsx
+function LabelsBlockChangeStatus({
+  isLoading,
+  name: name2,
+  onChange,
+  options,
+}) {
+  if (isLoading) {
+    return jsx(GitlabLoader, {});
+  }
+  const getValues = useCallback(
+    async (search) => {
+      return options.filter((option) => option.title.includes(search));
+    },
+    [options]
+  );
+  const renderOption = useCallback((item) => {
+    return jsxs('div', {
+      class: 'gl-flex gl-flex-1 gl-break-anywhere gl-pb-3 gl-pl-4 gl-pt-3',
+      children: [
+        jsx('span', {
+          class: 'dropdown-label-box gl-top-0 gl-mr-3 gl-shrink-0',
+          style: { backgroundColor: item.color },
+        }),
+        jsx('span', { children: item.title }),
+      ],
+    });
+  }, []);
+  return jsx('div', {
+    className: 'gl-py-2',
+    style: { width: 130 },
+    children: jsx(AsyncAutocomplete, {
+      buttonSize: 'sm',
+      getValues,
+      name: name2,
+      onChange: ([label]) => label && onChange(label),
+      renderLabel: () => 'Change status',
+      renderOption,
+      value: [],
+    }),
+  });
+}
+
+// apps/gitlab-plus/src/components/common/bolck/useLabelBlock.ts
+const name = 'status-labels';
+
+function useLabelBlock(statusUpdate) {
+  const [isLoading, setIsLoading] = useState(false);
+  const onSelectStatus = useCallback(async (label) => {
+    setIsLoading(true);
+    if (statusUpdate) {
+      await statusUpdate.update(label);
+      new RecentlyProvider(name).add(label);
+    }
+    setIsLoading(false);
+  }, []);
+  return {
+    isLoading,
+    name,
+    onSelectStatus,
+    showChangeStatusComponent: Boolean(statusUpdate),
+    statusLabels: (statusUpdate == null ? void 0 : statusUpdate.labels) || [],
+  };
+}
+
+// apps/gitlab-plus/src/components/common/bolck/LabelsBlock.tsx
+function LabelsBlock({ labels: labels2, updateStatus }) {
+  const {
+    isLoading,
+    name: name2,
+    onSelectStatus,
+    showChangeStatusComponent,
+    statusLabels,
+  } = useLabelBlock(updateStatus);
+  if (!labels2.length && !updateStatus) {
+    return null;
+  }
+  return jsx(InfoBlock, {
+    className: 'issuable-show-labels',
+    icon: 'labels',
+    title: 'Labels',
+    rightTitle:
+      showChangeStatusComponent &&
+      jsx(LabelsBlockChangeStatus, {
+        isLoading,
+        name: name2,
+        onChange: onSelectStatus,
+        options: statusLabels,
+      }),
+    children: labels2.map((label) => jsx(GitlabLabel, { label }, label.id)),
+  });
+}
+
+// apps/gitlab-plus/src/components/epic-preview/blocks/useEpicLabels.ts
+function useEpicLabels(epic, refetch) {
+  const [statusLabels, setStatusLabels] = useState([]);
   const labels2 = useMemo(() => {
     const labelWidget = epic.widgets.find((widget) => widget.type === 'LABELS');
     if (labelWidget) {
@@ -3042,27 +3301,75 @@ function EpicLabels({ epic }) {
     }
     return [];
   }, [epic]);
+  const onStatusChange = useCallback(
+    async (label) => {
+      const oldStatus = labels2.filter((l) => l.title.includes('Status::'));
+      await new EpicProvider().updateEpicLabels(
+        epic.id,
+        [label.id],
+        oldStatus.map((l) => l.id)
+      );
+      if (refetch) {
+        await refetch();
+      }
+    },
+    [labels2]
+  );
+  const fetchLabels = useCallback(async (workspacePath) => {
+    const response = await new LabelsProvider().getWorkspaceLabels(
+      workspacePath,
+      'Status::'
+    );
+    setStatusLabels(response.data.workspace.labels.nodes);
+  }, []);
+  useEffect(() => {
+    fetchLabels(epic.namespace.fullPath);
+  }, []);
+  return {
+    labels: labels2,
+    updateStatus: {
+      labels: statusLabels,
+      update: onStatusChange,
+    },
+  };
+}
+
+// apps/gitlab-plus/src/components/epic-preview/blocks/EpicLabels.tsx
+function EpicLabels({ epic, refresh }) {
+  const { labels: labels2, updateStatus } = useEpicLabels(epic, refresh);
   if (!labels2.length) {
     return null;
   }
-  return jsx(InfoBlock, {
-    className: 'issuable-show-labels',
-    title: 'Labels',
-    children: labels2.map((label) => jsx(GitlabLabel, { label }, label.id)),
-  });
+  return jsx(LabelsBlock, { labels: labels2, updateStatus });
 }
 
 // apps/gitlab-plus/src/components/common/base/Link.tsx
 function Link({ blockHover, children, className, href, title }) {
+  const [zIndex, setZIndex] = useState(modalZIndex + 1);
+  const ref = useRef(null);
   const onHover = (e) => {
     e.stopPropagation();
     e.preventDefault();
     return false;
   };
+  useLayoutEffect(() => {
+    let _a;
+    const modal =
+      (_a = ref.current) == null
+        ? void 0
+        : _a.closest('.glp-issue-preview-modal');
+    setZIndex(
+      (modal == null ? void 0 : modal.style.zIndex)
+        ? Number(modal.style.zIndex) + 1
+        : modalZIndex + 1
+    );
+  }, []);
   return jsx('a', {
     class: clsx('gl-block gl-link sortable-link', className),
+    'data-z-index': zIndex,
     href,
     onMouseOver: blockHover ? onHover : void 0,
+    ref,
     target: '_blank',
     title,
     style: {
@@ -3088,6 +3395,7 @@ function EpicRelatedIssues({ epic }) {
     return null;
   }
   return jsx(InfoBlock, {
+    icon: 'issue-type-issue',
     title: `Child issues (${issues.length})`,
     children: issues.map((issue) =>
       jsxs(
@@ -3103,60 +3411,77 @@ function EpicRelatedIssues({ epic }) {
   });
 }
 
-// apps/gitlab-plus/src/components/epic-preview/useFetchEpic.ts
-const initialEpicData = {
-  epic: null,
-  isLoading: false,
-};
-const initialRelatedEpicsData = {
-  // epics: [],
-  isLoading: false,
-};
-const epicProvider = new EpicProvider();
-
-function useFetchEpic() {
-  const [epic, setEpic] = useState(initialEpicData);
-  const [relatedEpics, setRelatedEpics] = useState(initialRelatedEpicsData);
-  const fetchEpic = async (link) => {
-    setEpic({ ...initialEpicData, isLoading: true });
-    const response = await epicProvider.getEpic(link.workspacePath, link.epic);
-    setEpic({
-      epic: response.data.workspace.workItem,
-      isLoading: false,
-    });
-  };
-  const fetch2 = async (link) => {
-    fetchEpic(link);
+// apps/gitlab-plus/src/components/common/useFetchEntity.ts
+function useFetchEntity(fetcher) {
+  const [entityData, setEntityData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const fetch2 = async (link, force = false) => {
+    if (force) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
+    const entity = await fetcher(link, force);
+    setEntityData({ entity, link });
+    setIsRefreshing(false);
+    setIsLoading(false);
   };
   const reset = () => {
-    setEpic(initialEpicData);
-    setRelatedEpics(initialRelatedEpicsData);
+    setEntityData(null);
+    setIsLoading(false);
+    setIsLoading(false);
   };
   return {
-    epic,
+    entityData,
     fetch: fetch2,
-    relatedEpics,
+    isLoading,
+    isRefreshing,
     reset,
   };
 }
 
+// apps/gitlab-plus/src/components/epic-preview/useFetchEpic.ts
+function useFetchEpic() {
+  return useFetchEntity(async (link, force = false) => {
+    const response = await new EpicProvider(force).getEpic(
+      link.workspacePath,
+      link.epic
+    );
+    return response.data.workspace.workItem;
+  });
+}
+
 // apps/gitlab-plus/src/components/epic-preview/EpicPreviewModal.tsx
 function EpicPreviewModal() {
-  const { epic, fetch: fetch2, reset } = useFetchEpic();
+  const {
+    entityData,
+    fetch: fetch2,
+    isLoading,
+    isRefreshing,
+    reset,
+  } = useFetchEpic();
   return jsx(PreviewModal, {
     validator: LinkParser.validateEpicLink,
     fetch: fetch2,
-    isError: !epic,
-    isLoading: epic.isLoading,
+    isError: !entityData,
+    isLoading,
+    isRefreshing,
     parser: LinkParser.parseEpicLink,
     reset,
     children:
-      epic.epic &&
+      entityData &&
       jsxs(Fragment, {
         children: [
-          jsx(EpicHeader, { epic: epic.epic }),
-          jsx(EpicLabels, { epic: epic.epic }),
-          jsx(EpicRelatedIssues, { epic: epic.epic }),
+          jsx(EpicHeader, {
+            epic: entityData.entity,
+            onRefresh: () => fetch2(entityData.link, true),
+          }),
+          jsx(EpicLabels, {
+            epic: entityData.entity,
+            refresh: () => fetch2(entityData.link, true),
+          }),
+          jsx(EpicRelatedIssues, { epic: entityData.entity }),
         ],
       }),
   });
@@ -3241,19 +3566,21 @@ class ImagePreview extends Service {
 }
 
 // apps/gitlab-plus/src/components/common/bolck/UsersBlock.tsx
-function UsersBlock({ assignees, label, pluralLabel }) {
+function UsersBlock({ assignees, icon, label, pluralIcon, pluralLabel }) {
   if (!assignees || !assignees.length) {
     return null;
   }
   if (assignees.length === 1) {
     return jsx(InfoBlock, {
       className: 'gl-flex gl-flex-col gl-gap-3',
+      icon: icon || 'user',
       rightTitle: jsx(GitlabUser, { user: assignees[0], withLink: true }),
       title: `${label}:`,
     });
   }
   return jsx(InfoBlock, {
     className: 'gl-flex gl-flex-col gl-gap-3',
+    icon: pluralIcon || icon || 'users',
     title: pluralLabel || `${label}s`,
     children: assignees.map((assignee) =>
       jsx(GitlabUser, { user: assignee, withLink: true }, assignee.id)
@@ -3265,6 +3592,7 @@ function UsersBlock({ assignees, label, pluralLabel }) {
 function IssueAssignee({ issue }) {
   return jsx(UsersBlock, {
     assignees: issue.assignees.nodes,
+    icon: 'assignee',
     label: 'Assignee',
   });
 }
@@ -3274,23 +3602,26 @@ function IssueEpic({ issue }) {
   if (!issue.epic) {
     return null;
   }
-  return jsxs(InfoBlock, {
+  return jsx(InfoBlock, {
+    icon: 'epic',
     title: 'Epic',
-    children: [
-      jsx(GitlabIcon, { className: 'gl-mr-2', icon: 'epic', size: 16 }),
-      jsx('span', { children: issue.epic.title }),
-    ],
+    children: jsx(Link, {
+      href: issue.epic.webUrl,
+      title: issue.epic.title,
+      children: issue.epic.title,
+    }),
   });
 }
 
 // apps/gitlab-plus/src/components/issue-preview/blocks/IssueHeading.tsx
-function IssueHeader({ issue }) {
+function IssueHeader({ issue, onRefresh }) {
   return jsx(HeadingBlock, {
     author: issue.author,
     badge: jsx(IssueStatus, { isOpen: issue.state === 'opened' }),
     createdAt: issue.createdAt,
     entityId: `#${issue.iid}`,
     icon: 'issue-type-issue',
+    onRefresh,
     title: issue.title,
   });
 }
@@ -3320,127 +3651,17 @@ function IssueIteration({ issue }) {
     return null;
   }
   return jsx(InfoBlock, {
+    icon: 'iteration',
+    rightTitle: label,
     title: 'Iteration',
-    rightTitle: jsxs(Row, {
-      children: [
-        jsx(GitlabIcon, { className: 'gl-mr-2', icon: 'iteration', size: 16 }),
-        jsx('span', { children: label }),
-      ],
-    }),
   });
 }
 
-// apps/gitlab-plus/src/components/common/bolck/LabelsBlockChangeStatus.tsx
-function LabelsBlockChangeStatus({
-  isLoading,
-  name: name2,
-  onChange,
-  options,
-}) {
-  if (isLoading) {
-    return jsx(GitlabLoader, {});
-  }
-  const getValues = useCallback(
-    async (search) => {
-      return options.filter((option) => option.title.includes(search));
-    },
-    [options]
-  );
-  const renderOption = useCallback((item) => {
-    return jsxs('div', {
-      class: 'gl-flex gl-flex-1 gl-break-anywhere gl-pb-3 gl-pl-4 gl-pt-3',
-      children: [
-        jsx('span', {
-          class: 'dropdown-label-box gl-top-0 gl-mr-3 gl-shrink-0',
-          style: { backgroundColor: item.color },
-        }),
-        jsx('span', { children: item.title }),
-      ],
-    });
-  }, []);
-  return jsx('div', {
-    style: { width: 150 },
-    children: jsx(AsyncAutocomplete, {
-      getValues,
-      name: name2,
-      onChange: ([label]) => label && onChange(label),
-      renderLabel: () => 'Change status',
-      renderOption,
-      value: [],
-    }),
-  });
-}
-
-// apps/gitlab-plus/src/components/common/bolck/useLabelBlock.ts
-const name = 'status-labels';
-
-function useLabelBlock(onStatusChange, projectPath) {
-  const [isLoading, setIsLoading] = useState(false);
+// apps/gitlab-plus/src/components/issue-preview/blocks/useIssueLabels.ts
+function useIssueLabels(issue, link, refetch) {
   const [statusLabels, setStatusLabels] = useState([]);
-  const onSelectStatus = useCallback(async (label) => {
-    setIsLoading(true);
-    if (onStatusChange && projectPath) {
-      await onStatusChange(projectPath, label);
-      new RecentlyProvider(name).add(label);
-    }
-    setIsLoading(false);
-  }, []);
-  const fetchLabels = useCallback(async (projectPath2) => {
-    const response = await new LabelsProvider().getLabels(
-      projectPath2,
-      'Status::'
-    );
-    setStatusLabels(response.data.workspace.labels.nodes);
-  }, []);
-  useEffect(() => {
-    if (!projectPath) {
-      return;
-    }
-    fetchLabels(projectPath);
-  }, [projectPath]);
-  return {
-    isLoading,
-    name,
-    onSelectStatus,
-    showChangeStatusComponent: Boolean(projectPath && onStatusChange),
-    statusLabels,
-  };
-}
-
-// apps/gitlab-plus/src/components/common/bolck/LabelsBlock.tsx
-function LabelsBlock({ labels: labels2, onStatusChange, projectPath }) {
-  const {
-    isLoading,
-    name: name2,
-    onSelectStatus,
-    showChangeStatusComponent,
-    statusLabels,
-  } = useLabelBlock(onStatusChange, projectPath);
-  if (!labels2.length && !onStatusChange) {
-    return null;
-  }
-  return jsx(InfoBlock, {
-    className: 'issuable-show-labels',
-    title: 'Labels',
-    rightTitle:
-      showChangeStatusComponent &&
-      jsx(LabelsBlockChangeStatus, {
-        isLoading,
-        name: name2,
-        onChange: onSelectStatus,
-        options: statusLabels,
-      }),
-    children: labels2.map((label) => jsx(GitlabLabel, { label }, label.id)),
-  });
-}
-
-// apps/gitlab-plus/src/components/issue-preview/blocks/IssueLabels.tsx
-function IssueLabels({ issue, projectPath, refetch }) {
-  if (!issue.labels.nodes.length) {
-    return null;
-  }
   const onStatusChange = useCallback(
-    async (projectPath2, label) => {
+    async (label) => {
       const statusLabel = issue.labels.nodes.find((l) =>
         l.title.includes('Status::')
       );
@@ -3450,19 +3671,44 @@ function IssueLabels({ issue, projectPath, refetch }) {
       await new IssueProvider().issueSetLabels({
         iid: issue.iid,
         labelIds: labels2.map((l) => l.id),
-        projectPath: projectPath2,
+        projectPath: link.projectPath,
       });
       if (refetch) {
         await refetch();
       }
     },
-    [projectPath, issue]
+    [issue]
   );
-  return jsx(LabelsBlock, {
+  const fetchLabels = useCallback(async (projectPath) => {
+    const response = await new LabelsProvider().getProjectLabels(
+      projectPath,
+      'Status::'
+    );
+    setStatusLabels(response.data.workspace.labels.nodes);
+  }, []);
+  useEffect(() => {
+    fetchLabels(link.projectPath);
+  }, []);
+  return {
     labels: issue.labels.nodes,
-    onStatusChange,
-    projectPath,
-  });
+    updateStatus: {
+      labels: statusLabels,
+      update: onStatusChange,
+    },
+  };
+}
+
+// apps/gitlab-plus/src/components/issue-preview/blocks/IssueLabels.tsx
+function IssueLabels({ issue, link, refetch }) {
+  const { labels: labels2, updateStatus } = useIssueLabels(
+    issue,
+    link,
+    refetch
+  );
+  if (!labels2.length) {
+    return null;
+  }
+  return jsx(LabelsBlock, { labels: labels2, updateStatus });
 }
 
 // apps/gitlab-plus/src/components/common/MrStatus.tsx
@@ -3509,7 +3755,7 @@ function GitlabMergeRequest({ mr }) {
           jsx(GitlabUser, { size: 16, user: mr.author, withLink: true }),
         ],
       }),
-      jsx(Link, { href: mr.webUrl, children: mr.title }),
+      jsx(Link, { href: mr.webUrl, title: mr.title, children: mr.title }),
     ],
   });
 }
@@ -3520,6 +3766,7 @@ function IssueMergeRequests({ issue }) {
     return null;
   }
   return jsx(InfoBlock, {
+    icon: 'merge-request',
     title: 'Merge requests',
     children: issue.relatedMergeRequests.nodes.map((mr) =>
       jsx(GitlabMergeRequest, { mr }, mr.iid)
@@ -3533,13 +3780,9 @@ function IssueMilestone({ issue }) {
     return null;
   }
   return jsx(InfoBlock, {
+    icon: 'milestone',
+    rightTitle: issue.milestone.title,
     title: 'Milestone',
-    rightTitle: jsxs(Row, {
-      children: [
-        jsx(GitlabIcon, { className: 'gl-mr-2', icon: 'milestone', size: 16 }),
-        jsx('span', { children: issue.milestone.title }),
-      ],
-    }),
   });
 }
 
@@ -3550,7 +3793,7 @@ const relationMap = {
   relates_to: 'Related to:',
 };
 
-function IssueRelatedIssue({ isLoading, relatedIssues }) {
+function IssueRelatedIssue({ issue }) {
   const groups = useMemo(() => {
     const initValue = {
       blocks: [],
@@ -3558,22 +3801,16 @@ function IssueRelatedIssue({ isLoading, relatedIssues }) {
       relates_to: [],
     };
     return Object.entries(
-      relatedIssues.reduce(
-        (acc, issue) => ({
+      issue.linkedWorkItems.nodes.reduce(
+        (acc, issue2) => ({
           ...acc,
-          [issue.linkType]: [...acc[issue.linkType], issue],
+          [issue2.linkType]: [...acc[issue2.linkType], issue2],
         }),
         initValue
       )
     ).filter(([_, issues]) => issues.length);
-  }, [relatedIssues]);
-  if (isLoading) {
-    return jsx('div', {
-      className: 'gl-flex gl-items-center gl-justify-center',
-      children: jsx(GitlabLoader, {}),
-    });
-  }
-  if (!relatedIssues.length) {
+  }, [issue]);
+  if (!issue.linkedWorkItems.nodes.length) {
     return null;
   }
   return jsx(InfoBlock, {
@@ -3588,15 +3825,20 @@ function IssueRelatedIssue({ isLoading, relatedIssues }) {
               class: 'item-title gl-flex gl-min-w-0 gl-gap-3',
               children: jsx('span', { children: relationMap[key] }),
             }),
-            issues.map((issue) =>
+            issues.map((issue2) =>
               jsxs(
                 Link,
                 {
-                  href: issue.webUrl,
+                  href: issue2.workItem.webUrl,
                   blockHover: true,
-                  children: ['#', issue.iid, ' ', issue.title],
+                  children: [
+                    '#',
+                    issue2.workItem.iid,
+                    ' ',
+                    issue2.workItem.title,
+                  ],
                 },
-                issue.iid
+                issue2.workItem.iid
               )
             ),
           ],
@@ -3608,102 +3850,55 @@ function IssueRelatedIssue({ isLoading, relatedIssues }) {
 }
 
 // apps/gitlab-plus/src/components/issue-preview/useFetchIssue.ts
-const initialIssueData = {
-  isLoading: false,
-  issue: null,
-  link: null,
-};
-const initialRelatedIssuesData = {
-  isLoading: false,
-  issues: [],
-};
-
 function useFetchIssue() {
-  const [issue, setIssue] = useState(initialIssueData);
-  const [relatedIssues, setRelatedIssues] = useState(initialRelatedIssuesData);
-  const fetchIssue = async (link, force = false) => {
-    setIssue({ ...initialIssueData, isLoading: true });
+  return useFetchEntity(async (link, force = false) => {
     const response = await new IssueProvider(force).getIssue(
       link.projectPath,
       link.issue
     );
-    setIssue({
-      isLoading: false,
-      issue: response.data.project.issue,
-      link,
-    });
-  };
-  const fetchRelatedIssues = async (link, force = false) => {
-    const relatedIssues2 = await new IssueProvider(force).getIssueLinks(
-      link.projectPath,
-      link.issue
-    );
-    setRelatedIssues({
-      isLoading: false,
-      issues: relatedIssues2,
-    });
-  };
-  const fetch2 = async (link, force = false) => {
-    fetchIssue(link, force);
-    fetchRelatedIssues(link, force);
-  };
-  const refetch = async () => {
-    if (issue.link) {
-      fetch2(issue.link, true);
-    }
-  };
-  const reset = () => {
-    setIssue(initialIssueData);
-    setRelatedIssues(initialRelatedIssuesData);
-  };
-  return {
-    fetch: fetch2,
-    issue,
-    refetch,
-    relatedIssues,
-    reset,
-  };
+    console.log(response);
+    return response.data.project.issue;
+  });
 }
 
 // apps/gitlab-plus/src/components/issue-preview/IssuePreviewModal.tsx
 function IssuePreviewModal() {
-  let _a;
   const {
+    entityData,
     fetch: fetch2,
-    issue,
-    refetch,
-    relatedIssues,
+    isLoading,
+    isRefreshing,
     reset,
   } = useFetchIssue();
-  return jsxs(PreviewModal, {
+  return jsx(PreviewModal, {
     validator: LinkParser.validateIssueLink,
     fetch: fetch2,
-    isError: !issue,
-    isLoading: issue.isLoading,
+    isError: !entityData,
+    isLoading,
+    isRefreshing,
     parser: LinkParser.parseIssueLink,
     reset,
-    children: [
-      issue.issue &&
-        jsxs(Fragment, {
-          children: [
-            jsx(IssueHeader, { issue: issue.issue }),
-            jsx(IssueAssignee, { issue: issue.issue }),
-            jsx(IssueLabels, {
-              issue: issue.issue,
-              projectPath: (_a = issue.link) == null ? void 0 : _a.projectPath,
-              refetch,
-            }),
-            jsx(IssueEpic, { issue: issue.issue }),
-            jsx(IssueMilestone, { issue: issue.issue }),
-            jsx(IssueIteration, { issue: issue.issue }),
-            jsx(IssueMergeRequests, { issue: issue.issue }),
-          ],
-        }),
-      jsx(IssueRelatedIssue, {
-        isLoading: relatedIssues.isLoading,
-        relatedIssues: relatedIssues.issues,
+    children:
+      entityData &&
+      jsxs(Fragment, {
+        children: [
+          jsx(IssueHeader, {
+            issue: entityData.entity,
+            onRefresh: () => fetch2(entityData.link, true),
+          }),
+          jsx(IssueAssignee, { issue: entityData.entity }),
+          jsx(IssueLabels, {
+            issue: entityData.entity,
+            link: entityData.link,
+            refetch: () => fetch2(entityData.link, true),
+          }),
+          jsx(IssueEpic, { issue: entityData.entity }),
+          jsx(IssueMilestone, { issue: entityData.entity }),
+          jsx(IssueIteration, { issue: entityData.entity }),
+          jsx(IssueMergeRequests, { issue: entityData.entity }),
+          jsx(IssueRelatedIssue, { issue: entityData.entity }),
+        ],
       }),
-    ],
   });
 }
 
@@ -3725,12 +3920,17 @@ function MrApprovedBy({ mr }) {
 
 // apps/gitlab-plus/src/components/mr-preview/blocks/MrAssignee.tsx
 function MrAssignee({ mr }) {
-  return jsx(UsersBlock, { assignees: mr.assignees.nodes, label: 'Assignee' });
+  return jsx(UsersBlock, {
+    assignees: mr.assignees.nodes,
+    icon: 'assignee',
+    label: 'Assignee',
+  });
 }
 
 // apps/gitlab-plus/src/components/mr-preview/blocks/MrBranch.tsx
 function MrBranch({ mr }) {
   return jsx(InfoBlock, {
+    icon: 'branch',
     title: 'Merge',
     children: jsxs('span', {
       children: [
@@ -3755,13 +3955,18 @@ function MrDiff({ mr }) {
     return `${mr.diffStatsSummary.fileCount} files`;
   }, [mr.diffStatsSummary.fileCount]);
   return jsx(InfoBlock, {
+    icon: 'commit',
     title: `Commit: ${mr.commitCount}`,
     rightTitle: jsxs(Row, {
       gap: 2,
       items: 'center',
       children: [
         jsx(GitlabIcon, { icon: 'doc-code', size: 16 }),
-        jsx(Text, { size: 'subtle', weight: 'bold', children: label }),
+        jsx(Text, {
+          size: 'subtle',
+          weight: 'bold',
+          children: label,
+        }),
         jsxs(Text, {
           color: 'success',
           weight: 'bold',
@@ -3779,14 +3984,18 @@ function MrDiff({ mr }) {
 
 // apps/gitlab-plus/src/components/mr-preview/blocks/MrDiscussion.tsx
 function MrDiscussion({ mr }) {
-  if (!mr.resolvableDiscussionsCount) {
+  const [resolved, total] = [
+    mr.resolvedDiscussionsCount,
+    mr.resolvableDiscussionsCount,
+  ];
+  if (!total) {
     return null;
   }
   const { label, title } = useMemo(() => {
-    const plural = mr.resolvableDiscussionsCount !== 1 ? 's' : '';
+    const plural = total !== 1 ? 's' : '';
     return {
-      label: `${mr.resolvedDiscussionsCount} of ${mr.resolvableDiscussionsCount}`,
-      title: `${mr.resolvedDiscussionsCount} of ${mr.resolvableDiscussionsCount} thread${plural} resolved`,
+      label: `${resolved} of ${total}`,
+      title: `${resolved} of ${total} thread${plural} resolved`,
     };
   }, [mr]);
   return jsx(InfoBlock, {
@@ -3795,24 +4004,29 @@ function MrDiscussion({ mr }) {
       icon: 'comments',
       label,
       title,
-      variant: 'muted',
+      variant: resolved === total ? 'success' : 'muted',
     }),
   });
 }
 
 // apps/gitlab-plus/src/components/mr-preview/blocks/MrHeading.tsx
-function MrHeader({ mr }) {
+function MrHeader({ mr, onRefresh }) {
   return jsx(HeadingBlock, {
     author: mr.author,
     createdAt: mr.createdAt,
     entityId: `!${mr.iid}`,
     icon: 'merge-request',
+    onRefresh,
     title: mr.titleHtml,
     badge: jsxs(Row, {
       className: 'gl-gap-2',
       items: 'center',
       children: [
-        jsx(MrStatus, { state: mr.state, withIcon: true, withLabel: true }),
+        jsx(MrStatus, {
+          state: mr.state,
+          withIcon: true,
+          withLabel: true,
+        }),
         Boolean(mr.approvedBy.nodes.length) &&
           jsx(GitlabBadge, {
             icon: 'check-circle',
@@ -3917,55 +4131,47 @@ class MrProvider extends GitlabProvider {
 }
 
 // apps/gitlab-plus/src/components/mr-preview/useFetchMr.ts
-const initialMrData = {
-  isLoading: false,
-  mr: null,
-};
-
 function useFetchMr() {
-  const [mr, setMr] = useState(initialMrData);
-  const fetchMr = async (link) => {
-    setMr({ ...initialMrData, isLoading: true });
-    const response = await new MrProvider().getMr(link.projectPath, link.mr);
-    setMr({
-      isLoading: false,
-      mr: response.data.workspace.mergeRequest,
-    });
-  };
-  const fetch2 = async (link) => {
-    fetchMr(link);
-  };
-  const reset = () => {
-    setMr(initialMrData);
-  };
-  return {
-    fetch: fetch2,
-    mr,
-    reset,
-  };
+  return useFetchEntity(async (link, force = false) => {
+    const response = await new MrProvider(force).getMr(
+      link.projectPath,
+      link.mr
+    );
+    return response.data.workspace.mergeRequest;
+  });
 }
 
 // apps/gitlab-plus/src/components/mr-preview/MrPreviewModal.tsx
 function MrPreviewModal() {
-  const { fetch: fetch2, mr, reset } = useFetchMr();
+  const {
+    entityData,
+    fetch: fetch2,
+    isLoading,
+    isRefreshing,
+    reset,
+  } = useFetchMr();
   return jsx(PreviewModal, {
     validator: LinkParser.validateMrLink,
     fetch: fetch2,
-    isError: !mr,
-    isLoading: mr.isLoading,
+    isError: !entityData,
+    isLoading,
+    isRefreshing,
     parser: LinkParser.parseMrLink,
     reset,
     children:
-      mr.mr &&
+      entityData &&
       jsxs(Fragment, {
         children: [
-          jsx(MrHeader, { mr: mr.mr }),
-          jsx(MrBranch, { mr: mr.mr }),
-          jsx(MrAssignee, { mr: mr.mr }),
-          jsx(MrApprovedBy, { mr: mr.mr }),
-          jsx(MrLabels, { mr: mr.mr }),
-          jsx(MrDiff, { mr: mr.mr }),
-          jsx(MrDiscussion, { mr: mr.mr }),
+          jsx(MrHeader, {
+            mr: entityData.entity,
+            onRefresh: () => fetch2(entityData.link, true),
+          }),
+          jsx(MrBranch, { mr: entityData.entity }),
+          jsx(MrAssignee, { mr: entityData.entity }),
+          jsx(MrApprovedBy, { mr: entityData.entity }),
+          jsx(MrLabels, { mr: entityData.entity }),
+          jsx(MrDiff, { mr: entityData.entity }),
+          jsx(MrDiscussion, { mr: entityData.entity }),
         ],
       }),
   });
@@ -4035,7 +4241,10 @@ function RelatedIssuesAutocompleteModal({ input, link }) {
             jsxs('div', {
               class: 'gl-flex gl-gap-x-2 gl-py-2',
               children: [
-                jsx(GitlabIcon, { icon: 'issue-type-issue', size: 16 }),
+                jsx(GitlabIcon, {
+                  icon: 'issue-type-issue',
+                  size: 16,
+                }),
                 jsx('small', { children: item.iid }),
                 jsx('span', {
                   class: 'gl-flex gl-flex-wrap',
@@ -4097,6 +4306,78 @@ class RelatedIssueAutocomplete extends Service {
 
   isMounted(input) {
     return input.classList.contains(this.readyClass);
+  }
+}
+
+// apps/gitlab-plus/src/services/RelatedIssuesLabelStatus.tsx
+class RelatedIssuesLabelStatus extends Service {
+  constructor() {
+    super();
+    __publicField(this, 'ready', false);
+  }
+
+  init() {
+    this.initIssuesList();
+    window.setTimeout(this.initIssuesList.bind(this), 1e3);
+    window.setTimeout(this.initIssuesList.bind(this), 3e3);
+    window.setTimeout(this.initIssuesList.bind(this), 5e3);
+  }
+
+  initIssuesList() {
+    if (this.ready) {
+      return;
+    }
+    const lists = document.querySelectorAll(
+      '#related-issues .related-items-list'
+    );
+    const link = LinkParser.parseIssueLink(window.location.href);
+    if (!lists.length || !link) {
+      return;
+    }
+    this.ready = true;
+    const items = [...lists].flatMap((list) => [
+      ...list.querySelectorAll('li'),
+    ]);
+    this.updateIssuesItem(link, items);
+  }
+
+  async updateIssuesItem(link, items) {
+    const response = await new IssueProvider().getIssueWithRelatedIssuesLabels(
+      link.projectPath,
+      link.issue
+    );
+    const getStatusLabel = (item) => {
+      const labelsWidget = item.workItem.widgets.find(
+        (w) => w.type === 'LABELS'
+      );
+      return labelsWidget == null
+        ? void 0
+        : labelsWidget.labels.nodes.find(
+            (l) =>
+              l.title.toLowerCase().startsWith('status::') ||
+              l.title.toLowerCase().startsWith('workflow::')
+          );
+    };
+    const issueStatusMap =
+      response.data.project.issue.linkedWorkItems.nodes.reduce((acc, value) => {
+        return {
+          ...acc,
+          [value.workItem.id.replace(/\D/g, '')]: getStatusLabel(value),
+        };
+      }, {});
+    items.forEach((item) => {
+      if (!item.dataset.key || !issueStatusMap[item.dataset.key]) {
+        return;
+      }
+      const statusLabel = issueStatusMap[item.dataset.key];
+      const infoArea = item.querySelector('.item-attributes-area');
+      if (infoArea && statusLabel) {
+        render(
+          jsx(GitlabLabel, { label: statusLabel }),
+          this.root('glp-status-label', infoArea, true)
+        );
+      }
+    });
   }
 }
 
@@ -4386,5 +4667,6 @@ class SortIssue extends Service {
   CreateRelatedIssue,
   CreateChildIssue,
   RelatedIssueAutocomplete,
+  RelatedIssuesLabelStatus,
   SortIssue,
 ].forEach((Service2) => new Service2().init());
