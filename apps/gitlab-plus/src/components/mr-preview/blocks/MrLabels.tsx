@@ -1,5 +1,5 @@
 import { MergeRequest } from '../../../types/Mr';
-import { InfoBlock } from '../../common/bolck/InfoBlock';
+import { InfoBlock } from '../../common/block/InfoBlock';
 import { GitlabLabel } from '../../common/GitlabLabel';
 
 type Props = {

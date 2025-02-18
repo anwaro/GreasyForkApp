@@ -1,5 +1,5 @@
 import { Epic } from '../../../types/Epic';
-import { HeadingBlock } from '../../common/bolck/HeadingBlock';
+import { HeadingBlock } from '../../common/block/HeadingBlock';
 import { IssueStatus } from '../../common/IssueStatus';
 
 type Props = {

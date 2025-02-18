@@ -2,15 +2,13 @@ import { render } from 'preact';
 
 import { RelatedIssuesAutocompleteModal } from '../components/related-issue-autocomplete/RelatedIssuesAutocompleteModal';
 import { LinkParser } from '../helpers/LinkParser';
-import { Service } from '../types/Service';
+import { BaseService } from './BaseService';
+import { ServiceName } from './ServiceName';
 
-export class RelatedIssueAutocomplete extends Service {
+export class RelatedIssueAutocomplete extends BaseService {
+  name = ServiceName.RelatedIssueAutocomplete;
   private ready = false;
   private readyClass = 'glp-input-ready';
-
-  constructor() {
-    super();
-  }
 
   public init() {
     this.initObserver();

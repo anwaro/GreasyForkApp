@@ -64,7 +64,7 @@ export class LinkParser {
     if (LinkParser.validateMrLink(link)) {
       return LinkParser.parseGitlabLink(
         link,
-        /\/(?<projectPath>(?<workspacePath>.+)\/[^/]+)\/-\/merge_requests\/(?<mr>\d+)/
+        /\/(?<projectPath>(?<workspacePath>.+)\/[^/]+)\/-\/merge_requests\/(?<mr>\d+)\/?$/
       );
     }
     return undefined;

@@ -81,13 +81,10 @@ export function PreviewModal<LinkType>({
 
   return (
     <div
+      className={clsx('glp-preview-modal', isVisible && 'glp-modal-visible')}
       onMouseEnter={onLinkEnter}
       onMouseLeave={onLinkLeave}
       ref={ref}
-      className={clsx(
-        'glp-issue-preview-modal',
-        isVisible && 'glp-modal-visible'
-      )}
       style={{
         left: hoverPosition.x,
         top: hoverPosition.y,

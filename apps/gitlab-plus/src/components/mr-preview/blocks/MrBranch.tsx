@@ -1,6 +1,6 @@
 import { MergeRequest } from '../../../types/Mr';
 import { Text } from '../../common/base/Text';
-import { InfoBlock } from '../../common/bolck/InfoBlock';
+import { InfoBlock } from '../../common/block/InfoBlock';
 
 type Props = {
   mr: MergeRequest;

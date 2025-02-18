@@ -1,4 +1,5 @@
 import './styles';
+import { userSettingsStore } from './components/user-settings/UserSettingsStore';
 import { ClearCacheService } from './services/ClearCacheService';
 import { CreateChildIssue } from './services/CreateChildIssue';
 import { CreateRelatedIssue } from './services/CreateRelatedIssue';
@@ -9,6 +10,7 @@ import { MrPreview } from './services/MrPreview';
 import { RelatedIssueAutocomplete } from './services/RelatedIssueAutocomplete';
 import { RelatedIssuesLabelStatus } from './services/RelatedIssuesLabelStatus';
 import { SortIssue } from './services/SortIssue';
+import { UserSettings } from './services/UserSettings';
 
 [
   ClearCacheService,
@@ -21,4 +23,11 @@ import { SortIssue } from './services/SortIssue';
   RelatedIssueAutocomplete,
   RelatedIssuesLabelStatus,
   SortIssue,
-].forEach((Service) => new Service().init());
+  UserSettings,
+].forEach((Service) => {
+  const service = new Service();
+
+  if (userSettingsStore.isActive(service.name)) {
+    service.init();
+  }
+});

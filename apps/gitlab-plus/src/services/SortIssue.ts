@@ -1,7 +1,8 @@
 import { Dom } from '@ui/Dom';
 import { Observer } from '@ui/Observer';
 
-import { Service } from '../types/Service';
+import { BaseService } from './BaseService';
+import { ServiceName } from './ServiceName';
 
 enum ChildType {
   issue = 'issue',
@@ -21,7 +22,9 @@ const sortWeight: Record<ChildType, number> = {
   [ChildType.userStory]: 6,
 };
 
-export class SortIssue extends Service {
+export class SortIssue extends BaseService {
+  name = ServiceName.SortIssue;
+
   public init() {
     const observer = new Observer();
     const userName = this.userName();

@@ -1,4 +1,4 @@
-.glp-issue-preview-modal {
+.glp-preview-modal {
   position: fixed;
   display: flex;
   background-color: var(--gl-background-color-default, var(--gl-color-neutral-0, #fff));
@@ -15,18 +15,18 @@
   transition-property: visibility, opacity, transform;
 }
 
-.glp-issue-preview-modal.glp-modal-visible {
+.glp-preview-modal.glp-modal-visible {
   visibility: visible;
   opacity: 1;
 }
 
-.glp-issue-preview-modal .glp-issue-modal-inner {
+.glp-preview-modal .glp-issue-modal-inner {
   display: flex;
   flex-direction: column;
   max-width: 100%;
 }
 
-.glp-issue-preview-modal .glp-block {
+.glp-preview-modal .glp-block {
   padding: .4rem .5em;
   border-bottom-style: solid;
   border-bottom-color: var(--gl-border-color-subtle, var(--gl-color-neutral-50, #ececef));
@@ -35,6 +35,6 @@
 }
 
 
-.glp-issue-preview-modal * {
+.glp-preview-modal * {
   max-width: 100%;
 }

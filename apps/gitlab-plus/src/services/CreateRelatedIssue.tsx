@@ -4,14 +4,12 @@ import { GitlabButton } from '../components/common/GitlabButton';
 import { CreateRelatedIssueModal } from '../components/create-issue/CreateRelatedIssueModal';
 import { ShowRelatedIssueModalEvent } from '../components/create-issue/events';
 import { LinkParser } from '../helpers/LinkParser';
-import { Service } from '../types/Service';
+import { BaseService } from './BaseService';
+import { ServiceName } from './ServiceName';
 
-export class CreateRelatedIssue extends Service {
+export class CreateRelatedIssue extends BaseService {
+  name = ServiceName.CreateRelatedIssue;
   private isMounted = false;
-
-  constructor() {
-    super();
-  }
 
   public init() {
     this.mount();

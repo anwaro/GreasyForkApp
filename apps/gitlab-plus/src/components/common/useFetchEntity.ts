@@ -29,7 +29,7 @@ export function useFetchEntity<Entity, EntityLink>(
 
   const reset = () => {
     setEntityData(null);
-    setIsLoading(false);
+    setIsRefreshing(false);
     setIsLoading(false);
   };
 

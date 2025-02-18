@@ -16,6 +16,7 @@ export function RelatedIssuesAutocompleteModal({ input, link }: Props) {
   return isVisible ? (
     <div class={'gl-relative gl-w-full gl-new-dropdown !gl-block'}>
       <AsyncAutocompleteDropdown<IssueAutocomplete>
+        hideCheckbox
         onClick={onSelect}
         onClose={onClose}
         options={options}

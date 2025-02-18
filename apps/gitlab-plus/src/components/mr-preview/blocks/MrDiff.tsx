@@ -3,7 +3,7 @@ import { useMemo } from 'preact/hooks';
 import { MergeRequest } from '../../../types/Mr';
 import { Row } from '../../common/base/Row';
 import { Text } from '../../common/base/Text';
-import { InfoBlock } from '../../common/bolck/InfoBlock';
+import { InfoBlock } from '../../common/block/InfoBlock';
 import { GitlabIcon } from '../../common/GitlabIcon';
 
 type Props = {

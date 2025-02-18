@@ -8,6 +8,7 @@ import { OptionItem } from './types';
 import { useAsyncAutocomplete } from './useAsyncAutocomplete';
 
 type Props<D extends OptionItem> = {
+  hideCheckbox?: boolean;
   buttonSize?: 'md' | 'sm';
   getValues: (search: string) => Promise<D[]>;
   isDisabled?: boolean;
@@ -20,6 +21,7 @@ type Props<D extends OptionItem> = {
 };
 
 export function AsyncAutocomplete<D extends OptionItem>({
+  hideCheckbox = false,
   buttonSize,
   getValues,
   isDisabled,
@@ -58,6 +60,7 @@ export function AsyncAutocomplete<D extends OptionItem>({
       />
       {isOpen && (
         <AsyncAutocompleteDropdown<D>
+          hideCheckbox={hideCheckbox}
           onClick={onClick}
           onClose={() => setIsOpen(false)}
           options={options}

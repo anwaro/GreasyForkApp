@@ -1,6 +1,6 @@
 import { Issue } from '../../../types/Issue';
 import { Link } from '../../common/base/Link';
-import { InfoBlock } from '../../common/bolck/InfoBlock';
+import { InfoBlock } from '../../common/block/InfoBlock';
 
 type Props = {
   issue: Issue;

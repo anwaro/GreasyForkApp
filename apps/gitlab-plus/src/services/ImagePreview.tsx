@@ -1,9 +1,12 @@
 import { render } from 'preact';
 
 import { ImagePreviewModal } from '../components/image-preview/ImagePreviewModal';
-import { Service } from '../types/Service';
+import { BaseService } from './BaseService';
+import { ServiceName } from './ServiceName';
 
-export class ImagePreview extends Service {
+export class ImagePreview extends BaseService {
+  name = ServiceName.ImagePreview;
+
   public init() {
     render(<ImagePreviewModal />, this.rootBody('glp-image-preview-root'));
   }

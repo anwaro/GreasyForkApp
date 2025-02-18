@@ -10,7 +10,7 @@ import { useMemo } from 'preact/hooks';
 
 import { Epic, HierarchyWidget } from '../../../types/Epic';
 import { Link } from '../../common/base/Link';
-import { InfoBlock } from '../../common/bolck/InfoBlock';
+import { InfoBlock } from '../../common/block/InfoBlock';
 
 type Props = {
   epic: Epic;

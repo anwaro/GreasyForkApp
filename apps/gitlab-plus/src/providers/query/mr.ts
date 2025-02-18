@@ -19,6 +19,11 @@ export const mrQuery = `query MergeRequestQuery($fullPath: ID!, $iid: String!) {
       author {
         ...User
       }
+      project {
+        webUrl
+        path
+        fullPath
+      }
       commitCount
       conflicts
       createdAt

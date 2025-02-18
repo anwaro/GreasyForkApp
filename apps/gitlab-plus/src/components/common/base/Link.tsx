@@ -11,10 +11,18 @@ type Props = {
   children?: ComponentChild;
   className?: string;
   href?: string;
+  inline?: boolean;
   title?: string;
 };
 
-export function Link({ blockHover, children, className, href, title }: Props) {
+export function Link({
+  blockHover,
+  children,
+  className,
+  href,
+  inline,
+  title,
+}: Props) {
   const [zIndex, setZIndex] = useState(modalZIndex + 1);
   const ref = useRef<HTMLAnchorElement>(null!);
 
@@ -25,9 +33,7 @@ export function Link({ blockHover, children, className, href, title }: Props) {
   };
 
   useLayoutEffect(() => {
-    const modal = ref.current?.closest<HTMLDivElement>(
-      '.glp-issue-preview-modal'
-    );
+    const modal = ref.current?.closest<HTMLDivElement>('.glp-preview-modal');
     setZIndex(
       modal?.style.zIndex ? Number(modal.style.zIndex) + 1 : modalZIndex + 1
     );
@@ -35,13 +41,17 @@ export function Link({ blockHover, children, className, href, title }: Props) {
 
   return (
     <a
-      class={clsx('gl-block gl-link sortable-link', className)}
       data-z-index={zIndex}
       href={href}
       onMouseOver={blockHover ? onHover : undefined}
       ref={ref}
       target={'_blank'}
       title={title}
+      class={clsx(
+        inline ? 'gl-inline' : 'gl-block',
+        'gl-link sortable-link',
+        className
+      )}
       style={{
         overflow: 'hidden',
         textOverflow: 'ellipsis',

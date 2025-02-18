@@ -9,7 +9,7 @@ export type LinkParserFunction<LinkType> = (
 ) => LinkType | undefined;
 export type LinkValidatorFunction = (link?: string) => boolean;
 
-export const modalZIndex = 200;
+export const modalZIndex = 1000;
 
 export function useOnLinkHover<LinkType>(
   parser: LinkParserFunction<LinkType>,
@@ -32,7 +32,7 @@ export function useOnLinkHover<LinkType>(
       anchor.dataset.zIndex ? Number(anchor.dataset.zIndex) : modalZIndex
     );
     setHoverPosition({
-      x: event.clientX,
+      x: event.clientX + 15,
       y: event.clientY,
     });
   };

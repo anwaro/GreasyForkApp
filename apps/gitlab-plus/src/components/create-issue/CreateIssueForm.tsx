@@ -1,4 +1,5 @@
 import { GitlabEpicLink, GitlabIssueLink } from '../../helpers/LinkParser';
+import { Text } from '../common/base/Text';
 import { FormField } from '../common/form/FormField';
 import { FormRow } from '../common/form/FormRow';
 import { GitlabButton } from '../common/GitlabButton';
@@ -25,8 +26,9 @@ export function CreateIssueForm({ isVisible, link, onClose }: Props) {
     form,
     isLoading,
     message,
+    parentEpic,
+    parentIssue,
     projectPath,
-    showRelations,
   } = useCreateIssueForm({ isVisible, link, onClose });
 
   return (
@@ -84,18 +86,27 @@ export function CreateIssueForm({ isVisible, link, onClose }: Props) {
       <FormField error={form.labels.errors} title={'Labels'}>
         <LabelField
           copyLabels={form.labels.copy}
-          copyLoading={form.labels.copyLoading}
           projectPath={projectPath}
           setValue={form.labels.onChange}
           value={form.labels.value}
         />
       </FormField>
-      {showRelations && (
+      {parentIssue && (
         <FormField error={form.relation.errors} title={'New issue'}>
           <RelationField
             setValue={form.relation.onChange}
             value={form.relation.value}
           />
+          <Text size={'sm'} variant={'secondary'}>
+            Parent issue: #{parentIssue.iid} {parentIssue.title}
+          </Text>
+        </FormField>
+      )}
+      {parentEpic && (
+        <FormField title={''}>
+          <Text size={'sm'} variant={'secondary'}>
+            Parent epic: &{parentEpic.iid} {parentEpic.title}
+          </Text>
         </FormField>
       )}
       <FormField error={error} hint={message} title={''}>

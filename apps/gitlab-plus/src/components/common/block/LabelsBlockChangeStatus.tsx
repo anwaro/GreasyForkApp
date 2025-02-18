@@ -45,6 +45,7 @@ export function LabelsBlockChangeStatus({
   return (
     <div className={'gl-py-2'} style={{ width: 130 }}>
       <AsyncAutocomplete<Label>
+        hideCheckbox
         buttonSize={'sm'}
         getValues={getValues}
         name={name}

@@ -5,7 +5,7 @@ import { IssueProvider } from '../../../providers/IssueProvider';
 import { LabelsProvider } from '../../../providers/LabelsProvider';
 import { Issue } from '../../../types/Issue';
 import { Label } from '../../../types/Label';
-import { UpdateStatus } from '../../common/bolck/useLabelBlock';
+import { UpdateStatus } from '../../common/block/useLabelBlock';
 
 export function useIssueLabels(
   issue: Issue,

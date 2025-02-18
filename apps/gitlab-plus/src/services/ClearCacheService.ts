@@ -1,13 +1,12 @@
 import { Cache } from '@store/Cache';
 
-import { Service } from '../types/Service';
+import { BaseService } from './BaseService';
+import { ServiceName } from './ServiceName';
 
-export class ClearCacheService extends Service {
+export class ClearCacheService extends BaseService {
+  name = ServiceName.ClearCacheService;
+
   private cache = new Cache('glp-');
-
-  constructor() {
-    super();
-  }
 
   public init() {
     this.cache.clearInvalid();

@@ -1,4 +1,4 @@
-import { GitlabIcon } from './GitlabIcon';
+import { GitlabButton } from './GitlabButton';
 
 type Props = {
   onClick: (e: Event) => void;
@@ -7,14 +7,13 @@ type Props = {
 
 export function CloseButton({ onClick, title = 'Close' }: Props) {
   return (
-    <button
+    <GitlabButton
+      className={'btn-icon'}
+      icon={'close-xs'}
+      iconSize={16}
       onClick={onClick}
       title={title}
-      class={
-        'btn js-issue-item-remove-button gl-mr-2 btn-default btn-sm gl-button btn-default-tertiary btn-icon'
-      }
-    >
-      <GitlabIcon icon={'close-xs'} size={16} />
-    </button>
+      variant={'tertiary'}
+    />
   );
 }

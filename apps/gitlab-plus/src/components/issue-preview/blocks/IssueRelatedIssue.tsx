@@ -2,7 +2,7 @@ import { useMemo } from 'preact/hooks';
 
 import { Issue, IssueRelation, RelatedIssue } from '../../../types/Issue';
 import { Link } from '../../common/base/Link';
-import { InfoBlock } from '../../common/bolck/InfoBlock';
+import { InfoBlock } from '../../common/block/InfoBlock';
 
 const relationMap: Record<IssueRelation, string> = {
   blocks: 'Blocks:',

@@ -6,14 +6,12 @@ import { IssueProvider } from '../providers/IssueProvider';
 import { LabelWidget } from '../types/Epic';
 import { RelatedIssueWithLabels } from '../types/Issue';
 import { Label } from '../types/Label';
-import { Service } from '../types/Service';
+import { BaseService } from './BaseService';
+import { ServiceName } from './ServiceName';
 
-export class RelatedIssuesLabelStatus extends Service {
+export class RelatedIssuesLabelStatus extends BaseService {
+  name = ServiceName.RelatedIssuesLabelStatus;
   private ready = false;
-
-  constructor() {
-    super();
-  }
 
   public init() {
     this.initIssuesList();

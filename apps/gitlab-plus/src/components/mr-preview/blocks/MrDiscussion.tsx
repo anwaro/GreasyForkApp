@@ -1,7 +1,7 @@
 import { useMemo } from 'preact/hooks';
 
 import { MergeRequest } from '../../../types/Mr';
-import { InfoBlock } from '../../common/bolck/InfoBlock';
+import { InfoBlock } from '../../common/block/InfoBlock';
 import { GitlabBadge } from '../../common/GitlabBadge';
 
 type Props = {

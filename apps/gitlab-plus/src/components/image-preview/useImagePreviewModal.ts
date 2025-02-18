@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 
 export function useImagePreviewModal() {
-  const [data, setData] = useState(false);
   const [src, setSrc] = useState('');
 
   const validate = (element: HTMLAnchorElement) => {
@@ -43,10 +42,6 @@ export function useImagePreviewModal() {
       }
     });
   }, []);
-
-  useEffect(() => {
-    setData(true);
-  }, [data]);
 
   return {
     onClose: () => setSrc(''),

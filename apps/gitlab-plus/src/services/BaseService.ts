@@ -1,4 +1,8 @@
-export abstract class Service {
+import { ServiceName } from './ServiceName';
+
+export abstract class BaseService {
+  abstract readonly name: ServiceName;
+
   abstract init(): void;
 
   root(className: string, parent?: HTMLElement, usePrepend = false) {

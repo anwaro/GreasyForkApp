@@ -8,7 +8,6 @@ import { GitlabLabel } from '../../common/GitlabLabel';
 
 type Props = {
   copyLabels?: VoidFunction;
-  copyLoading?: boolean;
   projectPath?: string;
   setValue: (value: Label[]) => void;
   value: Label[];
@@ -16,7 +15,6 @@ type Props = {
 
 export function LabelField({
   copyLabels,
-  copyLoading,
   projectPath,
   setValue,
   value,
@@ -82,7 +80,6 @@ export function LabelField({
         <div className={'gl-flex gl-absolute gl-h-full gl-right-0'}>
           <GitlabButton
             icon={'labels'}
-            isLoading={copyLoading}
             onClick={copyLabels}
             title={'Copy labels from parent'}
           />

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2025-02-12
+// @version      2025-02-18
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -26,7 +26,7 @@ const __publicField = (obj, key, value) =>
 // App code
 const { jsx, jsxs, Fragment } = this.jsxRuntime;
 const { render } = this.preact;
-const { useMemo, useRef, useEffect, useState, useCallback, useLayoutEffect } =
+const { useMemo, useState, useEffect, useRef, useCallback, useLayoutEffect } =
   this.preactHooks;
 
 // libs/share/src/ui/GlobalStyle.ts
@@ -45,14 +45,139 @@ class GlobalStyle {
 }
 
 const style1 =
-  '.glp-create-related-issue-layer {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 99999;\n  display: none;\n  background: rgba(0, 0, 0, 0.6);\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-create-related-issue-layer.glp-modal-visible {\n  display: flex;\n}\n\n.glp-create-related-issue-layer .glp-create-related-issue-modal {\n  width: 700px;\n  max-width: 95vw;\n}\n\n.gl-new-dropdown-item .glp-item-check {\n  opacity: 0;\n}\n\n.gl-new-dropdown-item.glp-active .gl-new-dropdown-item-content {\n  box-shadow: inset 0 0 0 2px var(--gl-focus-ring-outer-color), inset 0 0 0 3px var(--gl-focus-ring-inner-color), inset 0 0 0 1px var(--gl-focus-ring-inner-color);\n  background-color: var(--gl-dropdown-option-background-color-unselected-hover);\n  outline: none;\n}\n\n.gl-new-dropdown-item.glp-selected .glp-item-check {\n  opacity: 1;\n}\n\n';
+  '.glp-modal {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 99999;\n  display: none;\n  background: rgba(0, 0, 0, 0.6);\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-modal.glp-modal-visible {\n  display: flex;\n}\n\n.glp-modal .glp-modal-content {\n  width: 700px;\n  max-width: 95vw;\n}\n\n.gl-new-dropdown-item.glp-active .gl-new-dropdown-item-content {\n  box-shadow: inset 0 0 0 2px var(--gl-focus-ring-outer-color), inset 0 0 0 3px var(--gl-focus-ring-inner-color), inset 0 0 0 1px var(--gl-focus-ring-inner-color);\n  background-color: var(--gl-dropdown-option-background-color-unselected-hover);\n  outline: none;\n}\n\n';
 const style2 =
   '.glp-image-preview-modal {\n  position: fixed;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.6);\n  visibility: hidden;\n  opacity: 0;\n  pointer-events: none;\n  z-index: 99999;\n}\n\n.glp-image-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n  pointer-events: auto;\n}\n\n.glp-image-preview-modal .glp-modal-img {\n  max-width: 95%;\n  max-height: 95%;\n}\n\n.glp-image-preview-modal .glp-modal-close {\n  position: absolute;\n  z-index: 2;\n  top: 20px;\n  right: 20px;\n  color: black;\n  width: 40px;\n  height: 40px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background: white;\n  border-radius: 20px;\n  cursor: pointer;\n}\n\n';
 const style3 =
-  '.glp-issue-preview-modal {\n  position: fixed;\n  display: flex;\n  background-color: var(--gl-background-color-default, var(--gl-color-neutral-0, #fff));\n  border: 1px solid var(--gl-border-color-default);\n  border-radius: .25rem;\n  width: 350px;\n  min-height: 200px;\n  z-index: 99999;\n  visibility: hidden;\n  top: 0;\n  left: 0;\n  opacity: 0;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n}\n\n.glp-issue-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n\n.glp-issue-preview-modal .glp-issue-modal-inner {\n  display: flex;\n  flex-direction: column;\n  max-width: 100%;\n}\n\n.glp-issue-preview-modal .glp-block {\n  padding: .4rem .5em;\n  border-bottom-style: solid;\n  border-bottom-color: var(--gl-border-color-subtle, var(--gl-color-neutral-50, #ececef));\n  border-bottom-width: 1px;\n  width: 100%;\n}\n\n\n.glp-issue-preview-modal * {\n  max-width: 100%;\n}\n';
+  '.glp-preview-modal {\n  position: fixed;\n  display: flex;\n  background-color: var(--gl-background-color-default, var(--gl-color-neutral-0, #fff));\n  border: 1px solid var(--gl-border-color-default);\n  border-radius: .25rem;\n  width: 350px;\n  min-height: 200px;\n  z-index: 99999;\n  visibility: hidden;\n  top: 0;\n  left: 0;\n  opacity: 0;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n}\n\n.glp-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n\n.glp-preview-modal .glp-issue-modal-inner {\n  display: flex;\n  flex-direction: column;\n  max-width: 100%;\n}\n\n.glp-preview-modal .glp-block {\n  padding: .4rem .5em;\n  border-bottom-style: solid;\n  border-bottom-color: var(--gl-border-color-subtle, var(--gl-color-neutral-50, #ececef));\n  border-bottom-width: 1px;\n  width: 100%;\n}\n\n\n.glp-preview-modal * {\n  max-width: 100%;\n}\n';
 
 // apps/gitlab-plus/src/styles/index.ts
 GlobalStyle.addStyle('glp-style', [style1, style2, style3].join('\n'));
+
+// libs/share/src/store/Store.ts
+class Store {
+  constructor(key) {
+    this.key = key;
+  }
+
+  decode(val) {
+    return JSON.parse(val);
+  }
+
+  encode(val) {
+    return JSON.stringify(val);
+  }
+
+  get(defaultValue = void 0) {
+    try {
+      const data = localStorage.getItem(this.key);
+      if (data) {
+        return this.decode(data);
+      }
+      return defaultValue;
+    } catch (e) {
+      return defaultValue;
+    }
+  }
+
+  remove() {
+    localStorage.removeItem(this.key);
+  }
+
+  set(value) {
+    try {
+      localStorage.setItem(this.key, this.encode(value));
+    } catch (e) {}
+  }
+}
+
+// apps/gitlab-plus/src/services/ServiceName.ts
+const ServiceName = ((ServiceName2) => {
+  ServiceName2['ClearCacheService'] = 'ClearCacheService';
+  ServiceName2['CreateChildIssue'] = 'CreateChildIssue';
+  ServiceName2['CreateRelatedIssue'] = 'CreateRelatedIssue';
+  ServiceName2['EpicPreview'] = 'EpicPreview';
+  ServiceName2['ImagePreview'] = 'ImagePreview';
+  ServiceName2['IssuePreview'] = 'IssuePreview';
+  ServiceName2['MrPreview'] = 'MrPreview';
+  ServiceName2['RelatedIssueAutocomplete'] = 'RelatedIssueAutocomplete';
+  ServiceName2['RelatedIssuesLabelStatus'] = 'RelatedIssuesLabelStatus';
+  ServiceName2['SortIssue'] = 'SortIssue';
+  ServiceName2['UserSettings'] = 'UserSettings';
+  return ServiceName2;
+})(ServiceName || {});
+const servicesConfig = {
+  ['ClearCacheService']: { label: 'Clear cache', required: true },
+  ['CreateChildIssue']: {
+    label: 'Create child issue form on epic page',
+  },
+  ['CreateRelatedIssue']: {
+    label: 'Create related issue form on issue page',
+  },
+  ['EpicPreview']: { label: 'Epic preview modal' },
+  ['ImagePreview']: { label: 'Image preview modal' },
+  ['IssuePreview']: { label: 'Issue preview modal' },
+  ['MrPreview']: { label: 'Merge request preview modal' },
+  ['RelatedIssueAutocomplete']: {
+    label: 'Related issue autocomplete in related issues input',
+  },
+  ['RelatedIssuesLabelStatus']: {
+    label: 'Label status in related issues list items',
+  },
+  ['SortIssue']: {
+    experimental: true,
+    label: 'Sort issues in board',
+  },
+  ['UserSettings']: { label: 'User settings', required: true },
+};
+
+// apps/gitlab-plus/src/components/user-settings/UserSettingsStore.ts
+class UserSettingsStore {
+  constructor() {
+    __publicField(this, 'settings', {});
+    __publicField(this, 'store', new Store('gitlab-plus-settings'));
+    this.load();
+  }
+
+  isActive(name2) {
+    if (!(name2 in servicesConfig)) {
+      return false;
+    }
+    if (servicesConfig[name2].required) {
+      return true;
+    }
+    if (servicesConfig[name2].experimental) {
+      return this.getItem(name2, false);
+    }
+    return this.getItem(name2, true);
+  }
+
+  setIsActive(name2, value) {
+    this.setItem(name2, value);
+  }
+
+  getItem(key, defaultValue) {
+    if (this.settings[key] === void 0) {
+      return defaultValue;
+    }
+    return this.settings[key];
+  }
+
+  load() {
+    this.settings = this.store.get() || {};
+  }
+
+  persist() {
+    this.store.set(this.settings);
+  }
+
+  setItem(key, value) {
+    this.settings[key] = value;
+    this.persist();
+  }
+}
+
+const userSettingsStore = new UserSettingsStore();
 
 // libs/share/src/store/Cache.ts
 class Cache {
@@ -122,8 +247,8 @@ class Cache {
   }
 }
 
-// apps/gitlab-plus/src/types/Service.ts
-class Service {
+// apps/gitlab-plus/src/services/BaseService.ts
+class BaseService {
   root(className, parent, usePrepend = false) {
     const root = document.createElement('div');
     root.classList.add(className);
@@ -139,9 +264,10 @@ class Service {
 }
 
 // apps/gitlab-plus/src/services/ClearCacheService.ts
-class ClearCacheService extends Service {
+class ClearCacheService extends BaseService {
   constructor() {
-    super();
+    super(...arguments);
+    __publicField(this, 'name', ServiceName.ClearCacheService);
     __publicField(this, 'cache', new Cache('glp-'));
   }
 
@@ -213,16 +339,19 @@ function GitlabLoader({ size = 24 }) {
 
 // apps/gitlab-plus/src/components/common/GitlabButton.tsx
 const buttonVariantClass = {
-  default: '',
+  default: 'btn-default',
   info: 'btn-confirm',
+  tertiary: 'btn-default-tertiary',
 };
 
 function GitlabButton({
   children,
+  className,
   icon,
   iconSize = 12,
   isLoading,
   onClick,
+  size = 'sm',
   title,
   variant = 'default',
 }) {
@@ -236,10 +365,14 @@ function GitlabButton({
     return null;
   }, [icon, isLoading]);
   return jsxs('button', {
-    class: clsx('btn btn-sm gl-button', buttonVariantClass[variant]),
     onClick,
     title,
     type: 'button',
+    class: clsx(
+      `btn btn-${size} gl-button`,
+      buttonVariantClass[variant],
+      className
+    ),
     children: [
       children && jsx('span', { class: 'gl-button-text', children }),
       IconComponent,
@@ -249,12 +382,72 @@ function GitlabButton({
 
 // apps/gitlab-plus/src/components/common/CloseButton.tsx
 function CloseButton({ onClick, title = 'Close' }) {
-  return jsx('button', {
+  return jsx(GitlabButton, {
+    className: 'btn-icon',
+    icon: 'close-xs',
+    iconSize: 16,
     onClick,
     title,
-    class:
-      'btn js-issue-item-remove-button gl-mr-2 btn-default btn-sm gl-button btn-default-tertiary btn-icon',
-    children: jsx(GitlabIcon, { icon: 'close-xs', size: 16 }),
+    variant: 'tertiary',
+  });
+}
+
+// apps/gitlab-plus/src/components/common/modal/GlpModal.tsx
+function GlpModal({ children, isVisible, onClose, title }) {
+  return jsx('div', {
+    class: clsx('glp-modal', isVisible && 'glp-modal-visible'),
+    children: jsxs('div', {
+      className: clsx(
+        'glp-modal-content crud gl-border',
+        'gl-rounded-form gl-border-section gl-bg-subtle gl-mt-5'
+      ),
+      children: [
+        jsxs('div', {
+          className: clsx(
+            'crud-header gl-border-b gl-flex gl-flex-wrap',
+            'gl-justify-between gl-gap-x-5 gl-gap-y-2 gl-rounded-t-form',
+            'gl-border-section gl-bg-section gl-px-5 gl-py-4 gl-relative'
+          ),
+          children: [
+            jsx('h2', {
+              className: clsx(
+                'gl-m-0 gl-inline-flex gl-items-center gl-gap-3',
+                'gl-text-form gl-font-bold gl-leading-normal'
+              ),
+              children: title,
+            }),
+            jsx(CloseButton, { onClick: onClose }),
+          ],
+        }),
+        children,
+      ],
+    }),
+  });
+}
+
+// apps/gitlab-plus/src/components/common/modal/useGlpModal.ts
+function useGlpModal(eventName) {
+  const [isVisible, setIsVisible] = useState(false);
+  useEffect(() => {
+    document.addEventListener(eventName, () => setIsVisible(true));
+  }, []);
+  return {
+    isVisible,
+    onClose: () => setIsVisible(false),
+  };
+}
+
+// apps/gitlab-plus/src/components/common/base/Text.tsx
+function Text({ children, className, color, size, variant, weight }) {
+  return jsx('span', {
+    class: clsx(
+      size && `gl-text-${size}`,
+      weight && `gl-font-${weight}`,
+      variant && `gl-text-${variant}`,
+      color && `gl-text-${color}`,
+      className
+    ),
+    children,
   });
 }
 
@@ -507,6 +700,7 @@ function AsyncAutocompleteButton({
 
 // apps/gitlab-plus/src/components/common/form/autocomplete/AsyncAutocompleteOption.tsx
 function AsyncAutocompleteOption({
+  hideCheckbox = false,
   isActive,
   onClick,
   option,
@@ -515,23 +709,22 @@ function AsyncAutocompleteOption({
   selected,
 }) {
   const selectedIds = selected.map((i) => i.id);
-  const selectedClass = (id) =>
-    selectedIds.includes(id) ? 'glp-selected' : '';
+  const selectedClass = (id) => selectedIds.includes(id);
   return jsx('li', {
     onClick: () => onClick(option),
     class: clsx(
-      'gl-new-dropdown-item',
-      selectedClass(option.id),
+      'gl-new-dropdown-item', // selectedClass(option.id),
       isActive && 'glp-active'
     ),
     children: jsxs('span', {
       class: 'gl-new-dropdown-item-content',
       children: [
-        jsx(GitlabIcon, {
-          className: 'glp-item-check gl-pr-2',
-          icon: 'mobile-issue-close',
-          size: 16,
-        }),
+        !hideCheckbox &&
+          jsx(GitlabIcon, {
+            className: 'glp-item-check gl-pr-2',
+            icon: selectedClass(option.id) ? 'mobile-issue-close' : '',
+            size: 16,
+          }),
         renderOption(option),
         removeFromRecent &&
           jsx(CloseButton, {
@@ -549,6 +742,7 @@ function AsyncAutocompleteOption({
 
 // apps/gitlab-plus/src/components/common/form/autocomplete/AsyncAutocompleteList.tsx
 function AsyncAutocompleteList({
+  hideCheckbox,
   activeIndex,
   onClick,
   options,
@@ -584,6 +778,7 @@ function AsyncAutocompleteList({
                   jsx(
                     AsyncAutocompleteOption,
                     {
+                      hideCheckbox,
                       isActive: index === activeIndex,
                       onClick,
                       option: item,
@@ -607,6 +802,7 @@ function AsyncAutocompleteList({
                   jsx(
                     AsyncAutocompleteOption,
                     {
+                      hideCheckbox,
                       isActive: recently.length + index === activeIndex,
                       onClick,
                       option: item,
@@ -684,6 +880,7 @@ function useListNavigate(options, recent, onClick, onClose) {
 
 // apps/gitlab-plus/src/components/common/form/autocomplete/AsyncAutocompleteDropdown.tsx
 function AsyncAutocompleteDropdown({
+  hideCheckbox,
   onClick,
   onClose,
   options,
@@ -719,6 +916,7 @@ function AsyncAutocompleteDropdown({
           value: searchTerm,
         }),
         jsx(AsyncAutocompleteList, {
+          hideCheckbox,
           activeIndex,
           onClick,
           options,
@@ -870,6 +1068,7 @@ function useAsyncAutocomplete(
 
 // apps/gitlab-plus/src/components/common/form/autocomplete/AsyncAutocomplete.tsx
 function AsyncAutocomplete({
+  hideCheckbox = false,
   buttonSize,
   getValues,
   isDisabled,
@@ -906,6 +1105,7 @@ function AsyncAutocomplete({
       }),
       isOpen &&
         jsx(AsyncAutocompleteDropdown, {
+          hideCheckbox,
           onClick,
           onClose: () => setIsOpen(false),
           options,
@@ -1259,7 +1459,7 @@ function GitlabLabel({ label, onRemove }) {
 }
 
 // apps/gitlab-plus/src/components/create-issue/fields/LabelsField.tsx
-function LabelField({ copyLabels, copyLoading, projectPath, setValue, value }) {
+function LabelField({ copyLabels, projectPath, setValue, value }) {
   const getLabels = useCallback(
     async (search) => {
       if (!projectPath) {
@@ -1323,7 +1523,6 @@ function LabelField({ copyLabels, copyLoading, projectPath, setValue, value }) {
             className: 'gl-flex gl-absolute gl-h-full gl-right-0',
             children: jsx(GitlabButton, {
               icon: 'labels',
-              isLoading: copyLoading,
               onClick: copyLabels,
               title: 'Copy labels from parent',
             }),
@@ -1641,7 +1840,7 @@ class LinkParser {
     if (LinkParser.validateMrLink(link)) {
       return LinkParser.parseGitlabLink(
         link,
-        /\/(?<projectPath>(?<workspacePath>.+)\/[^/]+)\/-\/merge_requests\/(?<mr>\d+)/
+        /\/(?<projectPath>(?<workspacePath>.+)\/[^/]+)\/-\/merge_requests\/(?<mr>\d+)\/?$/
       );
     }
     return void 0;
@@ -1661,6 +1860,17 @@ class LinkParser {
 
   static validateMrLink(link) {
     return LinkParser.validateGitlabLink(link, 'merge_requests');
+  }
+}
+
+// apps/gitlab-plus/src/helpers/Widget.ts
+class WidgetHelper {
+  static epicLabels(epic) {
+    const labelWidgets = epic.widgets.find((w) => w.type === 'LABELS');
+    if (labelWidgets) {
+      return labelWidgets.labels.nodes;
+    }
+    return [];
   }
 }
 
@@ -2343,9 +2553,10 @@ const initialError = () => ({
 
 function useCreateIssueForm({ isVisible, link, onClose }) {
   let _a;
-  const [copyLabelsLoading, setCopyLabelsLoading] = useState(false);
   const [values, setValues] = useState(initialState());
   const [errors, setErrors] = useState(initialError());
+  const [parentIssue, setParentIssue] = useState(null);
+  const [parentEpic, setParentEpic] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -2353,12 +2564,11 @@ function useCreateIssueForm({ isVisible, link, onClose }) {
     setIsLoading(false);
     setValues(initialState());
     setErrors(initialError());
+    setMessage('');
+    setError('');
+    setParentIssue(null);
+    setParentEpic(null);
   };
-  useEffect(() => {
-    if (!isVisible) {
-      reset();
-    }
-  }, [isVisible]);
   const createPayload = () => {
     const data = {
       projectPath: values.project.fullPath,
@@ -2408,24 +2618,17 @@ function useCreateIssueForm({ isVisible, link, onClose }) {
   const createIssue = async (payload) => {
     return await new IssueProvider().createIssue(payload);
   };
-  const createRelation = async (link2, issue, relation) => {
+  const createRelation = async (issue, targetIssue, relation) => {
     await new IssueProvider().createIssueRelation({
-      targetIssueIid: link2.issue,
+      targetIssueIid: targetIssue.iid,
       issueId: issue.iid,
       linkType: relation,
       projectId: issue.projectId,
-      targetProjectId: link2.projectPath.replace(/\//g, '%2F'),
+      targetProjectId: targetIssue.projectId,
     });
   };
-  const setIssueEpic = async (link2, issue) => {
-    const epic = await new EpicProvider().getEpic(
-      link2.workspacePath,
-      link2.epic
-    );
-    await new IssueProvider().issueSetEpic(
-      issue.id,
-      epic.data.workspace.workItem.id
-    );
+  const setIssueEpic = async (issue, epic) => {
+    await new IssueProvider().issueSetEpic(issue.id, epic.id);
   };
   const submit = async () => {
     if (!validate()) {
@@ -2433,26 +2636,53 @@ function useCreateIssueForm({ isVisible, link, onClose }) {
     }
     setIsLoading(true);
     try {
+      setMessage('Creating issue...');
       const payload = createPayload();
       const response = await createIssue(payload);
-      setMessage('Issue was created');
       persistRecently();
-      if (values.relation && LinkParser.isIssueLink(link)) {
+      if (values.relation && parentIssue) {
+        setMessage('Creating relation to parent issue...');
         await createRelation(
-          link,
           response.data.createIssuable.issuable,
+          parentIssue,
           values.relation
         );
       }
-      if (LinkParser.isEpicLink(link)) {
-        await setIssueEpic(link, response.data.createIssuable.issuable);
+      if (parentEpic) {
+        setMessage('Linking to epic...');
+        await setIssueEpic(response.data.createIssuable.issuable, parentEpic);
       }
-      window.setTimeout(() => onClose(), 3e3);
+      setMessage('Issue was created');
+      window.setTimeout(() => onClose(), 2e3);
     } catch (e) {
+      setMessage('');
       setError(e.message);
     }
     setIsLoading(false);
   };
+  const fetchParent = async () => {
+    if (LinkParser.isIssueLink(link)) {
+      const issue = await new IssueProvider().getIssue(
+        link.projectPath,
+        link.issue
+      );
+      setParentIssue(issue.data.project.issue);
+    }
+    if (LinkParser.isEpicLink(link)) {
+      const epic = await new EpicProvider().getEpic(
+        link.workspacePath,
+        link.epic
+      );
+      setParentEpic(epic.data.workspace.workItem);
+    }
+  };
+  useEffect(() => {
+    if (!isVisible) {
+      reset();
+    } else {
+      fetchParent();
+    }
+  }, [isVisible]);
   return {
     actions: {
       reset,
@@ -2472,40 +2702,17 @@ function useCreateIssueForm({ isVisible, link, onClose }) {
         value: values.iteration ? [values.iteration] : [],
       },
       labels: {
-        copy: async () => {
-          setCopyLabelsLoading(true);
-          try {
-            if (LinkParser.isEpicLink(link)) {
-              const epic = await new EpicProvider().getEpic(
-                link.workspacePath,
-                link.epic
-              );
-              const labelWidgets = epic.data.workspace.workItem.widgets.find(
-                (w) => w.type === 'LABELS'
-              );
-              if (labelWidgets) {
-                setValues({
-                  ...values,
-                  labels: labelWidgets.labels.nodes,
-                });
-              }
-            }
-            if (LinkParser.isIssueLink(link)) {
-              const issue = await new IssueProvider().getIssue(
-                link.projectPath,
-                link.issue
-              );
-              setValues({
-                ...values,
-                labels: issue.data.project.issue.labels.nodes,
-              });
-            }
-          } catch (e) {
-            console.error(e);
+        copy: () => {
+          if (parentEpic) {
+            setValues({
+              ...values,
+              labels: WidgetHelper.epicLabels(parentEpic),
+            });
           }
-          setCopyLabelsLoading(false);
+          if (parentIssue) {
+            setValues({ ...values, labels: parentIssue.labels.nodes });
+          }
         },
-        copyLoading: copyLabelsLoading,
         errors: errors.labels,
         onChange: (labels2) => setValues({ ...values, labels: labels2 }),
         value: values.labels,
@@ -2543,8 +2750,9 @@ function useCreateIssueForm({ isVisible, link, onClose }) {
     },
     isLoading,
     message,
+    parentEpic,
+    parentIssue,
     projectPath: (_a = values.project) == null ? void 0 : _a.fullPath,
-    showRelations: LinkParser.isIssueLink(link),
   };
 }
 
@@ -2556,8 +2764,9 @@ function CreateIssueForm({ isVisible, link, onClose }) {
     form,
     isLoading,
     message,
+    parentEpic,
+    parentIssue,
     projectPath,
-    showRelations,
   } = useCreateIssueForm({ isVisible, link, onClose });
   return jsxs('form', {
     class: 'crud-body add-tree-form gl-mx-5 gl-my-4 gl-rounded-b-form',
@@ -2631,19 +2840,39 @@ function CreateIssueForm({ isVisible, link, onClose }) {
         title: 'Labels',
         children: jsx(LabelField, {
           copyLabels: form.labels.copy,
-          copyLoading: form.labels.copyLoading,
           projectPath,
           setValue: form.labels.onChange,
           value: form.labels.value,
         }),
       }),
-      showRelations &&
-        jsx(FormField, {
+      parentIssue &&
+        jsxs(FormField, {
           error: form.relation.errors,
           title: 'New issue',
-          children: jsx(RelationField, {
-            setValue: form.relation.onChange,
-            value: form.relation.value,
+          children: [
+            jsx(RelationField, {
+              setValue: form.relation.onChange,
+              value: form.relation.value,
+            }),
+            jsxs(Text, {
+              size: 'sm',
+              variant: 'secondary',
+              children: [
+                'Parent issue: #',
+                parentIssue.iid,
+                ' ',
+                parentIssue.title,
+              ],
+            }),
+          ],
+        }),
+      parentEpic &&
+        jsx(FormField, {
+          title: '',
+          children: jsxs(Text, {
+            size: 'sm',
+            variant: 'secondary',
+            children: ['Parent epic: &', parentEpic.iid, ' ', parentEpic.title],
           }),
         }),
       jsx(FormField, {
@@ -2670,52 +2899,20 @@ const ShowChildIssueModalEvent = new CustomEvent(showChildIssueModal);
 
 // apps/gitlab-plus/src/components/create-issue/CreateChildIssueModal.tsx
 function CreateChildIssueModal({ link }) {
-  const [isVisible, setIsVisible] = useState(false);
-  useEffect(() => {
-    document.addEventListener(showChildIssueModal, () => setIsVisible(true));
-  }, []);
-  return jsx('div', {
-    class: clsx(
-      'glp-create-related-issue-layer',
-      isVisible && 'glp-modal-visible'
-    ),
-    children: jsxs('div', {
-      className: clsx(
-        'glp-create-related-issue-modal crud gl-border',
-        'gl-rounded-form gl-border-section gl-bg-subtle gl-mt-5'
-      ),
-      children: [
-        jsxs('div', {
-          className: clsx(
-            'crud-header gl-border-b gl-flex gl-flex-wrap',
-            'gl-justify-between gl-gap-x-5 gl-gap-y-2 gl-rounded-t-form',
-            'gl-border-section gl-bg-section gl-px-5 gl-py-4 gl-relative'
-          ),
-          children: [
-            jsx('h2', {
-              className: clsx(
-                'gl-m-0 gl-inline-flex gl-items-center gl-gap-3',
-                'gl-text-form gl-font-bold gl-leading-normal'
-              ),
-              children: 'Create child issue',
-            }),
-            jsx(CloseButton, { onClick: () => setIsVisible(false) }),
-          ],
-        }),
-        jsx(CreateIssueForm, {
-          isVisible,
-          link,
-          onClose: () => setIsVisible(false),
-        }),
-      ],
-    }),
+  const { isVisible, onClose } = useGlpModal(showChildIssueModal);
+  return jsx(GlpModal, {
+    isVisible,
+    onClose,
+    title: 'Create child issue',
+    children: jsx(CreateIssueForm, { isVisible, link, onClose }),
   });
 }
 
 // apps/gitlab-plus/src/services/CreateChildIssue.tsx
-class CreateChildIssue extends Service {
+class CreateChildIssue extends BaseService {
   constructor() {
-    super();
+    super(...arguments);
+    __publicField(this, 'name', ServiceName.CreateChildIssue);
     __publicField(this, 'isMounted', false);
   }
 
@@ -2753,52 +2950,20 @@ class CreateChildIssue extends Service {
 
 // apps/gitlab-plus/src/components/create-issue/CreateRelatedIssueModal.tsx
 function CreateRelatedIssueModal({ link }) {
-  const [isVisible, setIsVisible] = useState(false);
-  useEffect(() => {
-    document.addEventListener(showRelatedIssueModal, () => setIsVisible(true));
-  }, []);
-  return jsx('div', {
-    class: clsx(
-      'glp-create-related-issue-layer',
-      isVisible && 'glp-modal-visible'
-    ),
-    children: jsxs('div', {
-      className: clsx(
-        'glp-create-related-issue-modal crud gl-border',
-        'gl-rounded-form gl-border-section gl-bg-subtle gl-mt-5'
-      ),
-      children: [
-        jsxs('div', {
-          className: clsx(
-            'crud-header gl-border-b gl-flex gl-flex-wrap',
-            'gl-justify-between gl-gap-x-5 gl-gap-y-2 gl-rounded-t-form',
-            'gl-border-section gl-bg-section gl-px-5 gl-py-4 gl-relative'
-          ),
-          children: [
-            jsx('h2', {
-              className: clsx(
-                'gl-m-0 gl-inline-flex gl-items-center gl-gap-3',
-                'gl-text-form gl-font-bold gl-leading-normal'
-              ),
-              children: 'Create related issue',
-            }),
-            jsx(CloseButton, { onClick: () => setIsVisible(false) }),
-          ],
-        }),
-        jsx(CreateIssueForm, {
-          isVisible,
-          link,
-          onClose: () => setIsVisible(false),
-        }),
-      ],
-    }),
+  const { isVisible, onClose } = useGlpModal(showRelatedIssueModal);
+  return jsx(GlpModal, {
+    isVisible,
+    onClose,
+    title: 'Create related issue',
+    children: jsx(CreateIssueForm, { isVisible, link, onClose }),
   });
 }
 
 // apps/gitlab-plus/src/services/CreateRelatedIssue.tsx
-class CreateRelatedIssue extends Service {
+class CreateRelatedIssue extends BaseService {
   constructor() {
-    super();
+    super(...arguments);
+    __publicField(this, 'name', ServiceName.CreateRelatedIssue);
     __publicField(this, 'isMounted', false);
   }
 
@@ -2880,7 +3045,7 @@ class Events {
 }
 
 // apps/gitlab-plus/src/components/common/useOnLinkHover.ts
-const modalZIndex = 200;
+const modalZIndex = 1e3;
 
 function useOnLinkHover(parser, validator) {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
@@ -2899,7 +3064,7 @@ function useOnLinkHover(parser, validator) {
       anchor.dataset.zIndex ? Number(anchor.dataset.zIndex) : modalZIndex
     );
     setHoverPosition({
-      x: event.clientX,
+      x: event.clientX + 15,
       y: event.clientY,
     });
   };
@@ -3018,13 +3183,10 @@ function PreviewModal({
     });
   }, [isLoading, isRefreshing, isError, isVisible, children]);
   return jsx('div', {
+    className: clsx('glp-preview-modal', isVisible && 'glp-modal-visible'),
     onMouseEnter: onLinkEnter,
     onMouseLeave: onLinkLeave,
     ref,
-    className: clsx(
-      'glp-issue-preview-modal',
-      isVisible && 'glp-modal-visible'
-    ),
     style: {
       left: hoverPosition.x,
       top: hoverPosition.y,
@@ -3035,21 +3197,7 @@ function PreviewModal({
   });
 }
 
-// apps/gitlab-plus/src/components/common/base/Text.tsx
-function Text({ children, className, color, size, variant, weight }) {
-  return jsx('span', {
-    class: clsx(
-      size && `gl-text-${size}`,
-      weight && `gl-font-${weight}`,
-      variant && `gl-text-${variant}`,
-      color && `gl-text-${color}`,
-      className
-    ),
-    children,
-  });
-}
-
-// apps/gitlab-plus/src/components/common/bolck/HeadingBlock.tsx
+// apps/gitlab-plus/src/components/common/block/HeadingBlock.tsx
 function HeadingBlock({
   author,
   badge,
@@ -3068,11 +3216,11 @@ function HeadingBlock({
         justify: 'between',
         children: [
           jsx('span', {
-            dangerouslySetInnerHTML: { __html: title },
             className: clsx(
               'gl-font-bold gl-leading-20 gl-text-gray-900',
               onRefresh && 'gl-pr-5'
             ),
+            children: title,
           }),
           onRefresh &&
             jsx('div', {
@@ -3094,9 +3242,9 @@ function HeadingBlock({
             children: [
               jsx(GitlabIcon, { icon, size: 16 }),
               jsx(Text, {
-                className: 'gl-ml-2',
                 size: 'sm',
                 variant: 'secondary',
+                weight: 'bold',
                 children: entityId,
               }),
             ],
@@ -3170,7 +3318,7 @@ function EpicHeader({ epic, onRefresh }) {
   });
 }
 
-// apps/gitlab-plus/src/components/common/bolck/InfoBlock.tsx
+// apps/gitlab-plus/src/components/common/block/InfoBlock.tsx
 function InfoBlock({ children, className, icon, rightTitle, title }) {
   return jsxs('div', {
     class: 'glp-block gl-relative',
@@ -3198,7 +3346,7 @@ function InfoBlock({ children, className, icon, rightTitle, title }) {
   });
 }
 
-// apps/gitlab-plus/src/components/common/bolck/LabelsBlockChangeStatus.tsx
+// apps/gitlab-plus/src/components/common/block/LabelsBlockChangeStatus.tsx
 function LabelsBlockChangeStatus({
   isLoading,
   name: name2,
@@ -3230,6 +3378,7 @@ function LabelsBlockChangeStatus({
     className: 'gl-py-2',
     style: { width: 130 },
     children: jsx(AsyncAutocomplete, {
+      hideCheckbox: true,
       buttonSize: 'sm',
       getValues,
       name: name2,
@@ -3241,7 +3390,7 @@ function LabelsBlockChangeStatus({
   });
 }
 
-// apps/gitlab-plus/src/components/common/bolck/useLabelBlock.ts
+// apps/gitlab-plus/src/components/common/block/useLabelBlock.ts
 const name = 'status-labels';
 
 function useLabelBlock(statusUpdate) {
@@ -3263,7 +3412,7 @@ function useLabelBlock(statusUpdate) {
   };
 }
 
-// apps/gitlab-plus/src/components/common/bolck/LabelsBlock.tsx
+// apps/gitlab-plus/src/components/common/block/LabelsBlock.tsx
 function LabelsBlock({ labels: labels2, updateStatus }) {
   const {
     isLoading,
@@ -3344,7 +3493,7 @@ function EpicLabels({ epic, refresh }) {
 }
 
 // apps/gitlab-plus/src/components/common/base/Link.tsx
-function Link({ blockHover, children, className, href, title }) {
+function Link({ blockHover, children, className, href, inline, title }) {
   const [zIndex, setZIndex] = useState(modalZIndex + 1);
   const ref = useRef(null);
   const onHover = (e) => {
@@ -3355,9 +3504,7 @@ function Link({ blockHover, children, className, href, title }) {
   useLayoutEffect(() => {
     let _a;
     const modal =
-      (_a = ref.current) == null
-        ? void 0
-        : _a.closest('.glp-issue-preview-modal');
+      (_a = ref.current) == null ? void 0 : _a.closest('.glp-preview-modal');
     setZIndex(
       (modal == null ? void 0 : modal.style.zIndex)
         ? Number(modal.style.zIndex) + 1
@@ -3365,13 +3512,17 @@ function Link({ blockHover, children, className, href, title }) {
     );
   }, []);
   return jsx('a', {
-    class: clsx('gl-block gl-link sortable-link', className),
     'data-z-index': zIndex,
     href,
     onMouseOver: blockHover ? onHover : void 0,
     ref,
     target: '_blank',
     title,
+    class: clsx(
+      inline ? 'gl-inline' : 'gl-block',
+      'gl-link sortable-link',
+      className
+    ),
     style: {
       overflow: 'hidden',
       textOverflow: 'ellipsis',
@@ -3429,7 +3580,7 @@ function useFetchEntity(fetcher) {
   };
   const reset = () => {
     setEntityData(null);
-    setIsLoading(false);
+    setIsRefreshing(false);
     setIsLoading(false);
   };
   return {
@@ -3488,7 +3639,12 @@ function EpicPreviewModal() {
 }
 
 // apps/gitlab-plus/src/services/EpicPreview.tsx
-class EpicPreview extends Service {
+class EpicPreview extends BaseService {
+  constructor() {
+    super(...arguments);
+    __publicField(this, 'name', ServiceName.EpicPreview);
+  }
+
   init() {
     render(jsx(EpicPreviewModal, {}), this.rootBody('glp-epic-preview-root'));
   }
@@ -3496,7 +3652,6 @@ class EpicPreview extends Service {
 
 // apps/gitlab-plus/src/components/image-preview/useImagePreviewModal.ts
 function useImagePreviewModal() {
-  const [data, setData] = useState(false);
   const [src, setSrc] = useState('');
   const validate = (element) => {
     return (
@@ -3530,9 +3685,6 @@ function useImagePreviewModal() {
       }
     });
   }, []);
-  useEffect(() => {
-    setData(true);
-  }, [data]);
   return {
     onClose: () => setSrc(''),
     src,
@@ -3559,13 +3711,18 @@ function ImagePreviewModal() {
 }
 
 // apps/gitlab-plus/src/services/ImagePreview.tsx
-class ImagePreview extends Service {
+class ImagePreview extends BaseService {
+  constructor() {
+    super(...arguments);
+    __publicField(this, 'name', ServiceName.ImagePreview);
+  }
+
   init() {
     render(jsx(ImagePreviewModal, {}), this.rootBody('glp-image-preview-root'));
   }
 }
 
-// apps/gitlab-plus/src/components/common/bolck/UsersBlock.tsx
+// apps/gitlab-plus/src/components/common/block/UsersBlock.tsx
 function UsersBlock({ assignees, icon, label, pluralIcon, pluralLabel }) {
   if (!assignees || !assignees.length) {
     return null;
@@ -3903,7 +4060,12 @@ function IssuePreviewModal() {
 }
 
 // apps/gitlab-plus/src/services/IssuePreview.tsx
-class IssuePreview extends Service {
+class IssuePreview extends BaseService {
+  constructor() {
+    super(...arguments);
+    __publicField(this, 'name', ServiceName.IssuePreview);
+  }
+
   init() {
     render(jsx(IssuePreviewModal, {}), this.rootBody('glp-issue-preview-root'));
   }
@@ -4009,15 +4171,39 @@ function MrDiscussion({ mr }) {
   });
 }
 
+// libs/share/src/utils/textWithChild.ts
+function textWithChild(text, pattern, replacer) {
+  const matches = text.match(RegExp(pattern, 'g'));
+  const parts = text.split(RegExp(pattern, 'g'));
+  if (!(matches == null ? void 0 : matches.length)) {
+    return text;
+  }
+  return parts.reduce((items, text2, index) => {
+    const textToReplace = index < matches.length ? matches[index] : void 0;
+    return [
+      ...items,
+      text2,
+      ...(textToReplace ? [replacer(textToReplace)] : []),
+    ];
+  }, []);
+}
+
 // apps/gitlab-plus/src/components/mr-preview/blocks/MrHeading.tsx
 function MrHeader({ mr, onRefresh }) {
+  const title = useMemo(() => {
+    const issueLink = (id) =>
+      `${mr.project.webUrl}/-/issues/${id.replace(/\D+/g, '')}`;
+    return textWithChild(mr.title, /#\d+/, (id) =>
+      jsx(Link, { href: issueLink(id), inline: true, children: id })
+    );
+  }, [mr]);
   return jsx(HeadingBlock, {
     author: mr.author,
     createdAt: mr.createdAt,
     entityId: `!${mr.iid}`,
     icon: 'merge-request',
     onRefresh,
-    title: mr.titleHtml,
+    title,
     badge: jsxs(Row, {
       className: 'gl-gap-2',
       items: 'center',
@@ -4076,6 +4262,11 @@ const mrQuery = `query MergeRequestQuery($fullPath: ID!, $iid: String!) {
       }
       author {
         ...User
+      }
+      project {
+        webUrl
+        path
+        fullPath
       }
       commitCount
       conflicts
@@ -4178,7 +4369,12 @@ function MrPreviewModal() {
 }
 
 // apps/gitlab-plus/src/services/MrPreview.tsx
-class MrPreview extends Service {
+class MrPreview extends BaseService {
+  constructor() {
+    super(...arguments);
+    __publicField(this, 'name', ServiceName.MrPreview);
+  }
+
   init() {
     render(jsx(MrPreviewModal, {}), this.rootBody('glp-mr-preview-root'));
   }
@@ -4231,6 +4427,7 @@ function RelatedIssuesAutocompleteModal({ input, link }) {
     ? jsx('div', {
         class: 'gl-relative gl-w-full gl-new-dropdown !gl-block',
         children: jsx(AsyncAutocompleteDropdown, {
+          hideCheckbox: true,
           onClick: onSelect,
           onClose,
           options,
@@ -4258,9 +4455,10 @@ function RelatedIssuesAutocompleteModal({ input, link }) {
 }
 
 // apps/gitlab-plus/src/services/RelatedIssueAutocomplete.tsx
-class RelatedIssueAutocomplete extends Service {
+class RelatedIssueAutocomplete extends BaseService {
   constructor() {
-    super();
+    super(...arguments);
+    __publicField(this, 'name', ServiceName.RelatedIssueAutocomplete);
     __publicField(this, 'ready', false);
     __publicField(this, 'readyClass', 'glp-input-ready');
   }
@@ -4310,9 +4508,10 @@ class RelatedIssueAutocomplete extends Service {
 }
 
 // apps/gitlab-plus/src/services/RelatedIssuesLabelStatus.tsx
-class RelatedIssuesLabelStatus extends Service {
+class RelatedIssuesLabelStatus extends BaseService {
   constructor() {
-    super();
+    super(...arguments);
+    __publicField(this, 'name', ServiceName.RelatedIssuesLabelStatus);
     __publicField(this, 'ready', false);
   }
 
@@ -4563,7 +4762,12 @@ const sortWeight = {
   ['userStory']: 6,
 };
 
-class SortIssue extends Service {
+class SortIssue extends BaseService {
+  constructor() {
+    super(...arguments);
+    __publicField(this, 'name', ServiceName.SortIssue);
+  }
+
   init() {
     const observer = new Observer();
     const userName = this.userName();
@@ -4657,6 +4861,175 @@ class SortIssue extends Service {
   }
 }
 
+// apps/gitlab-plus/src/components/user-settings/events.ts
+const showUserSettingsModal = 'glp-show-user-settings-modal';
+const ShowUserSettingsModalEvent = new CustomEvent(showUserSettingsModal);
+
+// apps/gitlab-plus/src/components/user-settings/UserSettingsButton.tsx
+function UserSettingsButton() {
+  return jsx('span', {
+    className: 'gl-new-dropdown-item-content',
+    onClick: () => document.dispatchEvent(ShowUserSettingsModalEvent),
+    children: jsxs('span', {
+      className: 'gl-new-dropdown-item-text-wrapper',
+      children: [
+        jsx('span', { style: { color: '#e24329' }, children: 'Gitlab Plus' }),
+        ' settings',
+      ],
+    }),
+  });
+}
+
+// apps/gitlab-plus/src/components/common/base/Column.tsx
+function Column({ children, className, gap, items, justify }) {
+  return jsx('div', {
+    class: clsx(
+      'gl-flex gl-flex-col',
+      justify && `gl-justify-${justify}`,
+      items && `gl-items-${items}`,
+      gap && `gl-gap-${gap}`,
+      className
+    ),
+    children,
+  });
+}
+
+// apps/gitlab-plus/src/components/common/GitlabSwitch.tsx
+function GitlabSwitch({ checked, disabled, onChange }) {
+  return jsx('button', {
+    'aria-checked': checked,
+    'aria-disabled': disabled,
+    disabled,
+    onClick: () => onChange(!checked),
+    role: 'switch',
+    type: 'button',
+    className: clsx(
+      'gl-toggle gl-shrink-0',
+      checked && 'is-checked',
+      disabled && 'is-disabled'
+    ),
+    children: jsx('span', {
+      className: 'toggle-icon',
+      children: jsx(GitlabIcon, { icon: checked ? 'check-xs' : 'close-xs' }),
+    }),
+  });
+}
+
+// apps/gitlab-plus/src/components/user-settings/useUserSettingsModal.tsx
+function useUserSettingsModal() {
+  const [refreshFlag, setRefreshFlag] = useState(false);
+  const services = useMemo(() => {
+    return Object.entries(servicesConfig)
+      .map(([name2, config]) => ({
+        isActive: Boolean(userSettingsStore.isActive(name2)),
+        isExperimental: config.experimental,
+        isRequired: config.required,
+        label: config.label,
+        name: name2,
+      }))
+      .sort((a, b) => {
+        if (a.isRequired || b.isRequired) {
+          return a.isRequired ? 1 : -1;
+        }
+        if (a.isExperimental || b.isExperimental) {
+          return a.isExperimental ? 1 : -1;
+        }
+        return a.name.localeCompare(b.name);
+      });
+  }, [refreshFlag]);
+  return {
+    services,
+    setServiceState: (name2, value) => {
+      userSettingsStore.setIsActive(name2, value);
+      setRefreshFlag((flag) => !flag);
+    },
+  };
+}
+
+// apps/gitlab-plus/src/components/user-settings/UserSettingsModal.tsx
+function UserSettingModal() {
+  const { isVisible, onClose } = useGlpModal(showUserSettingsModal);
+  const { services, setServiceState } = useUserSettingsModal();
+  return jsx(GlpModal, {
+    isVisible,
+    onClose,
+    title: jsxs(Fragment, {
+      children: [
+        jsx('span', { style: { color: '#e24329' }, children: 'Gitlab Plus' }),
+        ' settings',
+      ],
+    }),
+    children: jsx(Column, {
+      className: 'gl-p-4',
+      gap: 2,
+      children: services.map((service) =>
+        jsxs(Row, {
+          gap: 2,
+          items: 'center',
+          children: [
+            jsx(GitlabSwitch, {
+              checked: service.isActive,
+              disabled: service.isRequired,
+              onChange: (value) => setServiceState(service.name, value),
+            }),
+            jsx(Text, {
+              variant: service.isRequired ? 'secondary' : void 0,
+              children: service.label,
+            }),
+            service.isExperimental &&
+              jsx(GitlabBadge, {
+                label: 'Experimental',
+                variant: 'warning',
+              }),
+            service.isRequired &&
+              jsx(GitlabBadge, { label: 'Required', variant: 'muted' }),
+          ],
+        })
+      ),
+    }),
+  });
+}
+
+// apps/gitlab-plus/src/services/UserSettings.tsx
+class UserSettings extends BaseService {
+  constructor() {
+    super(...arguments);
+    __publicField(this, 'name', ServiceName.UserSettings);
+    __publicField(this, 'ready', false);
+  }
+
+  init() {
+    this.initUserSettings();
+    window.setTimeout(this.initUserSettings.bind(this), 1e3);
+    window.setTimeout(this.initUserSettings.bind(this), 3e3);
+    window.setTimeout(this.initUserSettings.bind(this), 5e3);
+  }
+
+  getMenuItem() {
+    const userMenu = document.querySelector('[data-testid="preferences-item"]');
+    if (!userMenu || !userMenu.parentElement) {
+      return void 0;
+    }
+    const li = document.createElement('li');
+    li.className = 'gl-new-dropdown-item';
+    userMenu.parentElement.append(li);
+    return li;
+  }
+
+  initUserSettings() {
+    if (this.ready) {
+      return;
+    }
+    const userMenu = this.getMenuItem();
+    if (!userMenu) {
+      return;
+    }
+    this.ready = true;
+    render(jsx(UserSettingsButton, {}), userMenu);
+    render(jsx(UserSettingModal, {}), this.rootBody('glp-user-settings-root'));
+  }
+}
+
 // apps/gitlab-plus/src/main.ts
 [
   ClearCacheService,
@@ -4669,4 +5042,10 @@ class SortIssue extends Service {
   RelatedIssueAutocomplete,
   RelatedIssuesLabelStatus,
   SortIssue,
-].forEach((Service2) => new Service2().init());
+  UserSettings,
+].forEach((Service) => {
+  const service = new Service();
+  if (userSettingsStore.isActive(service.name)) {
+    service.init();
+  }
+});

@@ -8,6 +8,7 @@ import { OptionItem } from './types';
 import { useListNavigate } from './useListNavigate';
 
 type Props<D extends OptionItem> = {
+  hideCheckbox?: boolean;
   onClick: (item: D) => void;
   onClose: () => void;
   options: D[];
@@ -20,6 +21,7 @@ type Props<D extends OptionItem> = {
 };
 
 export function AsyncAutocompleteDropdown<D extends OptionItem>({
+  hideCheckbox,
   onClick,
   onClose,
   options,
@@ -56,6 +58,7 @@ export function AsyncAutocompleteDropdown<D extends OptionItem>({
           value={searchTerm}
         />
         <AsyncAutocompleteList
+          hideCheckbox={hideCheckbox}
           activeIndex={activeIndex}
           onClick={onClick}
           options={options}

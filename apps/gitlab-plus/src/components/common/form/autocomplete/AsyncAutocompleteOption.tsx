@@ -7,6 +7,7 @@ import { GitlabIcon } from '../../GitlabIcon';
 import { OptionItem } from './types';
 
 type Props<D extends OptionItem> = {
+  hideCheckbox?: boolean;
   isActive?: boolean;
   onClick: (item: D) => void;
   option: D;
@@ -16,6 +17,7 @@ type Props<D extends OptionItem> = {
 };
 
 export function AsyncAutocompleteOption<D extends OptionItem>({
+  hideCheckbox = false,
   isActive,
   onClick,
   option,
@@ -24,24 +26,25 @@ export function AsyncAutocompleteOption<D extends OptionItem>({
   selected,
 }: Props<D>) {
   const selectedIds = selected.map((i) => i.id);
-  const selectedClass = (id: number | string) =>
-    selectedIds.includes(id) ? 'glp-selected' : '';
+  const selectedClass = (id: number | string) => selectedIds.includes(id);
 
   return (
     <li
       onClick={() => onClick(option)}
       class={clsx(
         'gl-new-dropdown-item',
-        selectedClass(option.id),
+        // selectedClass(option.id),
         isActive && 'glp-active'
       )}
     >
       <span class={'gl-new-dropdown-item-content'}>
-        <GitlabIcon
-          className={'glp-item-check gl-pr-2'}
-          icon={'mobile-issue-close'}
-          size={16}
-        />
+        {!hideCheckbox && (
+          <GitlabIcon
+            className={'glp-item-check gl-pr-2'}
+            icon={selectedClass(option.id) ? 'mobile-issue-close' : ''}
+            size={16}
+          />
+        )}
         {renderOption(option)}
         {removeFromRecent && (
           <CloseButton

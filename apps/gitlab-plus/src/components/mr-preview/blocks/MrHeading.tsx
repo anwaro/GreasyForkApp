@@ -1,6 +1,11 @@
+import { useMemo } from 'preact/hooks';
+
+import { textWithChild } from '@utils/textWithChild';
+
 import { MergeRequest } from '../../../types/Mr';
+import { Link } from '../../common/base/Link';
 import { Row } from '../../common/base/Row';
-import { HeadingBlock } from '../../common/bolck/HeadingBlock';
+import { HeadingBlock } from '../../common/block/HeadingBlock';
 import { GitlabBadge } from '../../common/GitlabBadge';
 import { GitlabIcon } from '../../common/GitlabIcon';
 import { MrStatus } from '../../common/MrStatus';
@@ -11,6 +16,17 @@ type Props = {
 };
 
 export function MrHeader({ mr, onRefresh }: Props) {
+  const title = useMemo(() => {
+    const issueLink = (id: string) =>
+      `${mr.project.webUrl}/-/issues/${id.replace(/\D+/g, '')}`;
+
+    return textWithChild(mr.title, /#\d+/, (id) => (
+      <Link href={issueLink(id)} inline>
+        {id}
+      </Link>
+    ));
+  }, [mr]);
+
   return (
     <HeadingBlock
       author={mr.author}
@@ -18,7 +34,7 @@ export function MrHeader({ mr, onRefresh }: Props) {
       entityId={`!${mr.iid}`}
       icon={'merge-request'}
       onRefresh={onRefresh}
-      title={mr.titleHtml}
+      title={title}
       badge={
         <Row className={'gl-gap-2'} items={'center'}>
           <MrStatus state={mr.state} withIcon withLabel />

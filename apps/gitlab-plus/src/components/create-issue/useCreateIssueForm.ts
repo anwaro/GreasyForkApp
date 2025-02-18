@@ -5,11 +5,17 @@ import {
   GitlabIssueLink,
   LinkParser,
 } from '../../helpers/LinkParser';
+import { WidgetHelper } from '../../helpers/Widget';
 import { EpicProvider } from '../../providers/EpicProvider';
 import { IssueProvider } from '../../providers/IssueProvider';
 import { RecentlyProvider } from '../../providers/RecentlyProvider';
-import { LabelWidget } from '../../types/Epic';
-import { CreateIssueInput, Issuable, IssueRelation } from '../../types/Issue';
+import { Epic } from '../../types/Epic';
+import {
+  CreateIssueInput,
+  Issuable,
+  Issue,
+  IssueRelation,
+} from '../../types/Issue';
 import { Label } from '../../types/Label';
 import { Milestone } from '../../types/Milestone';
 import { Project } from '../../types/Project';
@@ -54,9 +60,10 @@ type Props = {
 };
 
 export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
-  const [copyLabelsLoading, setCopyLabelsLoading] = useState(false);
   const [values, setValues] = useState<FormFields>(initialState());
   const [errors, setErrors] = useState<FormErrors>(initialError());
+  const [parentIssue, setParentIssue] = useState<Issue | null>(null);
+  const [parentEpic, setParentEpic] = useState<Epic | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -65,13 +72,11 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
     setIsLoading(false);
     setValues(initialState());
     setErrors(initialError());
+    setMessage('');
+    setError('');
+    setParentIssue(null);
+    setParentEpic(null);
   };
-
-  useEffect(() => {
-    if (!isVisible) {
-      reset();
-    }
-  }, [isVisible]);
 
   const createPayload = () => {
     const data: CreateIssueInput = {
@@ -133,29 +138,21 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
   };
 
   const createRelation = async (
-    link: GitlabIssueLink,
     issue: Issuable,
+    targetIssue: Issue,
     relation: IssueRelation
   ) => {
     await new IssueProvider().createIssueRelation({
-      targetIssueIid: link.issue,
+      targetIssueIid: targetIssue.iid,
       issueId: issue.iid,
       linkType: relation,
       projectId: issue.projectId,
-      targetProjectId: link.projectPath.replace(/\//g, '%2F'),
+      targetProjectId: targetIssue.projectId,
     });
   };
 
-  const setIssueEpic = async (link: GitlabEpicLink, issue: Issuable) => {
-    const epic = await new EpicProvider().getEpic(
-      link.workspacePath,
-      link.epic
-    );
-
-    await new IssueProvider().issueSetEpic(
-      issue.id,
-      epic.data.workspace.workItem.id
-    );
+  const setIssueEpic = async (issue: Issuable, epic: Epic) => {
+    await new IssueProvider().issueSetEpic(issue.id, epic.id);
   };
 
   const submit = async () => {
@@ -164,28 +161,58 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
     }
     setIsLoading(true);
     try {
+      setMessage('Creating issue...');
       const payload = createPayload();
       const response = await createIssue(payload);
-      setMessage('Issue was created');
       persistRecently();
 
-      if (values.relation && LinkParser.isIssueLink(link)) {
+      if (values.relation && parentIssue) {
+        setMessage('Creating relation to parent issue...');
         await createRelation(
-          link,
           response.data.createIssuable.issuable,
+          parentIssue,
           values.relation
         );
       }
 
-      if (LinkParser.isEpicLink(link)) {
-        await setIssueEpic(link, response.data.createIssuable.issuable);
+      if (parentEpic) {
+        setMessage('Linking to epic...');
+        await setIssueEpic(response.data.createIssuable.issuable, parentEpic);
       }
-      window.setTimeout(() => onClose(), 3000);
+
+      setMessage('Issue was created');
+      window.setTimeout(() => onClose(), 2000);
     } catch (e) {
+      setMessage('');
       setError((e as Error).message);
     }
     setIsLoading(false);
   };
+
+  const fetchParent = async () => {
+    if (LinkParser.isIssueLink(link)) {
+      const issue = await new IssueProvider().getIssue(
+        link.projectPath,
+        link.issue
+      );
+      setParentIssue(issue.data.project.issue);
+    }
+    if (LinkParser.isEpicLink(link)) {
+      const epic = await new EpicProvider().getEpic(
+        link.workspacePath,
+        link.epic
+      );
+      setParentEpic(epic.data.workspace.workItem);
+    }
+  };
+
+  useEffect(() => {
+    if (!isVisible) {
+      reset();
+    } else {
+      fetchParent();
+    }
+  }, [isVisible]);
 
   return {
     actions: {
@@ -206,43 +233,17 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
         value: values.iteration ? [values.iteration] : [],
       },
       labels: {
-        copy: async () => {
-          setCopyLabelsLoading(true);
-          try {
-            if (LinkParser.isEpicLink(link)) {
-              const epic = await new EpicProvider().getEpic(
-                link.workspacePath,
-                link.epic
-              );
-              const labelWidgets =
-                epic.data.workspace.workItem.widgets.find<LabelWidget>(
-                  (w): w is LabelWidget => w.type === 'LABELS'
-                );
-
-              if (labelWidgets) {
-                setValues({
-                  ...values,
-                  labels: labelWidgets.labels.nodes,
-                });
-              }
-            }
-            if (LinkParser.isIssueLink(link)) {
-              const issue = await new IssueProvider().getIssue(
-                link.projectPath,
-                link.issue
-              );
-              setValues({
-                ...values,
-                labels: issue.data.project.issue.labels.nodes,
-              });
-            }
-          } catch (e) {
-            console.error(e);
+        copy: () => {
+          if (parentEpic) {
+            setValues({
+              ...values,
+              labels: WidgetHelper.epicLabels(parentEpic),
+            });
           }
-
-          setCopyLabelsLoading(false);
+          if (parentIssue) {
+            setValues({ ...values, labels: parentIssue.labels.nodes });
+          }
         },
-        copyLoading: copyLabelsLoading,
         errors: errors.labels,
         onChange: (labels: Label[]) => setValues({ ...values, labels }),
         value: values.labels,
@@ -285,7 +286,8 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
     },
     isLoading,
     message,
+    parentEpic,
+    parentIssue,
     projectPath: values.project?.fullPath,
-    showRelations: LinkParser.isIssueLink(link),
   };
 }

@@ -1,4 +1,4 @@
-import { ComponentChild } from 'preact';
+import { ComponentChild, ComponentChildren } from 'preact';
 
 import { clsx } from '@utils/clsx';
 
@@ -15,7 +15,7 @@ type Props = {
   entityId: string;
   icon: GitlabIconNames;
   onRefresh?: () => void;
-  title: string;
+  title: ComponentChildren;
 };
 
 export function HeadingBlock({
@@ -31,12 +31,13 @@ export function HeadingBlock({
     <div className={'glp-block gl-relative'}>
       <Row className={''} items={'center'} justify={'between'}>
         <span
-          dangerouslySetInnerHTML={{ __html: title }}
           className={clsx(
             'gl-font-bold gl-leading-20 gl-text-gray-900',
             onRefresh && 'gl-pr-5'
           )}
-        />
+        >
+          {title}
+        </span>
         {onRefresh && (
           <div
             onClick={onRefresh}
@@ -51,7 +52,7 @@ export function HeadingBlock({
       <Row className={'gl-mt-2'} gap={2} items={'center'}>
         <Row gap={2} items={'center'}>
           <GitlabIcon icon={icon} size={16} />
-          <Text className={'gl-ml-2'} size={'sm'} variant={'secondary'}>
+          <Text size={'sm'} variant={'secondary'} weight={'bold'}>
             {entityId}
           </Text>
         </Row>

@@ -4,7 +4,7 @@ import { EpicProvider } from '../../../providers/EpicProvider';
 import { LabelsProvider } from '../../../providers/LabelsProvider';
 import { Epic, LabelWidget } from '../../../types/Epic';
 import { Label } from '../../../types/Label';
-import { UpdateStatus } from '../../common/bolck/useLabelBlock';
+import { UpdateStatus } from '../../common/block/useLabelBlock';
 
 export function useEpicLabels(epic: Epic, refetch?: () => Promise<void>) {
   const [statusLabels, setStatusLabels] = useState<Label[]>([]);

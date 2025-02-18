@@ -1,5 +1,5 @@
 import { Epic } from '../../../types/Epic';
-import { LabelsBlock } from '../../common/bolck/LabelsBlock';
+import { LabelsBlock } from '../../common/block/LabelsBlock';
 import { useEpicLabels } from './useEpicLabels';
 
 type Props = {

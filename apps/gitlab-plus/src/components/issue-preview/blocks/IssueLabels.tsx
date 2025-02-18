@@ -1,6 +1,6 @@
 import { GitlabIssueLink } from '../../../helpers/LinkParser';
 import { Issue } from '../../../types/Issue';
-import { LabelsBlock } from '../../common/bolck/LabelsBlock';
+import { LabelsBlock } from '../../common/block/LabelsBlock';
 import { useIssueLabels } from './useIssueLabels';
 
 type Props = {

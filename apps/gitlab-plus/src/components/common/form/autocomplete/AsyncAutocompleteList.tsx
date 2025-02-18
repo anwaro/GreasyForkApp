@@ -4,6 +4,7 @@ import { AsyncAutocompleteOption } from './AsyncAutocompleteOption';
 import { OptionItem } from './types';
 
 type Props<D extends OptionItem> = {
+  hideCheckbox?: boolean;
   activeIndex: number;
   onClick: (item: D) => void;
   options: D[];
@@ -14,6 +15,7 @@ type Props<D extends OptionItem> = {
 };
 
 export function AsyncAutocompleteList<D extends OptionItem>({
+  hideCheckbox,
   activeIndex,
   onClick,
   options,
@@ -49,6 +51,7 @@ export function AsyncAutocompleteList<D extends OptionItem>({
               {recently.map((item, index) => (
                 <AsyncAutocompleteOption<D>
                   key={item.id}
+                  hideCheckbox={hideCheckbox}
                   isActive={index === activeIndex}
                   onClick={onClick}
                   option={item}
@@ -69,6 +72,7 @@ export function AsyncAutocompleteList<D extends OptionItem>({
               {options.map((item, index) => (
                 <AsyncAutocompleteOption<D>
                   key={item.id}
+                  hideCheckbox={hideCheckbox}
                   isActive={recently.length + index === activeIndex}
                   onClick={onClick}
                   option={item}

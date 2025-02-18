@@ -1,4 +1,4 @@
-.glp-create-related-issue-layer {
+.glp-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,26 +11,18 @@
   align-items: center;
 }
 
-.glp-create-related-issue-layer.glp-modal-visible {
+.glp-modal.glp-modal-visible {
   display: flex;
 }
 
-.glp-create-related-issue-layer .glp-create-related-issue-modal {
+.glp-modal .glp-modal-content {
   width: 700px;
   max-width: 95vw;
-}
-
-.gl-new-dropdown-item .glp-item-check {
-  opacity: 0;
 }
 
 .gl-new-dropdown-item.glp-active .gl-new-dropdown-item-content {
   box-shadow: inset 0 0 0 2px var(--gl-focus-ring-outer-color), inset 0 0 0 3px var(--gl-focus-ring-inner-color), inset 0 0 0 1px var(--gl-focus-ring-inner-color);
   background-color: var(--gl-dropdown-option-background-color-unselected-hover);
   outline: none;
-}
-
-.gl-new-dropdown-item.glp-selected .glp-item-check {
-  opacity: 1;
 }
 

@@ -1,9 +1,6 @@
-import { useEffect, useState } from 'preact/hooks';
-
-import { clsx } from '@utils/clsx';
-
 import { GitlabIssueLink } from '../../helpers/LinkParser';
-import { CloseButton } from '../common/CloseButton';
+import { GlpModal } from '../common/modal/GlpModal';
+import { useGlpModal } from '../common/modal/useGlpModal';
 import { CreateIssueForm } from './CreateIssueForm';
 import { showRelatedIssueModal } from './events';
 
@@ -12,48 +9,15 @@ type Props = {
 };
 
 export function CreateRelatedIssueModal({ link }: Props) {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    document.addEventListener(showRelatedIssueModal, () => setIsVisible(true));
-  }, []);
+  const { isVisible, onClose } = useGlpModal(showRelatedIssueModal);
 
   return (
-    <div
-      class={clsx(
-        'glp-create-related-issue-layer',
-        isVisible && 'glp-modal-visible'
-      )}
+    <GlpModal
+      isVisible={isVisible}
+      onClose={onClose}
+      title={'Create related issue'}
     >
-      <div
-        className={clsx(
-          'glp-create-related-issue-modal crud gl-border',
-          'gl-rounded-form gl-border-section gl-bg-subtle gl-mt-5'
-        )}
-      >
-        <div
-          className={clsx(
-            'crud-header gl-border-b gl-flex gl-flex-wrap',
-            'gl-justify-between gl-gap-x-5 gl-gap-y-2 gl-rounded-t-form',
-            'gl-border-section gl-bg-section gl-px-5 gl-py-4 gl-relative'
-          )}
-        >
-          <h2
-            className={clsx(
-              'gl-m-0 gl-inline-flex gl-items-center gl-gap-3',
-              'gl-text-form gl-font-bold gl-leading-normal'
-            )}
-          >
-            Create related issue
-          </h2>
-          <CloseButton onClick={() => setIsVisible(false)} />
-        </div>
-        <CreateIssueForm
-          isVisible={isVisible}
-          link={link}
-          onClose={() => setIsVisible(false)}
-        />
-      </div>
-    </div>
+      <CreateIssueForm isVisible={isVisible} link={link} onClose={onClose} />
+    </GlpModal>
   );
 }

@@ -17,6 +17,7 @@ export interface MergeRequest {
   draft: boolean;
   labels: Labels;
   mergeable: boolean;
+  project: MergeRequestProject;
   resolvableDiscussionsCount: number;
   resolvedDiscussionsCount: number;
   reviewers: Reviewers;
@@ -42,6 +43,12 @@ export interface DiffStatsSummary {
   changes: number;
   deletions: number;
   fileCount: number;
+}
+
+export interface MergeRequestProject {
+  fullPath: string;
+  path: string;
+  webUrl: string;
 }
 
 export interface Labels {
