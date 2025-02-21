@@ -19,13 +19,7 @@
   visibility: visible;
   opacity: 1;
 }
-
-.glp-preview-modal .glp-issue-modal-inner {
-  display: flex;
-  flex-direction: column;
-  max-width: 100%;
-}
-
+ 
 .glp-preview-modal .glp-block {
   padding: .4rem .5em;
   border-bottom-style: solid;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2025-02-18
+// @version      2025-02-21
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -49,7 +49,7 @@ const style1 =
 const style2 =
   '.glp-image-preview-modal {\n  position: fixed;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.6);\n  visibility: hidden;\n  opacity: 0;\n  pointer-events: none;\n  z-index: 99999;\n}\n\n.glp-image-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n  pointer-events: auto;\n}\n\n.glp-image-preview-modal .glp-modal-img {\n  max-width: 95%;\n  max-height: 95%;\n}\n\n.glp-image-preview-modal .glp-modal-close {\n  position: absolute;\n  z-index: 2;\n  top: 20px;\n  right: 20px;\n  color: black;\n  width: 40px;\n  height: 40px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background: white;\n  border-radius: 20px;\n  cursor: pointer;\n}\n\n';
 const style3 =
-  '.glp-preview-modal {\n  position: fixed;\n  display: flex;\n  background-color: var(--gl-background-color-default, var(--gl-color-neutral-0, #fff));\n  border: 1px solid var(--gl-border-color-default);\n  border-radius: .25rem;\n  width: 350px;\n  min-height: 200px;\n  z-index: 99999;\n  visibility: hidden;\n  top: 0;\n  left: 0;\n  opacity: 0;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n}\n\n.glp-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n\n.glp-preview-modal .glp-issue-modal-inner {\n  display: flex;\n  flex-direction: column;\n  max-width: 100%;\n}\n\n.glp-preview-modal .glp-block {\n  padding: .4rem .5em;\n  border-bottom-style: solid;\n  border-bottom-color: var(--gl-border-color-subtle, var(--gl-color-neutral-50, #ececef));\n  border-bottom-width: 1px;\n  width: 100%;\n}\n\n\n.glp-preview-modal * {\n  max-width: 100%;\n}\n';
+  '.glp-preview-modal {\n  position: fixed;\n  display: flex;\n  background-color: var(--gl-background-color-default, var(--gl-color-neutral-0, #fff));\n  border: 1px solid var(--gl-border-color-default);\n  border-radius: .25rem;\n  width: 350px;\n  min-height: 200px;\n  z-index: 99999;\n  visibility: hidden;\n  top: 0;\n  left: 0;\n  opacity: 0;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n}\n\n.glp-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n \n.glp-preview-modal .glp-block {\n  padding: .4rem .5em;\n  border-bottom-style: solid;\n  border-bottom-color: var(--gl-border-color-subtle, var(--gl-color-neutral-50, #ececef));\n  border-bottom-width: 1px;\n  width: 100%;\n}\n\n\n.glp-preview-modal * {\n  max-width: 100%;\n}\n';
 
 // apps/gitlab-plus/src/styles/index.ts
 GlobalStyle.addStyle('glp-style', [style1, style2, style3].join('\n'));
@@ -92,7 +92,7 @@ class Store {
 }
 
 // apps/gitlab-plus/src/services/ServiceName.ts
-const ServiceName = ((ServiceName2) => {
+var ServiceName = ((ServiceName2) => {
   ServiceName2['ClearCacheService'] = 'ClearCacheService';
   ServiceName2['CreateChildIssue'] = 'CreateChildIssue';
   ServiceName2['CreateRelatedIssue'] = 'CreateRelatedIssue';
@@ -2677,10 +2677,10 @@ function useCreateIssueForm({ isVisible, link, onClose }) {
     }
   };
   useEffect(() => {
-    if (!isVisible) {
-      reset();
-    } else {
+    if (isVisible) {
       fetchParent();
+    } else {
+      reset();
     }
   }, [isVisible]);
   return {
@@ -2736,11 +2736,14 @@ function useCreateIssueForm({ isVisible, link, onClose }) {
       },
       title: {
         copy: () => {
-          const issueTitle =
-            document.querySelector('[data-testid="issue-title"]') ||
-            document.querySelector('[data-testid="work-item-title"]');
-          if (issueTitle) {
-            setValues({ ...values, title: issueTitle.textContent || '' });
+          const parentTitle =
+            (parentIssue == null ? void 0 : parentIssue.title) ||
+            (parentEpic == null ? void 0 : parentEpic.title);
+          if (parentTitle) {
+            setValues({
+              ...values,
+              title: parentTitle,
+            });
           }
         },
         errors: errors.title,
@@ -4423,35 +4426,36 @@ function useRelatedIssuesAutocompleteModal(link, input) {
 function RelatedIssuesAutocompleteModal({ input, link }) {
   const { isVisible, onClose, onSelect, options, searchTerm, setSearchTerm } =
     useRelatedIssuesAutocompleteModal(link, input);
-  return isVisible
-    ? jsx('div', {
-        class: 'gl-relative gl-w-full gl-new-dropdown !gl-block',
-        children: jsx(AsyncAutocompleteDropdown, {
-          hideCheckbox: true,
-          onClick: onSelect,
-          onClose,
-          options,
-          searchTerm,
-          setSearchTerm,
-          value: [],
-          renderOption: (item) =>
-            jsxs('div', {
-              class: 'gl-flex gl-gap-x-2 gl-py-2',
-              children: [
-                jsx(GitlabIcon, {
-                  icon: 'issue-type-issue',
-                  size: 16,
-                }),
-                jsx('small', { children: item.iid }),
-                jsx('span', {
-                  class: 'gl-flex gl-flex-wrap',
-                  children: item.title,
-                }),
-              ],
+  if (!isVisible) {
+    return null;
+  }
+  return jsx('div', {
+    class: 'gl-relative gl-w-full gl-new-dropdown !gl-block',
+    children: jsx(AsyncAutocompleteDropdown, {
+      hideCheckbox: true,
+      onClick: onSelect,
+      onClose,
+      options,
+      searchTerm,
+      setSearchTerm,
+      value: [],
+      renderOption: (item) =>
+        jsxs('div', {
+          class: 'gl-flex gl-gap-x-2 gl-py-2',
+          children: [
+            jsx(GitlabIcon, {
+              icon: 'issue-type-issue',
+              size: 16,
             }),
+            jsx('small', { children: item.iid }),
+            jsx('span', {
+              class: 'gl-flex gl-flex-wrap',
+              children: item.title,
+            }),
+          ],
         }),
-      })
-    : null;
+    }),
+  });
 }
 
 // apps/gitlab-plus/src/services/RelatedIssueAutocomplete.tsx

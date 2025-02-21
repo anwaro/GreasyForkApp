@@ -207,10 +207,10 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
   };
 
   useEffect(() => {
-    if (!isVisible) {
-      reset();
-    } else {
+    if (isVisible) {
       fetchParent();
+    } else {
+      reset();
     }
   }, [isVisible]);
 
@@ -268,15 +268,13 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
       },
       title: {
         copy: () => {
-          const issueTitle =
-            document.querySelector<HTMLHeadingElement>(
-              '[data-testid="issue-title"]'
-            ) ||
-            document.querySelector<HTMLHeadingElement>(
-              '[data-testid="work-item-title"]'
-            );
-          if (issueTitle) {
-            setValues({ ...values, title: issueTitle.textContent || '' });
+          const parentTitle = parentIssue?.title || parentEpic?.title;
+
+          if (parentTitle) {
+            setValues({
+              ...values,
+              title: parentTitle,
+            });
           }
         },
         errors: errors.title,

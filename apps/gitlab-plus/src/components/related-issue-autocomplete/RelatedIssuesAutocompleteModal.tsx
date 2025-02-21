@@ -13,7 +13,11 @@ export function RelatedIssuesAutocompleteModal({ input, link }: Props) {
   const { isVisible, onClose, onSelect, options, searchTerm, setSearchTerm } =
     useRelatedIssuesAutocompleteModal(link, input);
 
-  return isVisible ? (
+  if (!isVisible) {
+    return null;
+  }
+
+  return (
     <div class={'gl-relative gl-w-full gl-new-dropdown !gl-block'}>
       <AsyncAutocompleteDropdown<IssueAutocomplete>
         hideCheckbox
@@ -32,5 +36,5 @@ export function RelatedIssuesAutocompleteModal({ input, link }: Props) {
         )}
       />
     </div>
-  ) : null;
+  );
 }
