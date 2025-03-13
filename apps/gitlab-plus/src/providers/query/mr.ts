@@ -8,16 +8,16 @@ export const mrQuery = `query MergeRequestQuery($fullPath: ID!, $iid: String!) {
       iid
       assignees {
         nodes {
-          ...User
+          ...UserFragment
         }
       }
       approvedBy {
         nodes {
-          ...User
+          ...UserFragment
         }
       }
       author {
-        ...User
+        ...UserFragment
       }
       project {
         webUrl
@@ -38,7 +38,7 @@ export const mrQuery = `query MergeRequestQuery($fullPath: ID!, $iid: String!) {
       draft
       labels {
         nodes {
-          ...Label
+          ...LabelFragment
         }
       }
       mergeable
@@ -46,7 +46,7 @@ export const mrQuery = `query MergeRequestQuery($fullPath: ID!, $iid: String!) {
       resolvableDiscussionsCount
       reviewers {
         nodes {
-          ...User
+          ...UserFragment
         }
       }
       shouldBeRebased

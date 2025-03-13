@@ -4,7 +4,7 @@ GitLab Plus is a GreasyFork script that enhances the GitLab experience with vari
 
 ## Installation
 
-1. Install a userscript manager for your browser:
+1. Install an userscript manager for your browser:
 
 - [Tampermonkey](https://www.tampermonkey.net/)
 - [Violentmonkey](https://violentmonkey.github.io/)
@@ -66,9 +66,14 @@ Automatically moves the user's issues to the top of the issue board for better v
 
 ### Status Labels for Related Issues
 
-Displays status labels (label started with "Status::" or "workflow::") next to related issues on the issue view page.
+Displays status labels (label started with `Status::`, it can be changed in user settings) next to related issues on the issue view page.
 
 ![Status Labels](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/status-labels.png)
+
+## Settings
+
+![Status Labels](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/user-settings-button.png)
+![Status Labels](https://raw.githubusercontent.com/anwaro/GreasyForkApp/main/github/gitlab-plus/user-settings-modal.png)
 
 ## License
 

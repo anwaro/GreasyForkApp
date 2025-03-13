@@ -2,46 +2,45 @@ import { User } from '../../../types/User';
 import { GitlabIconNames } from '../GitlabIcon';
 import { GitlabUser } from '../GitlabUser';
 import { InfoBlock } from './InfoBlock';
+import { ListBlock } from './ListBlock';
 
 type Props = {
-  assignees?: User[];
   icon?: GitlabIconNames;
   label: string;
   pluralIcon?: GitlabIconNames;
   pluralLabel?: string;
+  users?: User[];
 };
 
 export function UsersBlock({
-  assignees,
   icon,
   label,
   pluralIcon,
   pluralLabel,
+  users,
 }: Props) {
-  if (!assignees || !assignees.length) {
+  if (!users || !users.length) {
     return null;
   }
 
-  if (assignees.length === 1) {
+  if (users.length === 1) {
     return (
       <InfoBlock
-        className={'gl-flex gl-flex-col gl-gap-3'}
         icon={icon || 'user'}
-        rightTitle={<GitlabUser user={assignees[0]} withLink />}
+        rightTitle={<GitlabUser user={users[0]} withLink />}
         title={`${label}:`}
       />
     );
   }
 
   return (
-    <InfoBlock
+    <ListBlock
       className={'gl-flex gl-flex-col gl-gap-3'}
       icon={pluralIcon || icon || 'users'}
+      itemId={(u) => u.id}
+      items={users}
+      renderItem={(user) => <GitlabUser user={user} withLink />}
       title={pluralLabel || `${label}s`}
-    >
-      {assignees.map((assignee) => (
-        <GitlabUser key={assignee.id} user={assignee} withLink />
-      ))}
-    </InfoBlock>
+    />
   );
 }

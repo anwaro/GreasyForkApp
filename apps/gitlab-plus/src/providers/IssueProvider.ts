@@ -78,7 +78,7 @@ export class IssueProvider extends GitlabProvider {
         iid,
         projectPath,
       },
-      0.02
+      2
     );
   }
 

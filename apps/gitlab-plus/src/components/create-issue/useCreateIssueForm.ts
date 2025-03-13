@@ -11,8 +11,8 @@ import { IssueProvider } from '../../providers/IssueProvider';
 import { RecentlyProvider } from '../../providers/RecentlyProvider';
 import { Epic } from '../../types/Epic';
 import {
+  CreatedIssue,
   CreateIssueInput,
-  Issuable,
   Issue,
   IssueRelation,
 } from '../../types/Issue';
@@ -138,7 +138,7 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
   };
 
   const createRelation = async (
-    issue: Issuable,
+    issue: CreatedIssue,
     targetIssue: Issue,
     relation: IssueRelation
   ) => {
@@ -151,7 +151,7 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
     });
   };
 
-  const setIssueEpic = async (issue: Issuable, epic: Epic) => {
+  const setIssueEpic = async (issue: CreatedIssue, epic: Epic) => {
     await new IssueProvider().issueSetEpic(issue.id, epic.id);
   };
 
@@ -169,7 +169,7 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
       if (values.relation && parentIssue) {
         setMessage('Creating relation to parent issue...');
         await createRelation(
-          response.data.createIssuable.issuable,
+          response.data.createIssue.issue,
           parentIssue,
           values.relation
         );
@@ -177,7 +177,7 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
 
       if (parentEpic) {
         setMessage('Linking to epic...');
-        await setIssueEpic(response.data.createIssuable.issuable, parentEpic);
+        await setIssueEpic(response.data.createIssue.issue, parentEpic);
       }
 
       setMessage('Issue was created');

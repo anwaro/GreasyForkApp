@@ -1,4 +1,8 @@
+import { useMemo } from 'preact/hooks';
+
 import type { ComponentChild } from 'preact';
+
+import { clsx } from '@utils/clsx';
 
 import { Row } from '../base/Row';
 import { GitlabIcon, GitlabIconNames } from '../GitlabIcon';
@@ -6,31 +10,47 @@ import { GitlabIcon, GitlabIconNames } from '../GitlabIcon';
 type Props = {
   children?: ComponentChild;
   className?: string;
+  contentMaxHeight?: number | string;
   icon?: GitlabIconNames;
   rightTitle?: ComponentChild;
-  title: string;
+  title: ComponentChild;
+  titleClassName?: string;
 };
 
 export function InfoBlock({
   children,
   className,
+  contentMaxHeight,
   icon,
   rightTitle,
   title,
+  titleClassName,
 }: Props) {
+  const style = useMemo(() => {
+    if (contentMaxHeight) {
+      return {
+        maxHeight: contentMaxHeight,
+        overflowY: 'auto',
+      };
+    }
+    return {};
+  }, [contentMaxHeight]);
+
   return (
-    <div class={'glp-block gl-relative'}>
-      <Row items={'center'} justify={'between'}>
+    <div
+      class={'gl-relative gl-w-full gl-py-2 gl-border-b gl-border-b-solid'}
+      style={{ borderColor: 'var(--gl-border-color-subtle)' }}
+    >
+      <Row className={'gl-px-3'} items={'center'} justify={'between'}>
         <Row gap={2} items={'center'}>
           {icon && <GitlabIcon icon={icon} size={16} />}
-          <span
-            className={'gl-font-bold gl-leading-20 gl-text-gray-900'}
-            dangerouslySetInnerHTML={{ __html: title }}
-          />
+          <h5 className={clsx('gl-my-0', titleClassName)}>{title}</h5>
         </Row>
         {rightTitle}
       </Row>
-      <div class={className}>{children}</div>
+      <div style={style}>
+        <div class={clsx('gl-px-3', className)}>{children}</div>
+      </div>
     </div>
   );
 }

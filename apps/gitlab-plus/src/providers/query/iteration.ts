@@ -4,12 +4,11 @@ export const iterationFragment = `fragment IterationFragment on Iteration {
   startDate
   dueDate
   webUrl
+  state
   iterationCadence {
     id
     title
-    __typename
   }
-  __typename
 }`;
 
 export const iterationQuery = `query issueIterationsAliased($fullPath: ID!, $title: String, $state: IterationState) {
@@ -22,12 +21,8 @@ export const iterationQuery = `query issueIterationsAliased($fullPath: ID!, $tit
     ) {
       nodes {
         ...IterationFragment
-        state
-        __typename
       }
-      __typename
     }
-    __typename
   }
 }
 ${iterationFragment}

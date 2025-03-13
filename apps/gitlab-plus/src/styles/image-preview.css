@@ -1,8 +1,5 @@
 .glp-image-preview-modal {
   position: fixed;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   top: 0;
   left: 0;
   right: 0;
@@ -12,6 +9,9 @@
   opacity: 0;
   pointer-events: none;
   z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .glp-image-preview-modal.glp-modal-visible {
@@ -20,24 +20,20 @@
   pointer-events: auto;
 }
 
-.glp-image-preview-modal .glp-modal-img {
-  max-width: 95%;
-  max-height: 95%;
-}
 
 .glp-image-preview-modal .glp-modal-close {
   position: absolute;
   z-index: 2;
-  top: 20px;
-  right: 20px;
+  top: 5px;
+  right: 5px;
   color: black;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
   background: white;
-  border-radius: 20px;
+  border-radius: 15px;
   cursor: pointer;
 }
 

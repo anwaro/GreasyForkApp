@@ -7,7 +7,7 @@ type Props = {
   className?: string;
   gap?: number;
   items?: 'between' | 'center';
-  justify?: 'between' | 'center';
+  justify?: 'between' | 'center' | 'end';
 };
 
 export function Row({ children, className, gap, items, justify }: Props) {

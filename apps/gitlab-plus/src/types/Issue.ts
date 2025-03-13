@@ -52,54 +52,26 @@ export interface CreateIssueResponse {
 }
 
 export interface IssueData {
-  createIssuable: CreateIssuable;
+  createIssue: CreateIssue;
 }
 
-export interface CreateIssuable {
+export interface CreateIssue {
   errors: string[];
-  issuable: Issuable;
-  __typename: string;
+  issue: CreatedIssue;
 }
 
-export interface Issuable {
+export interface CreatedIssue {
   id: string;
   iid: string;
-  assignees: Assignees;
-  blocked: boolean;
-  blockedByCount: number;
-  closedAt: string;
-  confidential: boolean;
-  dueDate: string;
-  emailsDisabled: boolean;
-  epic: unknown;
-  healthStatus: unknown;
-  hidden: boolean;
-  humanTimeEstimate: number;
-  humanTotalTimeSpent: number;
-  iteration: unknown;
-  labels: Labels;
-  milestone: unknown;
   projectId: string;
-  referencePath: string;
-  relativePosition: number;
-  severity: string;
-  timeEstimate: number;
-  title: string;
-  totalTimeSpent: number;
-  type: string;
-  webUrl: string;
-  weight: unknown;
-  __typename: string;
 }
 
 export interface Assignees {
   nodes: User[];
-  __typename: string;
 }
 
 export interface Labels {
   nodes: Label[];
-  __typename: string;
 }
 
 export type IssueResponse = ApiResponseProject<{ issue: Issue }>;
@@ -124,7 +96,6 @@ export interface Issue {
   title: string;
   type: string;
   weight: null | number;
-  __typename: string;
 }
 
 export type IssueWithIssuesLabelsResponse = ApiResponseProject<{
@@ -140,7 +111,6 @@ export interface Milestone {
   dueDate: string;
   startDate: string;
   title: string;
-  __typename: string;
 }
 
 export interface IssueEpic {
@@ -171,23 +141,19 @@ export interface IssuesResponseWorkspace {
   workItems: WorkItems;
   workItemsByIid: WorkItems;
   workItemsEmpty: WorkItems;
-  __typename: string;
 }
 
 export interface WorkItems {
   nodes: IssueAutocomplete[];
-  __typename: string;
 }
 
 export interface IssueAutocomplete {
   id: string;
   iid: string;
-  confidential: boolean;
   project: {
     fullPath: string;
   };
   title: string;
-  __typename: string;
 }
 
 export type RelatedIssue = {
@@ -195,6 +161,7 @@ export type RelatedIssue = {
   workItem: {
     id: string;
     iid: string;
+    widgets: (LabelWidget | UnknownWidget)[];
     title: string;
     webUrl: string;
   };

@@ -4,7 +4,6 @@ export type LabelsResponse = ApiResponseWorkspace<{ labels: Labels }>;
 
 export interface Labels {
   nodes: Label[];
-  __typename: string;
 }
 
 export interface Label {
@@ -13,5 +12,4 @@ export interface Label {
   description?: string;
   textColor: string;
   title: string;
-  __typename: string;
 }

@@ -1,21 +1,30 @@
 import { BaseService } from './BaseService';
 
 export class Youtube extends BaseService {
-  public styles = {
+  static ShortSize = {
+    width: '256px',
+    height: '454px',
+  };
+  static VideoSize = {
     width: '500px',
     height: '300px',
   };
+  public styles = Youtube.VideoSize;
 
   public async embeddedVideoUrl({
     href,
     search,
   }: HTMLAnchorElement): Promise<string> {
+    this.styles = Youtube.VideoSize;
     const urlParams = new URLSearchParams(search);
     let id = urlParams.get('v') || '';
     let start = urlParams.get('t') || '0';
 
     if (href.includes('youtu.be')) {
       id = this.extractId(href, /\.be\/(?<id>[^?/]+).*$/);
+    } else if (href.includes('youtube.com/shorts')) {
+      this.styles = Youtube.ShortSize;
+      id = this.extractId(href, /youtube\.com\/shorts\/(?<id>[^?/]+).*$/);
     } else if (href.includes('youtube.com/attribution_link')) {
       const url = decodeURIComponent(urlParams.get('u') || `/watch?v=${id}`);
       const attrUrl = new URL(`https://youtube.com${url}`);
@@ -46,6 +55,7 @@ export class Youtube extends BaseService {
     return (
       url.includes('youtube.com/attribution_link') ||
       url.includes('youtube.com/watch') ||
+      url.includes('youtube.com/shorts') ||
       url.includes('youtu.be/')
     );
   }

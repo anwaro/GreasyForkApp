@@ -232,7 +232,7 @@ const Events = class {
       element.addEventListener(
         'mouseleave',
         (ev) => {
-          mouseleave.call(element, ev);
+          mouseleave?.call(element, ev);
           clearTimeout(id);
           hover = false;
         },
@@ -256,8 +256,7 @@ const LinkHover = class {
     this.onHover = onHover;
     Events.intendHover(
       this.isValidLink.bind(this),
-      this.onAnchorHover.bind(this),
-      () => {}
+      this.onAnchorHover.bind(this)
     );
   }
 
@@ -620,8 +619,8 @@ const Tidal = class extends BaseService {
     super(...arguments);
     this.styles = {
       width: '500px',
-      height: '300px',
       borderRadius: '10px',
+      height: '300px',
     };
     this.regExp =
       /tidal\.com\/(.+\/)?(?<type>track|album|video|playlist)\/(?<id>\d+|[\w-]+)/;
@@ -684,7 +683,7 @@ const Twitter = class extends BaseService {
   }
 
   async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /status\/(?<id>[^/?]+)[\/?]?/);
+    const id = this.extractId(href, /status\/(?<id>[^/?]+)[/?]?/);
     const platform = href.includes('twitter.com') ? 'twitter' : 'x';
     const params = this.params({
       id,
@@ -728,21 +727,35 @@ const Vimeo = class extends BaseService {
 };
 
 // apps/on-hover-preview/src/services/Youtube.ts
-const Youtube = class extends BaseService {
+const Youtube = class _Youtube extends BaseService {
   constructor() {
     super(...arguments);
-    this.styles = {
+    this.styles = _Youtube.VideoSize;
+  }
+
+  static {
+    this.ShortSize = {
+      width: '256px',
+      height: '454px',
+    };
+  }
+  static {
+    this.VideoSize = {
       width: '500px',
       height: '300px',
     };
   }
 
   async embeddedVideoUrl({ href, search }) {
+    this.styles = _Youtube.VideoSize;
     const urlParams = new URLSearchParams(search);
     let id = urlParams.get('v') || '';
     let start = urlParams.get('t') || '0';
     if (href.includes('youtu.be')) {
       id = this.extractId(href, /\.be\/(?<id>[^?/]+).*$/);
+    } else if (href.includes('youtube.com/shorts')) {
+      this.styles = _Youtube.ShortSize;
+      id = this.extractId(href, /youtube\.com\/shorts\/(?<id>[^?/]+).*$/);
     } else if (href.includes('youtube.com/attribution_link')) {
       const url = decodeURIComponent(urlParams.get('u') || `/watch?v=${id}`);
       const attrUrl = new URL(`https://youtube.com${url}`);
@@ -771,6 +784,7 @@ const Youtube = class extends BaseService {
     return (
       url.includes('youtube.com/attribution_link') ||
       url.includes('youtube.com/watch') ||
+      url.includes('youtube.com/shorts') ||
       url.includes('youtu.be/')
     );
   }

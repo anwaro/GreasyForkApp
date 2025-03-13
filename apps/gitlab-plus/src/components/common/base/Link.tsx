@@ -48,8 +48,8 @@ export function Link({
       target={'_blank'}
       title={title}
       class={clsx(
-        inline ? 'gl-inline' : 'gl-block',
-        'gl-link sortable-link',
+        inline ? 'gl-inline' : 'gl-flex',
+        'gl-link sortable-link gl-items-center',
         className
       )}
       style={{

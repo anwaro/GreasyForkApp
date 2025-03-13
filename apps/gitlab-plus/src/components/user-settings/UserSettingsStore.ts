@@ -1,15 +1,16 @@
 import { Store } from '@store/Store';
 
 import { ServiceName, servicesConfig } from '../../services/ServiceName';
+import { defaultUserConfig, UserConfig, UserConfigType } from './UserConfig';
 
-type SettingsType = Partial<Record<ServiceName, boolean>>;
+type ActiveStatusType = Partial<Record<ServiceName, boolean>>;
 
 class UserSettingsStore {
-  private settings: SettingsType = {};
-  private store = new Store<SettingsType>('gitlab-plus-settings');
+  private activeStatusStore = new Store<ActiveStatusType>('glp-settings');
+  private configStore = new Store<UserConfigType>('glp-config');
 
-  constructor() {
-    this.load();
+  getConfig(name: UserConfig) {
+    return this.getConfigItem(name);
   }
 
   isActive(name: ServiceName) {
@@ -21,40 +22,66 @@ class UserSettingsStore {
     }
 
     if (servicesConfig[name].experimental) {
-      return this.getItem(name, false);
+      return this.getActiveStatusItem(name, false);
     }
 
-    return this.getItem(name, true);
+    return this.getActiveStatusItem(name, true);
+  }
+
+  setConfig(name: UserConfig, value: string) {
+    this.setConfigItem(name, value);
   }
 
   setIsActive(name: ServiceName, value: boolean) {
-    this.setItem(name, value);
+    this.setActiveStatusItem(name, value);
   }
 
-  private getItem<Key extends keyof SettingsType>(
+  private getActiveStatusItem<Key extends keyof ActiveStatusType>(
     key: Key,
-    defaultValue?: SettingsType[Key]
-  ): SettingsType[Key] {
-    if (this.settings[key] === undefined) {
+    defaultValue?: ActiveStatusType[Key]
+  ): ActiveStatusType[Key] {
+    const items = this.getActiveStatusItems();
+    if (items[key] === undefined) {
       return defaultValue;
     }
-    return this.settings[key];
+    return items[key];
   }
 
-  private load() {
-    this.settings = this.store.get() || {};
+  private getActiveStatusItems() {
+    return this.activeStatusStore.get() || {};
   }
 
-  private persist() {
-    this.store.set(this.settings);
+  private getConfigItem<Key extends keyof UserConfigType>(
+    key: Key
+  ): UserConfigType[Key] {
+    const items = this.getConfigItems();
+    return items[key];
   }
 
-  private setItem<Key extends keyof SettingsType>(
+  private getConfigItems(): UserConfigType {
+    return { ...defaultUserConfig, ...(this.configStore.get() || {}) };
+  }
+
+  private setActiveStatusItem<Key extends keyof ActiveStatusType>(
     key: Key,
-    value: SettingsType[Key]
+    value: ActiveStatusType[Key]
   ) {
-    this.settings[key] = value;
-    this.persist();
+    const items = this.getActiveStatusItems();
+    this.activeStatusStore.set({
+      ...items,
+      [key]: value,
+    });
+  }
+
+  private setConfigItem<Key extends keyof UserConfigType>(
+    key: Key,
+    value: UserConfigType[Key]
+  ) {
+    const items = this.getConfigItems();
+    this.configStore.set({
+      ...items,
+      [key]: value,
+    });
   }
 }
 

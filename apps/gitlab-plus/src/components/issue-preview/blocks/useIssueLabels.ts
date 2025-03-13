@@ -6,6 +6,8 @@ import { LabelsProvider } from '../../../providers/LabelsProvider';
 import { Issue } from '../../../types/Issue';
 import { Label } from '../../../types/Label';
 import { UpdateStatus } from '../../common/block/useLabelBlock';
+import { UserConfig } from '../../user-settings/UserConfig';
+import { userSettingsStore } from '../../user-settings/UserSettingsStore';
 
 export function useIssueLabels(
   issue: Issue,
@@ -16,7 +18,9 @@ export function useIssueLabels(
   const onStatusChange = useCallback(
     async (label: Label) => {
       const statusLabel = issue.labels.nodes.find((l) =>
-        l.title.includes('Status::')
+        l.title.includes(
+          userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
+        )
       );
       const labels = statusLabel
         ? issue.labels.nodes.map((l) => (l.id === statusLabel.id ? label : l))
@@ -38,7 +42,7 @@ export function useIssueLabels(
   const fetchLabels = useCallback(async (projectPath: string) => {
     const response = await new LabelsProvider().getProjectLabels(
       projectPath,
-      'Status::'
+      userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
     );
     setStatusLabels(response.data.workspace.labels.nodes);
   }, []);

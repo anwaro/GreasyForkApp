@@ -8,6 +8,7 @@ import { GitlabIcon } from './GitlabIcon';
 type Props = {
   label: Label;
   onRemove?: () => void;
+  small?: boolean;
 };
 
 export function GitlabLabel({ label, onRemove }: Props) {

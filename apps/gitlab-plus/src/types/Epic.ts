@@ -10,9 +10,7 @@ export interface Epic {
   archived: boolean;
   author: User;
   closedAt: string;
-  confidential: boolean;
   createdAt: string;
-  createNoteEmail: string;
   description: string;
   namespace: Namespace;
   project: { id: string };
@@ -22,8 +20,6 @@ export interface Epic {
   userPermissions: UserPermissions;
   webUrl: string;
   widgets: EpicWidget[];
-  workItemType: WorkItemType;
-  __typename: string;
 }
 
 export type EpicSetLabelsInput = {
@@ -41,7 +37,6 @@ export interface Namespace {
   name: string;
   fullName: string;
   fullPath: string;
-  __typename: string;
 }
 
 export type EpicWidget = HierarchyWidget | LabelWidget | UnknownWidget;
@@ -57,6 +52,7 @@ export type HierarchyWidget = {
   } & Nodes<{
     id: string;
     iid: string;
+    widgets: (LabelWidget | UnknownWidget)[];
     state: string;
     title: string;
     webUrl: string;
@@ -73,7 +69,6 @@ export interface WorkItemType {
   id: string;
   name: string;
   iconName: string;
-  __typename: string;
 }
 
 export interface UserPermissions {
@@ -85,12 +80,10 @@ export interface UserPermissions {
   reportSpam: boolean;
   setWorkItemMetadata: boolean;
   updateWorkItem: boolean;
-  __typename: string;
 }
 
 export interface Labels {
   nodes: Node[];
-  __typename: string;
 }
 
 export interface Node {
@@ -99,5 +92,4 @@ export interface Node {
   description: string;
   textColor: string;
   title: string;
-  __typename: string;
 }

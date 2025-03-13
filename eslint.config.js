@@ -54,11 +54,6 @@ module.exports = [
               selector: 'property',
               elementNamePattern: '^(?:id|iid|tag|name)$',
             },
-            {
-              groupName: 'bottom',
-              selector: 'property',
-              elementNamePattern: '^__typename$',
-            },
           ],
         },
       ],

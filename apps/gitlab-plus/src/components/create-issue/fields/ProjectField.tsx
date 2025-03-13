@@ -20,7 +20,7 @@ export function ProjectField({ link, setValue, value }: Props) {
         search
       );
 
-      return response.data.group.projects.nodes;
+      return response.data.workspace.projects.nodes;
     },
     [link]
   );

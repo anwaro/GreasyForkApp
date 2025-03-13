@@ -28,6 +28,7 @@ export function MrDiscussion({ mr }: Props) {
 
   return (
     <InfoBlock
+      icon={'comments'}
       title={'Discussion'}
       rightTitle={
         <GitlabBadge

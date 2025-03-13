@@ -9,7 +9,6 @@ export function useFetchIssue() {
       link.issue
     );
 
-    console.log(response);
     return response.data.project.issue;
   });
 }

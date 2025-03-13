@@ -1,3 +1,4 @@
+import { iterationFragment } from './iteration';
 import { labelFragment } from './label';
 import { userFragment } from './user';
 
@@ -11,7 +12,6 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
       description
       createdAt
       state
-      confidential
       dueDate
       projectId
       milestone {
@@ -19,7 +19,6 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
         title
         startDate
         dueDate
-        __typename
       }
       epic {
         id
@@ -28,20 +27,11 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
         webUrl
       }
       iteration {
-        id
-        title
-        startDate
-        dueDate
-        iterationCadence {
-          id
-          title
-          __typename
-        }
-        __typename
+        ...IterationFragment
       }
       labels {
         nodes {
-          ...Label
+          ...LabelFragment
         }
       }
       relatedMergeRequests {
@@ -51,17 +41,17 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
           state
           webUrl
           author {
-            ...User
+            ...UserFragment
           }
         }
       }
       assignees {
         nodes {
-          ...User
+          ...UserFragment
         }
       }
       author {
-        ...User
+        ...UserFragment
       }
       weight
       type
@@ -74,17 +64,28 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
             iid
             webUrl
             title
+            widgets {
+              type
+              ...LabelsWidget
+            }
           }
         }
       }
-      __typename
     }
-    __typename
+  }
+}
+
+fragment LabelsWidget on WorkItemWidgetLabels {
+  labels {
+    nodes {
+      ...LabelFragment
+    }
   }
 }
 
 ${labelFragment}
 ${userFragment}
+${iterationFragment}
 `;
 
 export const issueWithRelatedIssuesLabelsQuery = `query issueEE($projectPath: ID!, $iid: String!) {
@@ -109,7 +110,7 @@ export const issueWithRelatedIssuesLabelsQuery = `query issueEE($projectPath: ID
 fragment LabelsWidget on WorkItemWidgetLabels {
   labels {
     nodes {
-      ...Label
+      ...LabelFragment
     }
   }
 }
@@ -128,16 +129,8 @@ export const issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath:
       includeDescendants: $includeDescendants
     ) @include(if: $searchByText) {
       nodes {
-        id
-        iid
-        title
-        confidential
-        project {
-          fullPath
-        }
-        __typename
+        ...WorkItemSearchFragment
       }
-      __typename
     }
     workItemsByIid: workItems(
       iid: $iid
@@ -146,16 +139,8 @@ export const issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath:
       includeDescendants: $includeDescendants
     ) @include(if: $searchByIid) {
       nodes {
-        id
-        iid
-        title
-        confidential
-        project {
-          fullPath
-        }
-        __typename
+        ...WorkItemSearchFragment
       }
-      __typename
     }
     workItemsEmpty: workItems(
       types: $types
@@ -163,138 +148,42 @@ export const issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath:
       includeDescendants: $includeDescendants
     ) @include(if: $searchEmpty) {
       nodes {
-        id
-        iid
-        title
-        confidential
-        project {
-          fullPath
-        }
-        __typename
+        ...WorkItemSearchFragment
       }
-      __typename
     }
-    __typename
+  }
+}
+
+fragment WorkItemSearchFragment on WorkItem {
+  id
+  iid
+  title
+  project {
+    fullPath
   }
 }
 `;
 
 export const issueMutation = `
 mutation CreateIssue($input: CreateIssueInput!) {
-  createIssuable: createIssue(input: $input) {
-    issuable: issue {
-      ...Issue
-      __typename
+  createIssue(input: $input) {
+    issue {
+      ...CreatedIssue
     }
     errors
-    __typename
   }
 }
 
-fragment Issue on Issue {
-  ...IssueNode
-  id
-  weight
-  blocked
-  blockedByCount
-  epic {
-    id
-    __typename
-  }
-  iteration {
-    id
-    title
-    startDate
-    dueDate
-    iterationCadence {
-      id
-      title
-      __typename
-    }
-    __typename
-  }
-  healthStatus
-  __typename
-}
-
-fragment IssueNode on Issue {
+fragment CreatedIssue on Issue {
   id
   iid
-  title
-  referencePath: reference(full: true)
-  closedAt
-  dueDate
-  timeEstimate
-  totalTimeSpent
-  humanTimeEstimate
-  humanTotalTimeSpent
-  emailsDisabled
-  confidential
-  hidden
-  webUrl
-  relativePosition
   projectId
-  type
-  severity
-  milestone {
-    ...MilestoneFragment
-    __typename
-  }
-  assignees {
-    nodes {
-      ...User
-      __typename
-    }
-    __typename
-  }
-  labels {
-    nodes {
-      id
-      title
-      color
-      description
-      __typename
-    }
-    __typename
-  }
-  __typename
-}
-
-fragment MilestoneFragment on Milestone {
-  expired
-  id
-  state
-  title
-  __typename
-}
-
-fragment User on User {
-  id
-  avatarUrl
-  name
-  username
-  webUrl
-  webPath
-  __typename
 }
 `;
 
 export const issueSetEpicMutation = `
 mutation projectIssueUpdateParent($input: WorkItemUpdateInput!) {
   issuableSetAttribute: workItemUpdate(input: $input) {
-    workItem {
-      id
-      widgets {
-        ... on WorkItemWidgetHierarchy {
-          type
-          parent {
-            id
-            title
-            webUrl
-          }
-        }
-      }
-    }
     errors
   }
 }
@@ -303,11 +192,7 @@ mutation projectIssueUpdateParent($input: WorkItemUpdateInput!) {
 export const issueSetLabelsMutation = `
 mutation issueSetLabels($input: UpdateIssueInput!) {
   updateIssuableLabels: updateIssue(input: $input) {
-    issuable: issue {
-      __typename
-    }
     errors
-    __typename
   }
 }
 `;

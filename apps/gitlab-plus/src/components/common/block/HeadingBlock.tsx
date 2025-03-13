@@ -1,12 +1,11 @@
 import { ComponentChild, ComponentChildren } from 'preact';
 
-import { clsx } from '@utils/clsx';
-
 import { User } from '../../../types/User';
 import { Row } from '../base/Row';
 import { Text } from '../base/Text';
 import { GitlabIcon, GitlabIconNames } from '../GitlabIcon';
 import { GitlabUser } from '../GitlabUser';
+import { InfoBlock } from './InfoBlock';
 
 type Props = {
   author: User;
@@ -28,27 +27,22 @@ export function HeadingBlock({
   title,
 }: Props) {
   return (
-    <div className={'glp-block gl-relative'}>
-      <Row className={''} items={'center'} justify={'between'}>
-        <span
-          className={clsx(
-            'gl-font-bold gl-leading-20 gl-text-gray-900',
-            onRefresh && 'gl-pr-5'
-          )}
-        >
-          {title}
-        </span>
-        {onRefresh && (
+    <InfoBlock
+      title={title}
+      titleClassName={'gl-pr-2'}
+      rightTitle={
+        onRefresh && (
           <div
             onClick={onRefresh}
             className={
-              'gl-absolute gl-right-0 gl-top-0 gl-p-2 gl-cursor-pointer'
+              'gl-absolute gl-right-0 gl-top-1 gl-p-2 gl-cursor-pointer'
             }
           >
             <GitlabIcon icon={'repeat'} />
           </div>
-        )}
-      </Row>
+        )
+      }
+    >
       <Row className={'gl-mt-2'} gap={2} items={'center'}>
         <Row gap={2} items={'center'}>
           <GitlabIcon icon={icon} size={16} />
@@ -70,6 +64,6 @@ export function HeadingBlock({
         </Text>
         <GitlabUser size={16} user={author} smallText withLink />
       </Row>
-    </div>
+    </InfoBlock>
   );
 }

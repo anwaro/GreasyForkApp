@@ -50,12 +50,9 @@ export function PreviewModal<LinkType>({
 
   const content = useMemo(() => {
     if (isLoading || !isVisible) {
-      return (
-        <Row className={'gl-flex-1'} items={'center'} justify={'center'}>
-          <GitlabLoader size={'3em'} />
-        </Row>
-      );
+      return <GitlabLoader size={'3em'} asOverlay />;
     }
+
     if (isError) {
       return (
         <Row className={'gl-flex-1'} items={'center'} justify={'center'}>
@@ -63,28 +60,24 @@ export function PreviewModal<LinkType>({
         </Row>
       );
     }
+
     return (
       <div className={'gl-flex gl-w-full gl-flex-col'}>
         {children}
-        {isRefreshing && (
-          <Row
-            className={'gl-h-full gl-w-full gl-absolute gl-bg-overlay'}
-            items={'center'}
-            justify={'center'}
-          >
-            <GitlabLoader size={'3em'} />
-          </Row>
-        )}
+        {isRefreshing && <GitlabLoader size={'3em'} asOverlay />}
       </div>
     );
   }, [isLoading, isRefreshing, isError, isVisible, children]);
 
   return (
     <div
-      className={clsx('glp-preview-modal', isVisible && 'glp-modal-visible')}
       onMouseEnter={onLinkEnter}
       onMouseLeave={onLinkLeave}
       ref={ref}
+      className={clsx(
+        'popover gl-popover glp-preview-modal',
+        isVisible && 'glp-modal-visible'
+      )}
       style={{
         left: hoverPosition.x,
         top: hoverPosition.y,

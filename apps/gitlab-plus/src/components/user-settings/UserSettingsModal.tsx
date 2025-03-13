@@ -6,11 +6,13 @@ import { GitlabSwitch } from '../common/GitlabSwitch';
 import { GlpModal } from '../common/modal/GlpModal';
 import { useGlpModal } from '../common/modal/useGlpModal';
 import { showUserSettingsModal } from './events';
+import { UserConfigForm } from './UserConfigForm';
 import { useUserSettingsModal } from './useUserSettingsModal';
 
 export function UserSettingModal() {
   const { isVisible, onClose } = useGlpModal(showUserSettingsModal);
-  const { services, setServiceState } = useUserSettingsModal();
+  const { configs, services, setConfig, setServiceState } =
+    useUserSettingsModal();
 
   return (
     <GlpModal
@@ -23,6 +25,16 @@ export function UserSettingModal() {
       }
     >
       <Column className={'gl-p-4'} gap={2}>
+        {configs.map((config) => (
+          <Row key={config.name} gap={2} items={'center'} justify={'between'}>
+            <Text>{config.label}</Text>
+            <UserConfigForm
+              setValue={(value) => setConfig(config.name, value)}
+              value={config.value}
+            />
+          </Row>
+        ))}
+        <hr class={'gl-my-2'} />
         {services.map((service) => (
           <Row gap={2} items={'center'}>
             <GitlabSwitch

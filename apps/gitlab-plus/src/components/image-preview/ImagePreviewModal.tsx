@@ -4,7 +4,7 @@ import { GitlabIcon } from '../common/GitlabIcon';
 import { useImagePreviewModal } from './useImagePreviewModal';
 
 export function ImagePreviewModal() {
-  const { onClose, src } = useImagePreviewModal();
+  const { onClose, onZoom, src, style } = useImagePreviewModal();
 
   return (
     <div
@@ -13,7 +13,13 @@ export function ImagePreviewModal() {
         Boolean(src) && 'glp-modal-visible'
       )}
     >
-      <img alt={'Image preview'} className={'glp-modal-img'} src={src} />
+      <div
+        className={
+          'gl-flex gl-items-center gl-overflow-auto gl-h-full gl-w-full'
+        }
+      >
+        <img alt={'Image preview'} onClick={onZoom} src={src} style={style} />
+      </div>
       <div className={'glp-modal-close'} onClick={onClose}>
         <GitlabIcon icon={'close-xs'} size={24} />
       </div>

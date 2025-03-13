@@ -5,6 +5,8 @@ import { LabelsProvider } from '../../../providers/LabelsProvider';
 import { Epic, LabelWidget } from '../../../types/Epic';
 import { Label } from '../../../types/Label';
 import { UpdateStatus } from '../../common/block/useLabelBlock';
+import { UserConfig } from '../../user-settings/UserConfig';
+import { userSettingsStore } from '../../user-settings/UserSettingsStore';
 
 export function useEpicLabels(epic: Epic, refetch?: () => Promise<void>) {
   const [statusLabels, setStatusLabels] = useState<Label[]>([]);
@@ -21,7 +23,11 @@ export function useEpicLabels(epic: Epic, refetch?: () => Promise<void>) {
 
   const onStatusChange = useCallback(
     async (label: Label) => {
-      const oldStatus = labels.filter((l) => l.title.includes('Status::'));
+      const oldStatus = labels.filter((l) =>
+        l.title.includes(
+          userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
+        )
+      );
 
       await new EpicProvider().updateEpicLabels(
         epic.id,
@@ -39,7 +45,7 @@ export function useEpicLabels(epic: Epic, refetch?: () => Promise<void>) {
   const fetchLabels = useCallback(async (workspacePath: string) => {
     const response = await new LabelsProvider().getWorkspaceLabels(
       workspacePath,
-      'Status::'
+      userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
     );
     setStatusLabels(response.data.workspace.labels.nodes);
   }, []);

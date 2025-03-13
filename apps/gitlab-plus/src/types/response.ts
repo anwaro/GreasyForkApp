@@ -16,10 +16,8 @@ export interface ResponseProject<D> {
 
 export type ResponseData<D> = {
   id: string;
-  __typename: string;
 } & D;
 
 export interface Nodes<Node> {
   nodes: Node[];
-  __typename: string;
 }

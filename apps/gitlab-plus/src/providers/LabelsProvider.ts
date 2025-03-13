@@ -11,7 +11,7 @@ export class LabelsProvider extends GitlabProvider {
         fullPath: projectPath,
         searchTerm: search,
       },
-      search === '' ? 20 : 0.5
+      search === '' ? 20 : 2
     );
   }
 
@@ -23,7 +23,7 @@ export class LabelsProvider extends GitlabProvider {
         fullPath: workspacePath,
         searchTerm: search,
       },
-      search === '' ? 20 : 0.5
+      search === '' ? 20 : 2
     );
   }
 }

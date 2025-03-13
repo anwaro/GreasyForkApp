@@ -8,9 +8,9 @@ type Props = {
 export function MrApprovedBy({ mr }: Props) {
   return (
     <UsersBlock
-      assignees={mr.approvedBy.nodes}
       label={'Approved by'}
       pluralLabel={'Approved by'}
+      users={mr.approvedBy.nodes}
     />
   );
 }

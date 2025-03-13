@@ -10,5 +10,4 @@ export interface User {
   username: string;
   webPath: string;
   webUrl: string;
-  __typename: string;
 }

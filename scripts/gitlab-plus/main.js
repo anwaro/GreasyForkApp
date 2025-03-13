@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2025-02-21
+// @version      2025-03-13
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -47,9 +47,9 @@ class GlobalStyle {
 const style1 =
   '.glp-modal {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 99999;\n  display: none;\n  background: rgba(0, 0, 0, 0.6);\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-modal.glp-modal-visible {\n  display: flex;\n}\n\n.glp-modal .glp-modal-content {\n  width: 700px;\n  max-width: 95vw;\n}\n\n.gl-new-dropdown-item.glp-active .gl-new-dropdown-item-content {\n  box-shadow: inset 0 0 0 2px var(--gl-focus-ring-outer-color), inset 0 0 0 3px var(--gl-focus-ring-inner-color), inset 0 0 0 1px var(--gl-focus-ring-inner-color);\n  background-color: var(--gl-dropdown-option-background-color-unselected-hover);\n  outline: none;\n}\n\n';
 const style2 =
-  '.glp-image-preview-modal {\n  position: fixed;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.6);\n  visibility: hidden;\n  opacity: 0;\n  pointer-events: none;\n  z-index: 99999;\n}\n\n.glp-image-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n  pointer-events: auto;\n}\n\n.glp-image-preview-modal .glp-modal-img {\n  max-width: 95%;\n  max-height: 95%;\n}\n\n.glp-image-preview-modal .glp-modal-close {\n  position: absolute;\n  z-index: 2;\n  top: 20px;\n  right: 20px;\n  color: black;\n  width: 40px;\n  height: 40px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background: white;\n  border-radius: 20px;\n  cursor: pointer;\n}\n\n';
+  '.glp-image-preview-modal {\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.6);\n  visibility: hidden;\n  opacity: 0;\n  pointer-events: none;\n  z-index: 99999;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-image-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n  pointer-events: auto;\n}\n\n\n.glp-image-preview-modal .glp-modal-close {\n  position: absolute;\n  z-index: 2;\n  top: 5px;\n  right: 5px;\n  color: black;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background: white;\n  border-radius: 15px;\n  cursor: pointer;\n}\n\n';
 const style3 =
-  '.glp-preview-modal {\n  position: fixed;\n  display: flex;\n  background-color: var(--gl-background-color-default, var(--gl-color-neutral-0, #fff));\n  border: 1px solid var(--gl-border-color-default);\n  border-radius: .25rem;\n  width: 350px;\n  min-height: 200px;\n  z-index: 99999;\n  visibility: hidden;\n  top: 0;\n  left: 0;\n  opacity: 0;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n}\n\n.glp-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n \n.glp-preview-modal .glp-block {\n  padding: .4rem .5em;\n  border-bottom-style: solid;\n  border-bottom-color: var(--gl-border-color-subtle, var(--gl-color-neutral-50, #ececef));\n  border-bottom-width: 1px;\n  width: 100%;\n}\n\n\n.glp-preview-modal * {\n  max-width: 100%;\n}\n';
+  '.glp-preview-modal {\n  position: fixed;\n  border-radius: .25rem;\n  max-width: 350px;\n  width: 350px;\n  min-height: 200px;\n  visibility: hidden;\n  opacity: 0;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n\n}\n\n.glp-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n\n.glp-preview-modal ::-webkit-scrollbar {\n  width: 5px;\n}\n\n.glp-preview-modal ::-webkit-scrollbar-track {\n  background: var(--gl-background-color-overlap);\n}\n\n\n.glp-preview-modal ::-webkit-scrollbar-thumb {\n  background: #888;\n  border-radius: 5px;\n}\n\n\n.glp-preview-modal ::-webkit-scrollbar-thumb:hover {\n  background: #555;\n}\n\n\n.glp-preview-modal * {\n  max-width: 100%;\n}\n';
 
 // apps/gitlab-plus/src/styles/index.ts
 GlobalStyle.addStyle('glp-style', [style1, style2, style3].join('\n'));
@@ -131,12 +131,27 @@ const servicesConfig = {
   ['UserSettings']: { label: 'User settings', required: true },
 };
 
+// apps/gitlab-plus/src/components/user-settings/UserConfig.ts
+var UserConfig = ((UserConfig2) => {
+  UserConfig2['StatusLabelPrefix'] = 'StatusLabelPrefix';
+  return UserConfig2;
+})(UserConfig || {});
+const configLabels = {
+  ['StatusLabelPrefix']: 'Status label prefix',
+};
+const defaultUserConfig = {
+  ['StatusLabelPrefix']: 'Status::',
+};
+
 // apps/gitlab-plus/src/components/user-settings/UserSettingsStore.ts
 class UserSettingsStore {
   constructor() {
-    __publicField(this, 'settings', {});
-    __publicField(this, 'store', new Store('gitlab-plus-settings'));
-    this.load();
+    __publicField(this, 'activeStatusStore', new Store('glp-settings'));
+    __publicField(this, 'configStore', new Store('glp-config'));
+  }
+
+  getConfig(name2) {
+    return this.getConfigItem(name2);
   }
 
   isActive(name2) {
@@ -147,33 +162,54 @@ class UserSettingsStore {
       return true;
     }
     if (servicesConfig[name2].experimental) {
-      return this.getItem(name2, false);
+      return this.getActiveStatusItem(name2, false);
     }
-    return this.getItem(name2, true);
+    return this.getActiveStatusItem(name2, true);
+  }
+
+  setConfig(name2, value) {
+    this.setConfigItem(name2, value);
   }
 
   setIsActive(name2, value) {
-    this.setItem(name2, value);
+    this.setActiveStatusItem(name2, value);
   }
 
-  getItem(key, defaultValue) {
-    if (this.settings[key] === void 0) {
+  getActiveStatusItem(key, defaultValue) {
+    const items = this.getActiveStatusItems();
+    if (items[key] === void 0) {
       return defaultValue;
     }
-    return this.settings[key];
+    return items[key];
   }
 
-  load() {
-    this.settings = this.store.get() || {};
+  getActiveStatusItems() {
+    return this.activeStatusStore.get() || {};
   }
 
-  persist() {
-    this.store.set(this.settings);
+  getConfigItem(key) {
+    const items = this.getConfigItems();
+    return items[key];
   }
 
-  setItem(key, value) {
-    this.settings[key] = value;
-    this.persist();
+  getConfigItems() {
+    return { ...defaultUserConfig, ...(this.configStore.get() || {}) };
+  }
+
+  setActiveStatusItem(key, value) {
+    const items = this.getActiveStatusItems();
+    this.activeStatusStore.set({
+      ...items,
+      [key]: value,
+    });
+  }
+
+  setConfigItem(key, value) {
+    const items = this.getConfigItems();
+    this.configStore.set({
+      ...items,
+      [key]: value,
+    });
   }
 }
 
@@ -322,19 +358,44 @@ function GitlabIcon({ className, icon, size = 12, title }) {
   });
 }
 
-// apps/gitlab-plus/src/components/common/GitlabLoader.tsx
-function GitlabLoader({ size = 24 }) {
-  return jsx('span', {
-    class: 'gl-spinner-container',
-    role: 'status',
-    children: jsx('span', {
-      class: 'gl-spinner gl-spinner-sm gl-spinner-dark !gl-align-text-bottom',
-      style: {
-        width: size,
-        height: size,
-      },
-    }),
+// apps/gitlab-plus/src/components/common/base/Row.tsx
+function Row({ children, className, gap, items, justify }) {
+  return jsx('div', {
+    class: clsx(
+      'gl-flex gl-flex-row',
+      justify && `gl-justify-${justify}`,
+      items && `gl-items-${items}`,
+      gap && `gl-gap-${gap}`,
+      className
+    ),
+    children,
   });
+}
+
+// apps/gitlab-plus/src/components/common/GitlabLoader.tsx
+function GitlabLoader({ asOverlay, size = 24 }) {
+  const loader = useMemo(() => {
+    return jsx('span', {
+      class: 'gl-spinner-container',
+      role: 'status',
+      children: jsx('span', {
+        class: 'gl-spinner gl-spinner-sm gl-spinner-dark !gl-align-text-bottom',
+        style: {
+          width: size,
+          height: size,
+        },
+      }),
+    });
+  }, [size]);
+  if (asOverlay) {
+    return jsx(Row, {
+      className: 'gl-h-full gl-w-full gl-absolute gl-bg-overlay',
+      items: 'center',
+      justify: 'center',
+      children: loader,
+    });
+  }
+  return loader;
 }
 
 // apps/gitlab-plus/src/components/common/GitlabButton.tsx
@@ -466,10 +527,7 @@ function FormField({ children, error, hint, title }) {
       children,
       Boolean(!error && hint) && jsx('small', { children: hint }),
       Boolean(error) &&
-        jsx('small', {
-          class: 'gl-field-error',
-          children: error,
-        }),
+        jsx('small', { class: 'gl-field-error', children: error }),
     ],
   });
 }
@@ -579,46 +637,26 @@ class GitlabProvider {
 
 // apps/gitlab-plus/src/providers/query/user.ts
 const userFragment = `
-fragment User on User {
+fragment UserFragment on User {
   id
   avatarUrl
   name
   username
   webUrl
   webPath
-  __typename
 }
 `;
 const userQuery = `
-query workspaceAutocompleteUsersSearch($search: String!, $fullPath: ID!, $isProject: Boolean = true) {
-  groupWorkspace: group(fullPath: $fullPath) @skip(if: $isProject) {
-    id
-    users: autocompleteUsers(search: $search) {
-      ...User
-      ...UserAvailability
-      __typename
-    }
-    __typename
-  }
+query workspaceAutocompleteUsersSearch($search: String!, $fullPath: ID!) {
   workspace: project(fullPath: $fullPath) {
     id
     users: autocompleteUsers(search: $search) {
-      ...User
-      ...UserAvailability
-      __typename
+      ...UserFragment
     }
-    __typename
   }
 }
 
 ${userFragment}
-fragment UserAvailability on User {
-  status {
-    availability
-    __typename
-  }
-  __typename
-}
 `;
 
 // apps/gitlab-plus/src/providers/UsersProvider.ts
@@ -713,7 +751,8 @@ function AsyncAutocompleteOption({
   return jsx('li', {
     onClick: () => onClick(option),
     class: clsx(
-      'gl-new-dropdown-item', // selectedClass(option.id),
+      'gl-new-dropdown-item',
+      // selectedClass(option.id),
       isActive && 'glp-active'
     ),
     children: jsxs('span', {
@@ -1211,10 +1250,7 @@ function ButtonField({ create, isLoading, reset }) {
         onClick: create,
         type: 'button',
         children: [
-          jsx('span', {
-            class: 'gl-button-text',
-            children: 'Add',
-          }),
+          jsx('span', { class: 'gl-button-text', children: 'Add' }),
           isLoading
             ? jsx(GitlabLoader, { size: 12 })
             : jsx(GitlabIcon, { icon: 'plus', size: 12 }),
@@ -1237,12 +1273,11 @@ const iterationFragment = `fragment IterationFragment on Iteration {
   startDate
   dueDate
   webUrl
+  state
   iterationCadence {
     id
     title
-    __typename
   }
-  __typename
 }`;
 const iterationQuery = `query issueIterationsAliased($fullPath: ID!, $title: String, $state: IterationState) {
   workspace: group(fullPath: $fullPath) {
@@ -1254,12 +1289,8 @@ const iterationQuery = `query issueIterationsAliased($fullPath: ID!, $title: Str
     ) {
       nodes {
         ...IterationFragment
-        state
-        __typename
       }
-      __typename
     }
-    __typename
   }
 }
 ${iterationFragment}
@@ -1331,13 +1362,12 @@ function IterationField({ link, setValue, value }) {
 
 // apps/gitlab-plus/src/providers/query/label.ts
 const labelFragment = `
-  fragment Label on Label {
+  fragment LabelFragment on Label {
     id
     title
     description
     color
     textColor
-    __typename
   }
 `;
 const projectLabelsQuery = `query projectLabels($fullPath: ID!, $searchTerm: String) {
@@ -1348,12 +1378,9 @@ const projectLabelsQuery = `query projectLabels($fullPath: ID!, $searchTerm: Str
       includeAncestorGroups: true
     ) {
       nodes {
-        ...Label
-        __typename
+        ...LabelFragment
       }
-      __typename
     }
-    __typename
   }
 }
 ${labelFragment}
@@ -1367,12 +1394,9 @@ const workspaceLabelsQuery = `query groupLabels($fullPath: ID!, $searchTerm: Str
       includeAncestorGroups: true
     ) {
       nodes {
-        ...Label
-        __typename
+        ...LabelFragment
       }
-      __typename
     }
-    __typename
   }
 }
 
@@ -1389,7 +1413,7 @@ class LabelsProvider extends GitlabProvider {
         fullPath: projectPath,
         searchTerm: search,
       },
-      search === '' ? 20 : 0.5
+      search === '' ? 20 : 2
     );
   }
 
@@ -1401,7 +1425,7 @@ class LabelsProvider extends GitlabProvider {
         fullPath: workspacePath,
         searchTerm: search,
       },
-      search === '' ? 20 : 0.5
+      search === '' ? 20 : 2
     );
   }
 }
@@ -1435,10 +1459,7 @@ function GitlabLabel({ label, onRemove }) {
       jsxs('span', {
         class: 'gl-link gl-label-link gl-label-link-underline',
         children: [
-          jsx('span', {
-            class: 'gl-label-text',
-            children: scope,
-          }),
+          jsx('span', { class: 'gl-label-text', children: scope }),
           text &&
             jsx('span', { class: 'gl-label-text-scoped', children: text }),
         ],
@@ -1534,27 +1555,7 @@ function LabelField({ copyLabels, projectPath, setValue, value }) {
 }
 
 // apps/gitlab-plus/src/providers/query/milestone.ts
-const milestoneQuery = `query projectMilestones($fullPath: ID!, $title: String, $state: MilestoneStateEnum) {
-  workspace: project(fullPath: $fullPath) {
-    id
-    attributes: milestones(
-      searchTitle: $title
-      state: $state
-      sort: EXPIRED_LAST_DUE_DATE_ASC
-      first: 20
-      includeAncestors: true
-    ) {
-      nodes {
-        ...MilestoneFragment
-        state
-        __typename
-      }
-      __typename
-    }
-    __typename
-  }
-}
-
+const milestoneFragment = `
 fragment MilestoneFragment on Milestone {
   id
   iid
@@ -1562,9 +1563,28 @@ fragment MilestoneFragment on Milestone {
   webUrl: webPath
   dueDate
   expired
-  __typename
+  state
 }
 
+`;
+const milestoneQuery = `query projectMilestones($fullPath: ID!, $title: String, $state: MilestoneStateEnum) {
+  workspace: project(fullPath: $fullPath) {
+    id
+    attributes: milestones(
+      searchTitle: $title
+      state: $state
+      sort: EXPIRED_LAST_DUE_DATE_ASC
+      first: 40
+      includeAncestors: true
+    ) {
+      nodes {
+        ...MilestoneFragment
+      }
+    }
+  }
+}
+
+${milestoneFragment}
 `;
 
 // apps/gitlab-plus/src/providers/MilestonesProvider.ts
@@ -1626,7 +1646,7 @@ function MilestoneField({ projectPath, setValue, value }) {
 
 // apps/gitlab-plus/src/providers/query/project.ts
 const projectsQuery = `query boardsGetGroupProjects($fullPath: ID!, $search: String, $after: String) {
-  group(fullPath: $fullPath) {
+  workspace: group(fullPath: $fullPath) {
     id
     projects(search: $search, after: $after, first: 100, includeSubgroups: true) {
       nodes {
@@ -1636,26 +1656,10 @@ const projectsQuery = `query boardsGetGroupProjects($fullPath: ID!, $search: Str
         fullPath
         nameWithNamespace
         archived
-        __typename
       }
-      pageInfo {
-        ...PageInfo
-        __typename
-      }
-      __typename
     }
-    __typename
   }
 }
-
-fragment PageInfo on PageInfo {
-  hasNextPage
-  hasPreviousPage
-  startCursor
-  endCursor
-  __typename
-}
-
 `;
 
 // apps/gitlab-plus/src/providers/ProjectsProvider.ts
@@ -1709,7 +1713,7 @@ function ProjectField({ link, setValue, value }) {
         link.workspacePath,
         search
       );
-      return response.data.group.projects.nodes;
+      return response.data.workspace.projects.nodes;
     },
     [link]
   );
@@ -1880,9 +1884,7 @@ const epicQuery = `query namespaceWorkItem($fullPath: ID!, $iid: String!) {
     id
     workItem(iid: $iid) {
       ...WorkItem
-      __typename
     }
-    __typename
   }
 }
 
@@ -1893,50 +1895,24 @@ fragment WorkItem on WorkItem {
   title
   state
   description
-  confidential
   createdAt
   closedAt
   webUrl
-  reference(full: true)
-  createNoteEmail
   project {
     id
-    __typename
   }
   namespace {
     id
     fullPath
     name
     fullName
-    __typename
   }
   author {
-    ...Author
-    __typename
-  }
-
-  workItemType {
-    id
-    name
-    iconName
-    __typename
-  }
-  userPermissions {
-    deleteWorkItem
-    updateWorkItem
-    adminParentLink
-    setWorkItemMetadata
-    createNote
-    adminWorkItemLink
-    markNoteAsInternal
-    reportSpam
-    __typename
+    ...UserFragment
   }
   widgets {
     ...WorkItemWidgets
-    __typename
   }
-  __typename
 }
 
 fragment WorkItemWidgets on WorkItemWidget {
@@ -1951,164 +1927,67 @@ fragment WorkItemWidgets on WorkItemWidget {
         title
         state
         webUrl
+        widgets {
+          type
+          ...LabelsWidget
+        }
       }
     }
   }
   ... on WorkItemWidgetAssignees {
     assignees {
       nodes {
-        ...User
+        ...UserFragment
       }
     }
   }
   ... on WorkItemWidgetLabels {
     labels {
       nodes {
-        ...Label
+        ...LabelFragment
       }
     }
-  }
-  ... on WorkItemWidgetStartAndDueDate {
-    dueDate
-    startDate
-    rollUp
-    isFixed
-    __typename
-  }
-  ... on WorkItemWidgetProgress {
-    progress
-    updatedAt
-    __typename
   }
   ... on WorkItemWidgetIteration {
     iteration {
-      id
-      title
-      startDate
-      dueDate
-      webUrl
-      iterationCadence {
-        id
-        title
-      }
-      __typename
+      ...IterationFragment
     }
-    __typename
   }
   ... on WorkItemWidgetMilestone {
     milestone {
       ...MilestoneFragment
-      __typename
     }
-    __typename
-  }
-  ... on WorkItemWidgetNotes {
-    discussionLocked
-    __typename
-  }
-  ... on WorkItemWidgetHealthStatus {
-    healthStatus
-    rolledUpHealthStatus {
-      count
-      healthStatus
-      __typename
-    }
-    __typename
-  }
-  ... on WorkItemWidgetNotifications {
-    subscribed
-    __typename
-  }
-  ... on WorkItemWidgetCurrentUserTodos {
-    currentUserTodos(state: pending) {
-      nodes {
-        id
-        __typename
-      }
-      __typename
-    }
-    __typename
   }
   ... on WorkItemWidgetColor {
     color
     textColor
-    __typename
   }
   ... on WorkItemWidgetLinkedItems {
     linkedItems {
       nodes {
         linkId
         linkType
-        __typename
       }
-      __typename
     }
-    __typename
   }
-  ... on WorkItemWidgetCrmContacts {
-    contacts {
-      nodes {
-        id
-        email
-        firstName
-        lastName
-        phone
-        description
-        organization {
-          id
-          name
-          description
-          defaultRate
-          __typename
-        }
-        __typename
-      }
-      __typename
+}
+
+fragment LabelsWidget on WorkItemWidgetLabels {
+  labels {
+    nodes {
+      ...LabelFragment
     }
-    __typename
   }
-  __typename
-}
-
-fragment User on User {
-  id
-  avatarUrl
-  name
-  username
-  webUrl
-  webPath
-  __typename
-}
-
-fragment MilestoneFragment on Milestone {
-  expired
-  id
-  title
-  state
-  startDate
-  dueDate
-  webPath
-  __typename
-}
-
-fragment Author on User {
-  id
-  avatarUrl
-  name
-  username
-  webUrl
-  webPath
-  __typename
 }
 
 ${labelFragment}
+${userFragment}
+${iterationFragment}
+${milestoneFragment}
 `;
 const epicSetLabelsMutation = `
 mutation workItemUpdate($input: WorkItemUpdateInput!) {
   workItemUpdate(input: $input) {
-    workItem {
-      __typename
-    }
     errors
   }
 }
@@ -2154,7 +2033,6 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
       description
       createdAt
       state
-      confidential
       dueDate
       projectId
       milestone {
@@ -2162,7 +2040,6 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
         title
         startDate
         dueDate
-        __typename
       }
       epic {
         id
@@ -2171,20 +2048,11 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
         webUrl
       }
       iteration {
-        id
-        title
-        startDate
-        dueDate
-        iterationCadence {
-          id
-          title
-          __typename
-        }
-        __typename
+        ...IterationFragment
       }
       labels {
         nodes {
-          ...Label
+          ...LabelFragment
         }
       }
       relatedMergeRequests {
@@ -2194,17 +2062,17 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
           state
           webUrl
           author {
-            ...User
+            ...UserFragment
           }
         }
       }
       assignees {
         nodes {
-          ...User
+          ...UserFragment
         }
       }
       author {
-        ...User
+        ...UserFragment
       }
       weight
       type
@@ -2217,17 +2085,28 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
             iid
             webUrl
             title
+            widgets {
+              type
+              ...LabelsWidget
+            }
           }
         }
       }
-      __typename
     }
-    __typename
+  }
+}
+
+fragment LabelsWidget on WorkItemWidgetLabels {
+  labels {
+    nodes {
+      ...LabelFragment
+    }
   }
 }
 
 ${labelFragment}
 ${userFragment}
+${iterationFragment}
 `;
 const issueWithRelatedIssuesLabelsQuery = `query issueEE($projectPath: ID!, $iid: String!) {
   project(fullPath: $projectPath) {
@@ -2251,7 +2130,7 @@ const issueWithRelatedIssuesLabelsQuery = `query issueEE($projectPath: ID!, $iid
 fragment LabelsWidget on WorkItemWidgetLabels {
   labels {
     nodes {
-      ...Label
+      ...LabelFragment
     }
   }
 }
@@ -2269,16 +2148,8 @@ const issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath: ID!, $
       includeDescendants: $includeDescendants
     ) @include(if: $searchByText) {
       nodes {
-        id
-        iid
-        title
-        confidential
-        project {
-          fullPath
-        }
-        __typename
+        ...WorkItemSearchFragment
       }
-      __typename
     }
     workItemsByIid: workItems(
       iid: $iid
@@ -2287,16 +2158,8 @@ const issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath: ID!, $
       includeDescendants: $includeDescendants
     ) @include(if: $searchByIid) {
       nodes {
-        id
-        iid
-        title
-        confidential
-        project {
-          fullPath
-        }
-        __typename
+        ...WorkItemSearchFragment
       }
-      __typename
     }
     workItemsEmpty: workItems(
       types: $types
@@ -2304,136 +2167,40 @@ const issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath: ID!, $
       includeDescendants: $includeDescendants
     ) @include(if: $searchEmpty) {
       nodes {
-        id
-        iid
-        title
-        confidential
-        project {
-          fullPath
-        }
-        __typename
+        ...WorkItemSearchFragment
       }
-      __typename
     }
-    __typename
+  }
+}
+
+fragment WorkItemSearchFragment on WorkItem {
+  id
+  iid
+  title
+  project {
+    fullPath
   }
 }
 `;
 const issueMutation = `
 mutation CreateIssue($input: CreateIssueInput!) {
-  createIssuable: createIssue(input: $input) {
-    issuable: issue {
-      ...Issue
-      __typename
+  createIssue(input: $input) {
+    issue {
+      ...CreatedIssue
     }
     errors
-    __typename
   }
 }
 
-fragment Issue on Issue {
-  ...IssueNode
-  id
-  weight
-  blocked
-  blockedByCount
-  epic {
-    id
-    __typename
-  }
-  iteration {
-    id
-    title
-    startDate
-    dueDate
-    iterationCadence {
-      id
-      title
-      __typename
-    }
-    __typename
-  }
-  healthStatus
-  __typename
-}
-
-fragment IssueNode on Issue {
+fragment CreatedIssue on Issue {
   id
   iid
-  title
-  referencePath: reference(full: true)
-  closedAt
-  dueDate
-  timeEstimate
-  totalTimeSpent
-  humanTimeEstimate
-  humanTotalTimeSpent
-  emailsDisabled
-  confidential
-  hidden
-  webUrl
-  relativePosition
   projectId
-  type
-  severity
-  milestone {
-    ...MilestoneFragment
-    __typename
-  }
-  assignees {
-    nodes {
-      ...User
-      __typename
-    }
-    __typename
-  }
-  labels {
-    nodes {
-      id
-      title
-      color
-      description
-      __typename
-    }
-    __typename
-  }
-  __typename
-}
-
-fragment MilestoneFragment on Milestone {
-  expired
-  id
-  state
-  title
-  __typename
-}
-
-fragment User on User {
-  id
-  avatarUrl
-  name
-  username
-  webUrl
-  webPath
-  __typename
 }
 `;
 const issueSetEpicMutation = `
 mutation projectIssueUpdateParent($input: WorkItemUpdateInput!) {
   issuableSetAttribute: workItemUpdate(input: $input) {
-    workItem {
-      id
-      widgets {
-        ... on WorkItemWidgetHierarchy {
-          type
-          parent {
-            id
-            title
-            webUrl
-          }
-        }
-      }
-    }
     errors
   }
 }
@@ -2441,11 +2208,7 @@ mutation projectIssueUpdateParent($input: WorkItemUpdateInput!) {
 const issueSetLabelsMutation = `
 mutation issueSetLabels($input: UpdateIssueInput!) {
   updateIssuableLabels: updateIssue(input: $input) {
-    issuable: issue {
-      __typename
-    }
     errors
-    __typename
   }
 }
 `;
@@ -2509,7 +2272,7 @@ class IssueProvider extends GitlabProvider {
         iid,
         projectPath,
       },
-      0.02
+      2
     );
   }
 
@@ -2643,14 +2406,14 @@ function useCreateIssueForm({ isVisible, link, onClose }) {
       if (values.relation && parentIssue) {
         setMessage('Creating relation to parent issue...');
         await createRelation(
-          response.data.createIssuable.issuable,
+          response.data.createIssue.issue,
           parentIssue,
           values.relation
         );
       }
       if (parentEpic) {
         setMessage('Linking to epic...');
-        await setIssueEpic(response.data.createIssuable.issuable, parentEpic);
+        await setIssueEpic(response.data.createIssue.issue, parentEpic);
       }
       setMessage('Issue was created');
       window.setTimeout(() => onClose(), 2e3);
@@ -3002,20 +2765,6 @@ class CreateRelatedIssue extends BaseService {
   }
 }
 
-// apps/gitlab-plus/src/components/common/base/Row.tsx
-function Row({ children, className, gap, items, justify }) {
-  return jsx('div', {
-    class: clsx(
-      'gl-flex gl-flex-row',
-      justify && `gl-justify-${justify}`,
-      items && `gl-items-${items}`,
-      gap && `gl-gap-${gap}`,
-      className
-    ),
-    children,
-  });
-}
-
 // libs/share/src/ui/Events.ts
 class Events {
   static intendHover(validate, mouseover, mouseleave, timeout = 500) {
@@ -3156,12 +2905,7 @@ function PreviewModal({
   );
   const content = useMemo(() => {
     if (isLoading || !isVisible) {
-      return jsx(Row, {
-        className: 'gl-flex-1',
-        items: 'center',
-        justify: 'center',
-        children: jsx(GitlabLoader, { size: '3em' }),
-      });
+      return jsx(GitlabLoader, { size: '3em', asOverlay: true });
     }
     if (isError) {
       return jsx(Row, {
@@ -3175,21 +2919,18 @@ function PreviewModal({
       className: 'gl-flex gl-w-full gl-flex-col',
       children: [
         children,
-        isRefreshing &&
-          jsx(Row, {
-            className: 'gl-h-full gl-w-full gl-absolute gl-bg-overlay',
-            items: 'center',
-            justify: 'center',
-            children: jsx(GitlabLoader, { size: '3em' }),
-          }),
+        isRefreshing && jsx(GitlabLoader, { size: '3em', asOverlay: true }),
       ],
     });
   }, [isLoading, isRefreshing, isError, isVisible, children]);
   return jsx('div', {
-    className: clsx('glp-preview-modal', isVisible && 'glp-modal-visible'),
     onMouseEnter: onLinkEnter,
     onMouseLeave: onLinkLeave,
     ref,
+    className: clsx(
+      'popover gl-popover glp-preview-modal',
+      isVisible && 'glp-modal-visible'
+    ),
     style: {
       left: hoverPosition.x,
       top: hoverPosition.y,
@@ -3197,6 +2938,56 @@ function PreviewModal({
       zIndex,
     },
     children: content,
+  });
+}
+
+// apps/gitlab-plus/src/components/common/block/InfoBlock.tsx
+function InfoBlock({
+  children,
+  className,
+  contentMaxHeight,
+  icon,
+  rightTitle,
+  title,
+  titleClassName,
+}) {
+  const style = useMemo(() => {
+    if (contentMaxHeight) {
+      return {
+        maxHeight: contentMaxHeight,
+        overflowY: 'auto',
+      };
+    }
+    return {};
+  }, [contentMaxHeight]);
+  return jsxs('div', {
+    class: 'gl-relative gl-w-full gl-py-2 gl-border-b gl-border-b-solid',
+    style: { borderColor: 'var(--gl-border-color-subtle)' },
+    children: [
+      jsxs(Row, {
+        className: 'gl-px-3',
+        items: 'center',
+        justify: 'between',
+        children: [
+          jsxs(Row, {
+            gap: 2,
+            items: 'center',
+            children: [
+              icon && jsx(GitlabIcon, { icon, size: 16 }),
+              jsx('h5', {
+                className: clsx('gl-my-0', titleClassName),
+                children: title,
+              }),
+            ],
+          }),
+          rightTitle,
+        ],
+      }),
+      jsx('div', {
+        style,
+        children: jsx('div', { class: clsx('gl-px-3', className), children }),
+      }),
+    ],
   });
 }
 
@@ -3210,30 +3001,17 @@ function HeadingBlock({
   onRefresh,
   title,
 }) {
-  return jsxs('div', {
-    className: 'glp-block gl-relative',
-    children: [
-      jsxs(Row, {
-        className: '',
-        items: 'center',
-        justify: 'between',
-        children: [
-          jsx('span', {
-            className: clsx(
-              'gl-font-bold gl-leading-20 gl-text-gray-900',
-              onRefresh && 'gl-pr-5'
-            ),
-            children: title,
-          }),
-          onRefresh &&
-            jsx('div', {
-              onClick: onRefresh,
-              className:
-                'gl-absolute gl-right-0 gl-top-0 gl-p-2 gl-cursor-pointer',
-              children: jsx(GitlabIcon, { icon: 'repeat' }),
-            }),
-        ],
+  return jsxs(InfoBlock, {
+    title,
+    titleClassName: 'gl-pr-2',
+    rightTitle:
+      onRefresh &&
+      jsx('div', {
+        onClick: onRefresh,
+        className: 'gl-absolute gl-right-0 gl-top-1 gl-p-2 gl-cursor-pointer',
+        children: jsx(GitlabIcon, { icon: 'repeat' }),
       }),
+    children: [
       jsxs(Row, {
         className: 'gl-mt-2',
         gap: 2,
@@ -3290,11 +3068,7 @@ function GitlabBadge({ icon, label, title, variant }) {
     title,
     children: [
       icon && jsx(GitlabIcon, { icon }),
-      label &&
-        jsx('span', {
-          className: 'gl-badge-content',
-          children: label,
-        }),
+      label && jsx('span', { className: 'gl-badge-content', children: label }),
     ],
   });
 }
@@ -3318,34 +3092,6 @@ function EpicHeader({ epic, onRefresh }) {
     icon: 'epic',
     onRefresh,
     title: epic.title,
-  });
-}
-
-// apps/gitlab-plus/src/components/common/block/InfoBlock.tsx
-function InfoBlock({ children, className, icon, rightTitle, title }) {
-  return jsxs('div', {
-    class: 'glp-block gl-relative',
-    children: [
-      jsxs(Row, {
-        items: 'center',
-        justify: 'between',
-        children: [
-          jsxs(Row, {
-            gap: 2,
-            items: 'center',
-            children: [
-              icon && jsx(GitlabIcon, { icon, size: 16 }),
-              jsx('span', {
-                className: 'gl-font-bold gl-leading-20 gl-text-gray-900',
-                dangerouslySetInnerHTML: { __html: title },
-              }),
-            ],
-          }),
-          rightTitle,
-        ],
-      }),
-      jsx('div', { class: className, children }),
-    ],
   });
 }
 
@@ -3455,7 +3201,11 @@ function useEpicLabels(epic, refetch) {
   }, [epic]);
   const onStatusChange = useCallback(
     async (label) => {
-      const oldStatus = labels2.filter((l) => l.title.includes('Status::'));
+      const oldStatus = labels2.filter((l) =>
+        l.title.includes(
+          userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
+        )
+      );
       await new EpicProvider().updateEpicLabels(
         epic.id,
         [label.id],
@@ -3470,7 +3220,7 @@ function useEpicLabels(epic, refetch) {
   const fetchLabels = useCallback(async (workspacePath) => {
     const response = await new LabelsProvider().getWorkspaceLabels(
       workspacePath,
-      'Status::'
+      userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
     );
     setStatusLabels(response.data.workspace.labels.nodes);
   }, []);
@@ -3493,6 +3243,20 @@ function EpicLabels({ epic, refresh }) {
     return null;
   }
   return jsx(LabelsBlock, { labels: labels2, updateStatus });
+}
+
+// apps/gitlab-plus/src/components/common/block/ListBlock.tsx
+function ListBlock({ itemId, items, maxHeight = 100, renderItem, ...props }) {
+  if (!items.length) {
+    return null;
+  }
+  return jsx(InfoBlock, {
+    contentMaxHeight: maxHeight,
+    ...props,
+    children: items.map((item) =>
+      jsx(Fragment, { children: renderItem(item) }, itemId(item))
+    ),
+  });
 }
 
 // apps/gitlab-plus/src/components/common/base/Link.tsx
@@ -3522,8 +3286,8 @@ function Link({ blockHover, children, className, href, inline, title }) {
     target: '_blank',
     title,
     class: clsx(
-      inline ? 'gl-inline' : 'gl-block',
-      'gl-link sortable-link',
+      inline ? 'gl-inline' : 'gl-flex',
+      'gl-link sortable-link gl-items-center',
       className
     ),
     style: {
@@ -3531,6 +3295,32 @@ function Link({ blockHover, children, className, href, inline, title }) {
       textOverflow: 'ellipsis',
     },
     children,
+  });
+}
+
+// apps/gitlab-plus/src/components/common/GitlabLinkWithLabel.tsx
+function GitlabLinkWithLabel({ blockHover, children, href, label, title }) {
+  const status = useMemo(() => {
+    if (label) {
+      return jsx('div', {
+        title: label.title,
+        style: {
+          minWidth: 10,
+          width: 10,
+          backgroundColor: label.color,
+          borderRadius: 10,
+          height: 10,
+          marginRight: 2,
+        },
+      });
+    }
+    return null;
+  }, [label]);
+  return jsxs(Link, {
+    blockHover,
+    href,
+    title,
+    children: [status, children],
   });
 }
 
@@ -3545,23 +3335,29 @@ function EpicRelatedIssues({ epic }) {
     }
     return hierarchyWidget.children.nodes;
   }, [epic]);
-  if (!issues.length) {
-    return null;
-  }
-  return jsx(InfoBlock, {
+  const getStatusLabel = (item) => {
+    const labelsWidget = item.widgets.find((w) => w.type === 'LABELS');
+    console.log(item.title, item.widgets, labelsWidget);
+    return labelsWidget == null
+      ? void 0
+      : labelsWidget.labels.nodes.find(
+          (l) =>
+            l.title.toLowerCase().startsWith('status::') ||
+            l.title.toLowerCase().startsWith('workflow::')
+        );
+  };
+  return jsx(ListBlock, {
     icon: 'issue-type-issue',
+    itemId: (i) => i.iid,
+    items: issues,
     title: `Child issues (${issues.length})`,
-    children: issues.map((issue) =>
-      jsxs(
-        Link,
-        {
-          href: issue.webUrl,
-          title: issue.title,
-          children: ['#', issue.iid, ' ', issue.title],
-        },
-        issue.iid
-      )
-    ),
+    renderItem: (issue) =>
+      jsxs(GitlabLinkWithLabel, {
+        href: issue.webUrl,
+        label: getStatusLabel(issue),
+        title: issue.title,
+        children: ['#', issue.iid, ' ', issue.title],
+      }),
   });
 }
 
@@ -3655,6 +3451,7 @@ class EpicPreview extends BaseService {
 
 // apps/gitlab-plus/src/components/image-preview/useImagePreviewModal.ts
 function useImagePreviewModal() {
+  const [zoom, setZoom] = useState('contains');
   const [src, setSrc] = useState('');
   const validate = (element) => {
     return (
@@ -3688,22 +3485,53 @@ function useImagePreviewModal() {
       }
     });
   }, []);
+  const style = useMemo(() => {
+    if (zoom === 'auto') {
+      return {
+        cursor: 'zoom-out',
+        display: 'block',
+        margin: '0 auto',
+        padding: 15,
+      };
+    }
+    return {
+      maxWidth: '95vw',
+      cursor: 'zoom-in',
+      display: 'block',
+      margin: '0 auto',
+      maxHeight: '95vh',
+    };
+  }, [zoom]);
   return {
-    onClose: () => setSrc(''),
+    onClose: () => {
+      setSrc('');
+      setZoom('contains');
+    },
+    onZoom: () => setZoom(zoom === 'auto' ? 'contains' : 'auto'),
     src,
+    style,
   };
 }
 
 // apps/gitlab-plus/src/components/image-preview/ImagePreviewModal.tsx
 function ImagePreviewModal() {
-  const { onClose, src } = useImagePreviewModal();
+  const { onClose, onZoom, src, style } = useImagePreviewModal();
   return jsxs('div', {
     className: clsx(
       'glp-image-preview-modal',
       Boolean(src) && 'glp-modal-visible'
     ),
     children: [
-      jsx('img', { alt: 'Image preview', className: 'glp-modal-img', src }),
+      jsx('div', {
+        className:
+          'gl-flex gl-items-center gl-overflow-auto gl-h-full gl-w-full',
+        children: jsx('img', {
+          alt: 'Image preview',
+          onClick: onZoom,
+          src,
+          style,
+        }),
+      }),
       jsx('div', {
         className: 'glp-modal-close',
         onClick: onClose,
@@ -3726,34 +3554,33 @@ class ImagePreview extends BaseService {
 }
 
 // apps/gitlab-plus/src/components/common/block/UsersBlock.tsx
-function UsersBlock({ assignees, icon, label, pluralIcon, pluralLabel }) {
-  if (!assignees || !assignees.length) {
+function UsersBlock({ icon, label, pluralIcon, pluralLabel, users }) {
+  if (!users || !users.length) {
     return null;
   }
-  if (assignees.length === 1) {
+  if (users.length === 1) {
     return jsx(InfoBlock, {
-      className: 'gl-flex gl-flex-col gl-gap-3',
       icon: icon || 'user',
-      rightTitle: jsx(GitlabUser, { user: assignees[0], withLink: true }),
+      rightTitle: jsx(GitlabUser, { user: users[0], withLink: true }),
       title: `${label}:`,
     });
   }
-  return jsx(InfoBlock, {
+  return jsx(ListBlock, {
     className: 'gl-flex gl-flex-col gl-gap-3',
     icon: pluralIcon || icon || 'users',
+    itemId: (u) => u.id,
+    items: users,
+    renderItem: (user) => jsx(GitlabUser, { user, withLink: true }),
     title: pluralLabel || `${label}s`,
-    children: assignees.map((assignee) =>
-      jsx(GitlabUser, { user: assignee, withLink: true }, assignee.id)
-    ),
   });
 }
 
 // apps/gitlab-plus/src/components/issue-preview/blocks/IssueAssignee.tsx
 function IssueAssignee({ issue }) {
   return jsx(UsersBlock, {
-    assignees: issue.assignees.nodes,
     icon: 'assignee',
     label: 'Assignee',
+    users: issue.assignees.nodes,
   });
 }
 
@@ -3823,7 +3650,9 @@ function useIssueLabels(issue, link, refetch) {
   const onStatusChange = useCallback(
     async (label) => {
       const statusLabel = issue.labels.nodes.find((l) =>
-        l.title.includes('Status::')
+        l.title.includes(
+          userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
+        )
       );
       const labels2 = statusLabel
         ? issue.labels.nodes.map((l) => (l.id === statusLabel.id ? label : l))
@@ -3842,7 +3671,7 @@ function useIssueLabels(issue, link, refetch) {
   const fetchLabels = useCallback(async (projectPath) => {
     const response = await new LabelsProvider().getProjectLabels(
       projectPath,
-      'Status::'
+      userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
     );
     setStatusLabels(response.data.workspace.labels.nodes);
   }, []);
@@ -3922,15 +3751,12 @@ function GitlabMergeRequest({ mr }) {
 
 // apps/gitlab-plus/src/components/issue-preview/blocks/IssueMergeRequests.tsx
 function IssueMergeRequests({ issue }) {
-  if (!issue.relatedMergeRequests.nodes.length) {
-    return null;
-  }
-  return jsx(InfoBlock, {
+  return jsx(ListBlock, {
     icon: 'merge-request',
+    itemId: (mr) => mr.iid,
+    items: issue.relatedMergeRequests.nodes,
+    renderItem: (mr) => jsx(GitlabMergeRequest, { mr }),
     title: 'Merge requests',
-    children: issue.relatedMergeRequests.nodes.map((mr) =>
-      jsx(GitlabMergeRequest, { mr }, mr.iid)
-    ),
   });
 }
 
@@ -3948,9 +3774,9 @@ function IssueMilestone({ issue }) {
 
 // apps/gitlab-plus/src/components/issue-preview/blocks/IssueRelatedIssue.tsx
 const relationMap = {
-  blocks: 'Blocks:',
-  is_blocked_by: 'Is blocked by:',
-  relates_to: 'Related to:',
+  blocks: 'Blocks',
+  is_blocked_by: 'Is blocked by',
+  relates_to: 'Related to',
 };
 
 function IssueRelatedIssue({ issue }) {
@@ -3970,38 +3796,34 @@ function IssueRelatedIssue({ issue }) {
       )
     ).filter(([_, issues]) => issues.length);
   }, [issue]);
+  const getStatusLabel = (item) => {
+    const labelsWidget = item.workItem.widgets.find((w) => w.type === 'LABELS');
+    return labelsWidget == null
+      ? void 0
+      : labelsWidget.labels.nodes.find(
+          (l) =>
+            l.title.toLowerCase().startsWith('status::') ||
+            l.title.toLowerCase().startsWith('workflow::')
+        );
+  };
   if (!issue.linkedWorkItems.nodes.length) {
     return null;
   }
-  return jsx(InfoBlock, {
-    title: '',
+  return jsx(Fragment, {
     children: groups.map(([key, issues]) =>
-      jsxs(
-        'div',
+      jsx(
+        ListBlock,
         {
-          style: { marginTop: 10 },
-          children: [
-            jsx('div', {
-              class: 'item-title gl-flex gl-min-w-0 gl-gap-3',
-              children: jsx('span', { children: relationMap[key] }),
+          itemId: (i) => i.workItem.iid,
+          items: issues,
+          title: `${relationMap[key]} (${issues.length}):`,
+          renderItem: (issue2) =>
+            jsxs(GitlabLinkWithLabel, {
+              href: issue2.workItem.webUrl,
+              label: getStatusLabel(issue2),
+              blockHover: true,
+              children: ['#', issue2.workItem.iid, ' ', issue2.workItem.title],
             }),
-            issues.map((issue2) =>
-              jsxs(
-                Link,
-                {
-                  href: issue2.workItem.webUrl,
-                  blockHover: true,
-                  children: [
-                    '#',
-                    issue2.workItem.iid,
-                    ' ',
-                    issue2.workItem.title,
-                  ],
-                },
-                issue2.workItem.iid
-              )
-            ),
-          ],
         },
         key
       )
@@ -4016,7 +3838,6 @@ function useFetchIssue() {
       link.projectPath,
       link.issue
     );
-    console.log(response);
     return response.data.project.issue;
   });
 }
@@ -4077,18 +3898,18 @@ class IssuePreview extends BaseService {
 // apps/gitlab-plus/src/components/mr-preview/blocks/MrApprovedBy.tsx
 function MrApprovedBy({ mr }) {
   return jsx(UsersBlock, {
-    assignees: mr.approvedBy.nodes,
     label: 'Approved by',
     pluralLabel: 'Approved by',
+    users: mr.approvedBy.nodes,
   });
 }
 
 // apps/gitlab-plus/src/components/mr-preview/blocks/MrAssignee.tsx
 function MrAssignee({ mr }) {
   return jsx(UsersBlock, {
-    assignees: mr.assignees.nodes,
     icon: 'assignee',
     label: 'Assignee',
+    users: mr.assignees.nodes,
   });
 }
 
@@ -4127,11 +3948,7 @@ function MrDiff({ mr }) {
       items: 'center',
       children: [
         jsx(GitlabIcon, { icon: 'doc-code', size: 16 }),
-        jsx(Text, {
-          size: 'subtle',
-          weight: 'bold',
-          children: label,
-        }),
+        jsx(Text, { size: 'subtle', weight: 'bold', children: label }),
         jsxs(Text, {
           color: 'success',
           weight: 'bold',
@@ -4164,6 +3981,7 @@ function MrDiscussion({ mr }) {
     };
   }, [mr]);
   return jsx(InfoBlock, {
+    icon: 'comments',
     title: 'Discussion',
     rightTitle: jsx(GitlabBadge, {
       icon: 'comments',
@@ -4211,11 +4029,7 @@ function MrHeader({ mr, onRefresh }) {
       className: 'gl-gap-2',
       items: 'center',
       children: [
-        jsx(MrStatus, {
-          state: mr.state,
-          withIcon: true,
-          withLabel: true,
-        }),
+        jsx(MrStatus, { state: mr.state, withIcon: true, withLabel: true }),
         Boolean(mr.approvedBy.nodes.length) &&
           jsx(GitlabBadge, {
             icon: 'check-circle',
@@ -4255,16 +4069,16 @@ const mrQuery = `query MergeRequestQuery($fullPath: ID!, $iid: String!) {
       iid
       assignees {
         nodes {
-          ...User
+          ...UserFragment
         }
       }
       approvedBy {
         nodes {
-          ...User
+          ...UserFragment
         }
       }
       author {
-        ...User
+        ...UserFragment
       }
       project {
         webUrl
@@ -4285,7 +4099,7 @@ const mrQuery = `query MergeRequestQuery($fullPath: ID!, $iid: String!) {
       draft
       labels {
         nodes {
-          ...Label
+          ...LabelFragment
         }
       }
       mergeable
@@ -4293,7 +4107,7 @@ const mrQuery = `query MergeRequestQuery($fullPath: ID!, $iid: String!) {
       resolvableDiscussionsCount
       reviewers {
         nodes {
-          ...User
+          ...UserFragment
         }
       }
       shouldBeRebased
@@ -4443,10 +4257,7 @@ function RelatedIssuesAutocompleteModal({ input, link }) {
         jsxs('div', {
           class: 'gl-flex gl-gap-x-2 gl-py-2',
           children: [
-            jsx(GitlabIcon, {
-              icon: 'issue-type-issue',
-              size: 16,
-            }),
+            jsx(GitlabIcon, { icon: 'issue-type-issue', size: 16 }),
             jsx('small', { children: item.iid }),
             jsx('span', {
               class: 'gl-flex gl-flex-wrap',
@@ -4919,6 +4730,56 @@ function GitlabSwitch({ checked, disabled, onChange }) {
   });
 }
 
+// apps/gitlab-plus/src/components/user-settings/UserConfigForm.tsx
+function UserConfigForm({ setValue, value }) {
+  const [isEditable, setIsEditable] = useState(false);
+  const [inputValue, setInputValue] = useState(value);
+  return jsx(Row, {
+    gap: 2,
+    items: 'center',
+    justify: 'end',
+    children: isEditable
+      ? jsxs(Fragment, {
+          children: [
+            jsx('input', {
+              className: clsx('gl-form-input form-control gl-form-input-sm'),
+              onInput: (e) => setInputValue(e.target.value),
+              value: inputValue,
+            }),
+            jsx(GitlabButton, {
+              className: 'btn-icon',
+              icon: 'check-sm',
+              iconSize: 16,
+              onClick: () => {
+                setIsEditable(false);
+                setValue(inputValue);
+              },
+            }),
+            jsx(GitlabButton, {
+              className: 'btn-icon',
+              icon: 'close',
+              iconSize: 16,
+              onClick: () => {
+                setIsEditable(false);
+                setInputValue(value);
+              },
+            }),
+          ],
+        })
+      : jsxs(Fragment, {
+          children: [
+            jsx(Text, { weight: 'bold', children: value }),
+            jsx(GitlabButton, {
+              className: 'btn-icon',
+              icon: 'pencil',
+              iconSize: 16,
+              onClick: () => setIsEditable(true),
+            }),
+          ],
+        }),
+  });
+}
+
 // apps/gitlab-plus/src/components/user-settings/useUserSettingsModal.tsx
 function useUserSettingsModal() {
   const [refreshFlag, setRefreshFlag] = useState(false);
@@ -4941,8 +4802,20 @@ function useUserSettingsModal() {
         return a.name.localeCompare(b.name);
       });
   }, [refreshFlag]);
+  const configs = useMemo(() => {
+    return Object.values(UserConfig).map((name2) => ({
+      label: configLabels[name2],
+      name: name2,
+      value: userSettingsStore.getConfig(name2),
+    }));
+  }, [refreshFlag]);
   return {
+    configs,
     services,
+    setConfig: (name2, value) => {
+      userSettingsStore.setConfig(name2, value);
+      setRefreshFlag((flag) => !flag);
+    },
     setServiceState: (name2, value) => {
       userSettingsStore.setIsActive(name2, value);
       setRefreshFlag((flag) => !flag);
@@ -4953,7 +4826,8 @@ function useUserSettingsModal() {
 // apps/gitlab-plus/src/components/user-settings/UserSettingsModal.tsx
 function UserSettingModal() {
   const { isVisible, onClose } = useGlpModal(showUserSettingsModal);
-  const { services, setServiceState } = useUserSettingsModal();
+  const { configs, services, setConfig, setServiceState } =
+    useUserSettingsModal();
   return jsx(GlpModal, {
     isVisible,
     onClose,
@@ -4963,33 +4837,51 @@ function UserSettingModal() {
         ' settings',
       ],
     }),
-    children: jsx(Column, {
+    children: jsxs(Column, {
       className: 'gl-p-4',
       gap: 2,
-      children: services.map((service) =>
-        jsxs(Row, {
-          gap: 2,
-          items: 'center',
-          children: [
-            jsx(GitlabSwitch, {
-              checked: service.isActive,
-              disabled: service.isRequired,
-              onChange: (value) => setServiceState(service.name, value),
-            }),
-            jsx(Text, {
-              variant: service.isRequired ? 'secondary' : void 0,
-              children: service.label,
-            }),
-            service.isExperimental &&
-              jsx(GitlabBadge, {
-                label: 'Experimental',
-                variant: 'warning',
+      children: [
+        configs.map((config) =>
+          jsxs(
+            Row,
+            {
+              gap: 2,
+              items: 'center',
+              justify: 'between',
+              children: [
+                jsx(Text, { children: config.label }),
+                jsx(UserConfigForm, {
+                  setValue: (value) => setConfig(config.name, value),
+                  value: config.value,
+                }),
+              ],
+            },
+            config.name
+          )
+        ),
+        jsx('hr', { class: 'gl-my-2' }),
+        services.map((service) =>
+          jsxs(Row, {
+            gap: 2,
+            items: 'center',
+            children: [
+              jsx(GitlabSwitch, {
+                checked: service.isActive,
+                disabled: service.isRequired,
+                onChange: (value) => setServiceState(service.name, value),
               }),
-            service.isRequired &&
-              jsx(GitlabBadge, { label: 'Required', variant: 'muted' }),
-          ],
-        })
-      ),
+              jsx(Text, {
+                variant: service.isRequired ? 'secondary' : void 0,
+                children: service.label,
+              }),
+              service.isExperimental &&
+                jsx(GitlabBadge, { label: 'Experimental', variant: 'warning' }),
+              service.isRequired &&
+                jsx(GitlabBadge, { label: 'Required', variant: 'muted' }),
+            ],
+          })
+        ),
+      ],
     }),
   });
 }

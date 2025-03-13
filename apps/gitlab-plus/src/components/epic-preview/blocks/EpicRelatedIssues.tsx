@@ -1,16 +1,8 @@
-// const relationMap: Record<EpicRelation, string> = {
-//   blocks: 'Blocks:',
-//   is_blocked_by: 'Is blocked by:',
-//   relates_to: 'Related to:',
-// };
-//
-// type Groups = Record<EpicRelation, RelatedEpic[]>;
-
 import { useMemo } from 'preact/hooks';
 
-import { Epic, HierarchyWidget } from '../../../types/Epic';
-import { Link } from '../../common/base/Link';
-import { InfoBlock } from '../../common/block/InfoBlock';
+import { Epic, HierarchyWidget, LabelWidget } from '../../../types/Epic';
+import { ListBlock } from '../../common/block/ListBlock';
+import { GitlabLinkWithLabel } from '../../common/GitlabLinkWithLabel';
 
 type Props = {
   epic: Epic;
@@ -29,20 +21,35 @@ export function EpicRelatedIssues({ epic }: Props) {
     return hierarchyWidget.children.nodes;
   }, [epic]);
 
-  if (!issues.length) {
-    return null;
-  }
+  const getStatusLabel = (
+    item: HierarchyWidget['children']['nodes'][number]
+  ) => {
+    const labelsWidget = item.widgets.find(
+      (w): w is LabelWidget => w.type === 'LABELS'
+    );
+    console.log(item.title, item.widgets, labelsWidget);
+    return labelsWidget?.labels.nodes.find(
+      (l) =>
+        l.title.toLowerCase().startsWith('status::') ||
+        l.title.toLowerCase().startsWith('workflow::')
+    );
+  };
 
   return (
-    <InfoBlock
+    <ListBlock
       icon={'issue-type-issue'}
+      itemId={(i) => i.iid}
+      items={issues}
       title={`Child issues (${issues.length})`}
-    >
-      {issues.map((issue) => (
-        <Link key={issue.iid} href={issue.webUrl} title={issue.title}>
+      renderItem={(issue) => (
+        <GitlabLinkWithLabel
+          href={issue.webUrl}
+          label={getStatusLabel(issue)}
+          title={issue.title}
+        >
           #{issue.iid} {issue.title}
-        </Link>
-      ))}
-    </InfoBlock>
+        </GitlabLinkWithLabel>
+      )}
+    />
   );
 }

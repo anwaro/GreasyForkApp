@@ -12,11 +12,9 @@ export interface Iteration {
   state: string;
   title: null | string;
   webUrl: string;
-  __typename: string;
 }
 
 export interface IterationCadence {
   id: string;
   title: string;
-  __typename: string;
 }

@@ -1,11 +1,10 @@
 export const labelFragment = `
-  fragment Label on Label {
+  fragment LabelFragment on Label {
     id
     title
     description
     color
     textColor
-    __typename
   }
 `;
 
@@ -17,12 +16,9 @@ export const projectLabelsQuery = `query projectLabels($fullPath: ID!, $searchTe
       includeAncestorGroups: true
     ) {
       nodes {
-        ...Label
-        __typename
+        ...LabelFragment
       }
-      __typename
     }
-    __typename
   }
 }
 ${labelFragment}
@@ -37,12 +33,9 @@ export const workspaceLabelsQuery = `query groupLabels($fullPath: ID!, $searchTe
       includeAncestorGroups: true
     ) {
       nodes {
-        ...Label
-        __typename
+        ...LabelFragment
       }
-      __typename
     }
-    __typename
   }
 }
 

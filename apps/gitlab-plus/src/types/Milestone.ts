@@ -12,5 +12,4 @@ export interface Milestone {
   state: string;
   title: string;
   webUrl: string;
-  __typename: string;
 }

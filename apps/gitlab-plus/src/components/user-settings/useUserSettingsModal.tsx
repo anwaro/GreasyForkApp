@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'preact/hooks';
 
 import { ServiceName, servicesConfig } from '../../services/ServiceName';
+import { configLabels, UserConfig } from './UserConfig';
 import { userSettingsStore } from './UserSettingsStore';
 
 export function useUserSettingsModal() {
   const [refreshFlag, setRefreshFlag] = useState(false);
+
   const services = useMemo(() => {
     return Object.entries(servicesConfig)
       .map(([name, config]) => ({
@@ -25,8 +27,21 @@ export function useUserSettingsModal() {
       });
   }, [refreshFlag]);
 
+  const configs = useMemo(() => {
+    return Object.values<UserConfig>(UserConfig).map((name) => ({
+      label: configLabels[name],
+      name,
+      value: userSettingsStore.getConfig(name),
+    }));
+  }, [refreshFlag]);
+
   return {
+    configs,
     services,
+    setConfig: (name: UserConfig, value: string) => {
+      userSettingsStore.setConfig(name, value);
+      setRefreshFlag((flag) => !flag);
+    },
     setServiceState: (name: ServiceName, value: boolean) => {
       userSettingsStore.setIsActive(name, value);
       setRefreshFlag((flag) => !flag);

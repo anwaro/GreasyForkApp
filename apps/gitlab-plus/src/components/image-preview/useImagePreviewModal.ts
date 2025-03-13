@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
+
+type Zoom = 'auto' | 'contains';
 
 export function useImagePreviewModal() {
+  const [zoom, setZoom] = useState<Zoom>('contains');
   const [src, setSrc] = useState('');
 
   const validate = (element: HTMLAnchorElement) => {
@@ -43,8 +46,31 @@ export function useImagePreviewModal() {
     });
   }, []);
 
+  const style = useMemo(() => {
+    if (zoom === 'auto') {
+      return {
+        cursor: 'zoom-out',
+        display: 'block',
+        margin: '0 auto',
+        padding: 15,
+      };
+    }
+    return {
+      maxWidth: '95vw',
+      cursor: 'zoom-in',
+      display: 'block',
+      margin: '0 auto',
+      maxHeight: '95vh',
+    };
+  }, [zoom]);
+
   return {
-    onClose: () => setSrc(''),
+    onClose: () => {
+      setSrc('');
+      setZoom('contains');
+    },
+    onZoom: () => setZoom(zoom === 'auto' ? 'contains' : 'auto'),
     src,
+    style,
   };
 }

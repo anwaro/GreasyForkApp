@@ -1,24 +1,4 @@
-export const milestoneQuery = `query projectMilestones($fullPath: ID!, $title: String, $state: MilestoneStateEnum) {
-  workspace: project(fullPath: $fullPath) {
-    id
-    attributes: milestones(
-      searchTitle: $title
-      state: $state
-      sort: EXPIRED_LAST_DUE_DATE_ASC
-      first: 20
-      includeAncestors: true
-    ) {
-      nodes {
-        ...MilestoneFragment
-        state
-        __typename
-      }
-      __typename
-    }
-    __typename
-  }
-}
-
+export const milestoneFragment = `
 fragment MilestoneFragment on Milestone {
   id
   iid
@@ -26,7 +6,27 @@ fragment MilestoneFragment on Milestone {
   webUrl: webPath
   dueDate
   expired
-  __typename
+  state
 }
 
+`;
+
+export const milestoneQuery = `query projectMilestones($fullPath: ID!, $title: String, $state: MilestoneStateEnum) {
+  workspace: project(fullPath: $fullPath) {
+    id
+    attributes: milestones(
+      searchTitle: $title
+      state: $state
+      sort: EXPIRED_LAST_DUE_DATE_ASC
+      first: 40
+      includeAncestors: true
+    ) {
+      nodes {
+        ...MilestoneFragment
+      }
+    }
+  }
+}
+
+${milestoneFragment}
 `;

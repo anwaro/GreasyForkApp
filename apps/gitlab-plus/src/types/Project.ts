@@ -1,23 +1,9 @@
-export interface ProjectsResponse {
-  data: Data;
-}
+import { ApiResponseWorkspace, Nodes } from './response';
 
-export interface Data {
-  group: Group;
-}
-
-export interface Group {
-  id: string;
-  projects: Projects;
-  __typename: string;
-}
-
-export interface Projects {
-  nodes: Project[];
-  pageInfo: PageInfo;
-  __typename: string;
-}
-
+export type ProjectsResponse = ApiResponseWorkspace<{
+  projects: Nodes<Project>;
+}>;
+ 
 export interface Project {
   id: string;
   name: string;
@@ -25,13 +11,4 @@ export interface Project {
   avatarUrl: string;
   fullPath: string;
   nameWithNamespace: string;
-  __typename: string;
-}
-
-export interface PageInfo {
-  endCursor: string;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  startCursor: string;
-  __typename: string;
 }
