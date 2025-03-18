@@ -1,4 +1,4 @@
-import { LabelWidget, UnknownWidget } from './Epic';
+import { BaseWidget, LabelWidget } from './Epic';
 import { Iteration } from './Iteration';
 import { Label } from './Label';
 import { ApiResponseProject, Nodes } from './response';
@@ -118,6 +118,7 @@ export interface IssueEpic {
   iid: string;
   title: string;
   webUrl: string;
+  labels: Nodes<Label>;
 }
 
 export interface MergeRequest {
@@ -161,7 +162,7 @@ export type RelatedIssue = {
   workItem: {
     id: string;
     iid: string;
-    widgets: (LabelWidget | UnknownWidget)[];
+    widgets: (LabelWidget | BaseWidget)[];
     title: string;
     webUrl: string;
   };
@@ -172,6 +173,6 @@ export type RelatedIssueWithLabels = {
   workItem: {
     id: string;
     iid: string;
-    widgets: (LabelWidget | UnknownWidget)[];
+    widgets: (LabelWidget | BaseWidget)[];
   };
 };

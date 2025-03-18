@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2025-03-13
+// @version      2025-03-18
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -1797,6 +1797,56 @@ function TitleField({ error, onChange, value }) {
   });
 }
 
+// apps/gitlab-plus/src/types/Epic.ts
+var WidgetType = ((WidgetType2) => {
+  WidgetType2['label'] = 'LABELS';
+  WidgetType2['hierarchy'] = 'HIERARCHY';
+  return WidgetType2;
+})(WidgetType || {});
+
+// apps/gitlab-plus/src/helpers/WidgetHelper.ts
+class WidgetHelper {
+  static getWidget(widgets, type) {
+    return widgets == null
+      ? void 0
+      : widgets.find((widget) => widget.type === type);
+  }
+}
+
+// apps/gitlab-plus/src/helpers/LabelHelper.ts
+class LabelHelper {
+  static getLabelsFromWidgets(widgets) {
+    let _a;
+    return (
+      ((_a = LabelHelper.getLabelWidget(widgets)) == null
+        ? void 0
+        : _a.labels.nodes) || []
+    );
+  }
+
+  static getLabelWidget(widgets) {
+    return WidgetHelper.getWidget(widgets, WidgetType.label);
+  }
+
+  static getStatusLabel(labels2) {
+    return labels2 == null
+      ? void 0
+      : labels2.find((label) =>
+          label.title.startsWith(LabelHelper.getStatusPrefix())
+        );
+  }
+
+  static getStatusLabelFromWidgets(widgets) {
+    return LabelHelper.getStatusLabel(
+      LabelHelper.getLabelsFromWidgets(widgets)
+    );
+  }
+
+  static getStatusPrefix() {
+    return userSettingsStore.getConfig(UserConfig.StatusLabelPrefix);
+  }
+}
+
 // apps/gitlab-plus/src/helpers/LinkParser.ts
 class LinkParser {
   static isEpicLink(link) {
@@ -1864,17 +1914,6 @@ class LinkParser {
 
   static validateMrLink(link) {
     return LinkParser.validateGitlabLink(link, 'merge_requests');
-  }
-}
-
-// apps/gitlab-plus/src/helpers/Widget.ts
-class WidgetHelper {
-  static epicLabels(epic) {
-    const labelWidgets = epic.widgets.find((w) => w.type === 'LABELS');
-    if (labelWidgets) {
-      return labelWidgets.labels.nodes;
-    }
-    return [];
   }
 }
 
@@ -2046,6 +2085,11 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
         iid
         title
         webUrl
+        labels {
+          nodes {
+            ...LabelFragment
+          }
+        }
       }
       iteration {
         ...IterationFragment
@@ -2469,7 +2513,7 @@ function useCreateIssueForm({ isVisible, link, onClose }) {
           if (parentEpic) {
             setValues({
               ...values,
-              labels: WidgetHelper.epicLabels(parentEpic),
+              labels: LabelHelper.getLabelsFromWidgets(parentEpic.widgets),
             });
           }
           if (parentIssue) {
@@ -3193,23 +3237,15 @@ function LabelsBlock({ labels: labels2, updateStatus }) {
 function useEpicLabels(epic, refetch) {
   const [statusLabels, setStatusLabels] = useState([]);
   const labels2 = useMemo(() => {
-    const labelWidget = epic.widgets.find((widget) => widget.type === 'LABELS');
-    if (labelWidget) {
-      return labelWidget.labels.nodes;
-    }
-    return [];
+    return LabelHelper.getLabelsFromWidgets(epic.widgets);
   }, [epic]);
   const onStatusChange = useCallback(
     async (label) => {
-      const oldStatus = labels2.filter((l) =>
-        l.title.includes(
-          userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
-        )
-      );
+      const oldStatus = LabelHelper.getStatusLabel(labels2);
       await new EpicProvider().updateEpicLabels(
         epic.id,
         [label.id],
-        oldStatus.map((l) => l.id)
+        oldStatus ? [oldStatus.id] : []
       );
       if (refetch) {
         await refetch();
@@ -3220,7 +3256,7 @@ function useEpicLabels(epic, refetch) {
   const fetchLabels = useCallback(async (workspacePath) => {
     const response = await new LabelsProvider().getWorkspaceLabels(
       workspacePath,
-      userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
+      LabelHelper.getStatusPrefix()
     );
     setStatusLabels(response.data.workspace.labels.nodes);
   }, []);
@@ -3243,20 +3279,6 @@ function EpicLabels({ epic, refresh }) {
     return null;
   }
   return jsx(LabelsBlock, { labels: labels2, updateStatus });
-}
-
-// apps/gitlab-plus/src/components/common/block/ListBlock.tsx
-function ListBlock({ itemId, items, maxHeight = 100, renderItem, ...props }) {
-  if (!items.length) {
-    return null;
-  }
-  return jsx(InfoBlock, {
-    contentMaxHeight: maxHeight,
-    ...props,
-    children: items.map((item) =>
-      jsx(Fragment, { children: renderItem(item) }, itemId(item))
-    ),
-  });
 }
 
 // apps/gitlab-plus/src/components/common/base/Link.tsx
@@ -3298,65 +3320,71 @@ function Link({ blockHover, children, className, href, inline, title }) {
   });
 }
 
-// apps/gitlab-plus/src/components/common/GitlabLinkWithLabel.tsx
-function GitlabLinkWithLabel({ blockHover, children, href, label, title }) {
-  const status = useMemo(() => {
-    if (label) {
-      return jsx('div', {
-        title: label.title,
-        style: {
-          minWidth: 10,
-          width: 10,
-          backgroundColor: label.color,
-          borderRadius: 10,
-          height: 10,
-          marginRight: 2,
-        },
-      });
-    }
+// apps/gitlab-plus/src/components/common/block/ListBlock.tsx
+function ListBlock({ itemId, items, maxHeight = 100, renderItem, ...props }) {
+  if (!items.length) {
     return null;
-  }, [label]);
-  return jsxs(Link, {
-    blockHover,
-    href,
-    title,
-    children: [status, children],
+  }
+  return jsx(InfoBlock, {
+    contentMaxHeight: maxHeight,
+    ...props,
+    children: items.map((item) =>
+      jsx(Fragment, { children: renderItem(item) }, itemId(item))
+    ),
+  });
+}
+
+// apps/gitlab-plus/src/components/common/StatusIndicator.tsx
+function StatusIndicator({ label }) {
+  if (!label) {
+    return null;
+  }
+  return jsx('div', {
+    title: label.title,
+    style: {
+      minWidth: 10,
+      width: 10,
+      backgroundColor: label.color,
+      borderRadius: 10,
+      height: 10,
+      marginRight: 2,
+    },
   });
 }
 
 // apps/gitlab-plus/src/components/epic-preview/blocks/EpicRelatedIssues.tsx
 function EpicRelatedIssues({ epic }) {
   const issues = useMemo(() => {
-    const hierarchyWidget = epic.widgets.find(
-      (widget) => widget.type === 'HIERARCHY'
+    let _a;
+    const hierarchyWidget = WidgetHelper.getWidget(
+      epic.widgets,
+      WidgetType.hierarchy
     );
-    if (!hierarchyWidget) {
-      return [];
-    }
-    return hierarchyWidget.children.nodes;
+    return (
+      ((_a = hierarchyWidget == null ? void 0 : hierarchyWidget.children) ==
+      null
+        ? void 0
+        : _a.nodes) || []
+    );
   }, [epic]);
-  const getStatusLabel = (item) => {
-    const labelsWidget = item.widgets.find((w) => w.type === 'LABELS');
-    console.log(item.title, item.widgets, labelsWidget);
-    return labelsWidget == null
-      ? void 0
-      : labelsWidget.labels.nodes.find(
-          (l) =>
-            l.title.toLowerCase().startsWith('status::') ||
-            l.title.toLowerCase().startsWith('workflow::')
-        );
-  };
   return jsx(ListBlock, {
     icon: 'issue-type-issue',
     itemId: (i) => i.iid,
     items: issues,
     title: `Child issues (${issues.length})`,
     renderItem: (issue) =>
-      jsxs(GitlabLinkWithLabel, {
+      jsxs(Link, {
         href: issue.webUrl,
-        label: getStatusLabel(issue),
         title: issue.title,
-        children: ['#', issue.iid, ' ', issue.title],
+        children: [
+          jsx(StatusIndicator, {
+            label: LabelHelper.getStatusLabelFromWidgets(issue.widgets),
+          }),
+          '#',
+          issue.iid,
+          ' ',
+          issue.title,
+        ],
       }),
   });
 }
@@ -3586,16 +3614,24 @@ function IssueAssignee({ issue }) {
 
 // apps/gitlab-plus/src/components/issue-preview/blocks/IssueEpic.tsx
 function IssueEpic({ issue }) {
+  let _a;
   if (!issue.epic) {
     return null;
   }
   return jsx(InfoBlock, {
     icon: 'epic',
     title: 'Epic',
-    children: jsx(Link, {
+    children: jsxs(Link, {
       href: issue.epic.webUrl,
       title: issue.epic.title,
-      children: issue.epic.title,
+      children: [
+        jsx(StatusIndicator, {
+          label: LabelHelper.getStatusLabel(
+            (_a = issue.epic.labels) == null ? void 0 : _a.nodes
+          ),
+        }),
+        issue.epic.title,
+      ],
     }),
   });
 }
@@ -3649,14 +3685,11 @@ function useIssueLabels(issue, link, refetch) {
   const [statusLabels, setStatusLabels] = useState([]);
   const onStatusChange = useCallback(
     async (label) => {
-      const statusLabel = issue.labels.nodes.find((l) =>
-        l.title.includes(
-          userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
-        )
+      const oldStatusLabel = LabelHelper.getStatusLabel(issue.labels.nodes);
+      const labels2 = [...issue.labels.nodes, label].filter(
+        (label2) =>
+          label2.id !== (oldStatusLabel == null ? void 0 : oldStatusLabel.id)
       );
-      const labels2 = statusLabel
-        ? issue.labels.nodes.map((l) => (l.id === statusLabel.id ? label : l))
-        : [...issue.labels.nodes, label];
       await new IssueProvider().issueSetLabels({
         iid: issue.iid,
         labelIds: labels2.map((l) => l.id),
@@ -3671,7 +3704,7 @@ function useIssueLabels(issue, link, refetch) {
   const fetchLabels = useCallback(async (projectPath) => {
     const response = await new LabelsProvider().getProjectLabels(
       projectPath,
-      userSettingsStore.getConfig(UserConfig.StatusLabelPrefix)
+      LabelHelper.getStatusPrefix()
     );
     setStatusLabels(response.data.workspace.labels.nodes);
   }, []);
@@ -3781,54 +3814,50 @@ const relationMap = {
 
 function IssueRelatedIssue({ issue }) {
   const groups = useMemo(() => {
-    const initValue = {
-      blocks: [],
-      is_blocked_by: [],
-      relates_to: [],
-    };
     return Object.entries(
       issue.linkedWorkItems.nodes.reduce(
         (acc, issue2) => ({
           ...acc,
           [issue2.linkType]: [...acc[issue2.linkType], issue2],
         }),
-        initValue
+        {
+          blocks: [],
+          is_blocked_by: [],
+          relates_to: [],
+        }
       )
     ).filter(([_, issues]) => issues.length);
   }, [issue]);
-  const getStatusLabel = (item) => {
-    const labelsWidget = item.workItem.widgets.find((w) => w.type === 'LABELS');
-    return labelsWidget == null
-      ? void 0
-      : labelsWidget.labels.nodes.find(
-          (l) =>
-            l.title.toLowerCase().startsWith('status::') ||
-            l.title.toLowerCase().startsWith('workflow::')
-        );
-  };
   if (!issue.linkedWorkItems.nodes.length) {
     return null;
   }
-  return jsx(Fragment, {
-    children: groups.map(([key, issues]) =>
-      jsx(
-        ListBlock,
-        {
-          itemId: (i) => i.workItem.iid,
-          items: issues,
-          title: `${relationMap[key]} (${issues.length}):`,
-          renderItem: (issue2) =>
-            jsxs(GitlabLinkWithLabel, {
-              href: issue2.workItem.webUrl,
-              label: getStatusLabel(issue2),
-              blockHover: true,
-              children: ['#', issue2.workItem.iid, ' ', issue2.workItem.title],
-            }),
-        },
-        key
-      )
-    ),
-  });
+  return groups.map(([key, issues]) =>
+    jsx(
+      ListBlock,
+      {
+        itemId: (i) => i.workItem.iid,
+        items: issues,
+        title: `${relationMap[key]} (${issues.length}):`,
+        renderItem: (issue2) =>
+          jsxs(Link, {
+            href: issue2.workItem.webUrl,
+            blockHover: true,
+            children: [
+              jsx(StatusIndicator, {
+                label: LabelHelper.getStatusLabelFromWidgets(
+                  issue2.workItem.widgets
+                ),
+              }),
+              '#',
+              issue2.workItem.iid,
+              ' ',
+              issue2.workItem.title,
+            ],
+          }),
+      },
+      key
+    )
+  );
 }
 
 // apps/gitlab-plus/src/components/issue-preview/useFetchIssue.ts
@@ -4360,23 +4389,12 @@ class RelatedIssuesLabelStatus extends BaseService {
       link.projectPath,
       link.issue
     );
-    const getStatusLabel = (item) => {
-      const labelsWidget = item.workItem.widgets.find(
-        (w) => w.type === 'LABELS'
-      );
-      return labelsWidget == null
-        ? void 0
-        : labelsWidget.labels.nodes.find(
-            (l) =>
-              l.title.toLowerCase().startsWith('status::') ||
-              l.title.toLowerCase().startsWith('workflow::')
-          );
-    };
     const issueStatusMap =
       response.data.project.issue.linkedWorkItems.nodes.reduce((acc, value) => {
         return {
           ...acc,
-          [value.workItem.id.replace(/\D/g, '')]: getStatusLabel(value),
+          [value.workItem.id.replace(/\D/g, '')]:
+            LabelHelper.getStatusLabelFromWidgets(value.workItem.widgets),
         };
       }, {});
     items.forEach((item) => {

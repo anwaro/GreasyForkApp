@@ -4,6 +4,11 @@ import { User } from './User';
 
 export type EpicResponse = ApiResponseWorkspace<{ workItem: Epic }>;
 
+export enum WidgetType {
+  label = 'LABELS',
+  hierarchy = 'HIERARCHY',
+}
+
 export interface Epic {
   id: string;
   iid: string;
@@ -39,11 +44,11 @@ export interface Namespace {
   fullPath: string;
 }
 
-export type EpicWidget = HierarchyWidget | LabelWidget | UnknownWidget;
+export type EpicWidget = HierarchyWidget | LabelWidget | BaseWidget;
 
 export type LabelWidget = {
   labels: Nodes<Label>;
-  type: 'LABELS';
+  type: WidgetType.label;
 };
 
 export type HierarchyWidget = {
@@ -52,18 +57,20 @@ export type HierarchyWidget = {
   } & Nodes<{
     id: string;
     iid: string;
-    widgets: (LabelWidget | UnknownWidget)[];
+    widgets: (LabelWidget | BaseWidget)[];
     state: string;
     title: string;
     webUrl: string;
   }>;
   hasChildren: boolean;
-  type: 'HIERARCHY';
+  type: WidgetType.hierarchy;
 };
 
-export type UnknownWidget = {
-  type: string;
+export type BaseWidget = {
+  type: WidgetType;
 };
+
+export type WidgetOrUnknownWidget<T extends BaseWidget> = T | BaseWidget;
 
 export interface WorkItemType {
   id: string;

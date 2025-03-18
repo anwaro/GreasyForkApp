@@ -6,6 +6,14 @@ export class Player {
     this.setSpeed(this.speed);
   }
 
+  checkPlayerSpeed() {
+    const player = this.getPlayer();
+    if (player && Math.abs(player.playbackRate - this.speed) > 0.01) {
+      player.playbackRate = this.speed;
+      setTimeout(this.checkPlayerSpeed.bind(this), 200);
+    }
+  }
+
   getPlayer(): HTMLVideoElement | null {
     if (!this.player) {
       this.player = document.querySelector('.html5-main-video');
@@ -20,14 +28,6 @@ export class Player {
     if (!player.getAttribute(Player.READY_FLAG)) {
       player.addEventListener('ratechange', this.checkPlayerSpeed.bind(this));
       player.setAttribute(Player.READY_FLAG, 'ready');
-    }
-  }
-
-  checkPlayerSpeed() {
-    const player = this.getPlayer();
-    if (player && Math.abs(player.playbackRate - this.speed) > 0.01) {
-      player.playbackRate = this.speed;
-      setTimeout(this.checkPlayerSpeed.bind(this), 200);
     }
   }
 

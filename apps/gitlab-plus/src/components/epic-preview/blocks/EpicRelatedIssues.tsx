@@ -1,8 +1,11 @@
 import { useMemo } from 'preact/hooks';
 
-import { Epic, HierarchyWidget, LabelWidget } from '../../../types/Epic';
+import { LabelHelper } from '../../../helpers/LabelHelper';
+import { WidgetHelper } from '../../../helpers/WidgetHelper';
+import { Epic, HierarchyWidget, WidgetType } from '../../../types/Epic';
+import { Link } from '../../common/base/Link';
 import { ListBlock } from '../../common/block/ListBlock';
-import { GitlabLinkWithLabel } from '../../common/GitlabLinkWithLabel';
+import { StatusIndicator } from '../../common/StatusIndicator';
 
 type Props = {
   epic: Epic;
@@ -10,30 +13,13 @@ type Props = {
 
 export function EpicRelatedIssues({ epic }: Props) {
   const issues = useMemo(() => {
-    const hierarchyWidget = epic.widgets.find(
-      (widget): widget is HierarchyWidget => widget.type === 'HIERARCHY'
+    const hierarchyWidget = WidgetHelper.getWidget<HierarchyWidget>(
+      epic.widgets,
+      WidgetType.hierarchy
     );
 
-    if (!hierarchyWidget) {
-      return [];
-    }
-
-    return hierarchyWidget.children.nodes;
+    return hierarchyWidget?.children?.nodes || [];
   }, [epic]);
-
-  const getStatusLabel = (
-    item: HierarchyWidget['children']['nodes'][number]
-  ) => {
-    const labelsWidget = item.widgets.find(
-      (w): w is LabelWidget => w.type === 'LABELS'
-    );
-    console.log(item.title, item.widgets, labelsWidget);
-    return labelsWidget?.labels.nodes.find(
-      (l) =>
-        l.title.toLowerCase().startsWith('status::') ||
-        l.title.toLowerCase().startsWith('workflow::')
-    );
-  };
 
   return (
     <ListBlock
@@ -42,13 +28,12 @@ export function EpicRelatedIssues({ epic }: Props) {
       items={issues}
       title={`Child issues (${issues.length})`}
       renderItem={(issue) => (
-        <GitlabLinkWithLabel
-          href={issue.webUrl}
-          label={getStatusLabel(issue)}
-          title={issue.title}
-        >
+        <Link href={issue.webUrl} title={issue.title}>
+          <StatusIndicator
+            label={LabelHelper.getStatusLabelFromWidgets(issue.widgets)}
+          />
           #{issue.iid} {issue.title}
-        </GitlabLinkWithLabel>
+        </Link>
       )}
     />
   );

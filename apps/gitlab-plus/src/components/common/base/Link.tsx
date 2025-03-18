@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 
-import type { ComponentChild } from 'preact';
+import type { ComponentChildren } from 'preact';
 
 import { clsx } from '@utils/clsx';
 
@@ -8,7 +8,7 @@ import { modalZIndex } from '../useOnLinkHover';
 
 type Props = {
   blockHover?: boolean;
-  children?: ComponentChild;
+  children?: ComponentChildren;
   className?: string;
   href?: string;
   inline?: boolean;

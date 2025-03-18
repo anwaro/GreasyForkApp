@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'preact/hooks';
 
+import { LabelHelper } from '../../helpers/LabelHelper';
 import {
   GitlabEpicLink,
   GitlabIssueLink,
   LinkParser,
 } from '../../helpers/LinkParser';
-import { WidgetHelper } from '../../helpers/Widget';
 import { EpicProvider } from '../../providers/EpicProvider';
 import { IssueProvider } from '../../providers/IssueProvider';
 import { RecentlyProvider } from '../../providers/RecentlyProvider';
@@ -237,7 +237,7 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
           if (parentEpic) {
             setValues({
               ...values,
-              labels: WidgetHelper.epicLabels(parentEpic),
+              labels: LabelHelper.getLabelsFromWidgets(parentEpic.widgets),
             });
           }
           if (parentIssue) {

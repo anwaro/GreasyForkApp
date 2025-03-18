@@ -1,10 +1,9 @@
 import { render } from 'preact';
 
 import { GitlabLabel } from '../components/common/GitlabLabel';
+import { LabelHelper } from '../helpers/LabelHelper';
 import { GitlabIssueLink, LinkParser } from '../helpers/LinkParser';
 import { IssueProvider } from '../providers/IssueProvider';
-import { LabelWidget } from '../types/Epic';
-import { RelatedIssueWithLabels } from '../types/Issue';
 import { Label } from '../types/Label';
 import { BaseService } from './BaseService';
 import { ServiceName } from './ServiceName';
@@ -50,22 +49,12 @@ export class RelatedIssuesLabelStatus extends BaseService {
       link.issue
     );
 
-    const getStatusLabel = (item: RelatedIssueWithLabels) => {
-      const labelsWidget = item.workItem.widgets.find(
-        (w): w is LabelWidget => w.type === 'LABELS'
-      );
-      return labelsWidget?.labels.nodes.find(
-        (l) =>
-          l.title.toLowerCase().startsWith('status::') ||
-          l.title.toLowerCase().startsWith('workflow::')
-      );
-    };
-
     const issueStatusMap =
       response.data.project.issue.linkedWorkItems.nodes.reduce((acc, value) => {
         return {
           ...acc,
-          [value.workItem.id.replace(/\D/g, '')]: getStatusLabel(value),
+          [value.workItem.id.replace(/\D/g, '')]:
+            LabelHelper.getStatusLabelFromWidgets(value.workItem.widgets),
         };
       }, {} as Record<string, Label | undefined>);
 

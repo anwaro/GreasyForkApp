@@ -25,6 +25,11 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
         iid
         title
         webUrl
+        labels {
+          nodes {
+            ...LabelFragment
+          }
+        }
       }
       iteration {
         ...IterationFragment
