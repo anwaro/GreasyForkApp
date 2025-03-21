@@ -1,6 +1,4 @@
-import { iterationFragment } from './iteration';
 import { labelFragment } from './label';
-import { milestoneFragment } from './milestone';
 import { userFragment } from './user';
 import { hierarchyWidgetFragment, labelsWidgetFragment } from './widget';
 
@@ -46,8 +44,6 @@ ${labelsWidgetFragment}
 ${hierarchyWidgetFragment}
 ${labelFragment}
 ${userFragment}
-${iterationFragment}
-${milestoneFragment}
 `;
 
 export const epicSetLabelsMutation = `

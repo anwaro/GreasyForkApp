@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2025-03-18
+// @version      2025-03-21
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -47,9 +47,9 @@ class GlobalStyle {
 const style1 =
   '.glp-modal {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 99999;\n  display: none;\n  background: rgba(0, 0, 0, 0.6);\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-modal.glp-modal-visible {\n  display: flex;\n}\n\n.glp-modal .glp-modal-content {\n  width: 700px;\n  max-width: 95vw;\n}\n\n.gl-new-dropdown-item.glp-active .gl-new-dropdown-item-content {\n  box-shadow: inset 0 0 0 2px var(--gl-focus-ring-outer-color), inset 0 0 0 3px var(--gl-focus-ring-inner-color), inset 0 0 0 1px var(--gl-focus-ring-inner-color);\n  background-color: var(--gl-dropdown-option-background-color-unselected-hover);\n  outline: none;\n}\n\n';
 const style2 =
-  '.glp-image-preview-modal {\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.6);\n  visibility: hidden;\n  opacity: 0;\n  pointer-events: none;\n  z-index: 99999;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-image-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n  pointer-events: auto;\n}\n\n\n.glp-image-preview-modal .glp-modal-close {\n  position: absolute;\n  z-index: 2;\n  top: 5px;\n  right: 5px;\n  color: black;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background: white;\n  border-radius: 15px;\n  cursor: pointer;\n}\n\n';
+  '.glp-image-preview-modal {\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.6);\n  visibility: hidden;\n  opacity: 0;\n  pointer-events: none;\n  z-index: 99999;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-image-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n  pointer-events: auto;\n}\n\n.glp-image-preview-modal .glp-modal-close {\n  position: absolute;\n  z-index: 2;\n  top: 5px;\n  right: 5px;\n  color: black;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background: white;\n  border-radius: 15px;\n  cursor: pointer;\n}\n\n';
 const style3 =
-  '.glp-preview-modal {\n  position: fixed;\n  border-radius: .25rem;\n  max-width: 350px;\n  width: 350px;\n  min-height: 200px;\n  visibility: hidden;\n  opacity: 0;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n\n}\n\n.glp-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n\n.glp-preview-modal ::-webkit-scrollbar {\n  width: 5px;\n}\n\n.glp-preview-modal ::-webkit-scrollbar-track {\n  background: var(--gl-background-color-overlap);\n}\n\n\n.glp-preview-modal ::-webkit-scrollbar-thumb {\n  background: #888;\n  border-radius: 5px;\n}\n\n\n.glp-preview-modal ::-webkit-scrollbar-thumb:hover {\n  background: #555;\n}\n\n\n.glp-preview-modal * {\n  max-width: 100%;\n}\n';
+  '.glp-preview-modal {\n  position: fixed;\n  border-radius: .25rem;\n  max-width: 350px;\n  width: 350px;\n  min-height: 200px;\n  visibility: hidden;\n  opacity: 0;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n\n}\n\n.glp-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n\n.glp-preview-modal ::-webkit-scrollbar {\n  width: 5px;\n}\n\n.glp-preview-modal ::-webkit-scrollbar-track {\n  background: var(--gl-background-color-overlap);\n}\n\n\n.glp-preview-modal ::-webkit-scrollbar-thumb {\n  background: #888;\n  border-radius: 5px;\n}\n\n\n.glp-preview-modal ::-webkit-scrollbar-thumb:hover {\n  background: #555;\n}\n\n.glp-preview-modal * {\n  max-width: 100%;\n}\n';
 
 // apps/gitlab-plus/src/styles/index.ts
 GlobalStyle.addStyle('glp-style', [style1, style2, style3].join('\n'));
@@ -296,6 +296,13 @@ class BaseService {
 
   rootBody(className) {
     return this.root(className, document.body);
+  }
+
+  runInit(callback) {
+    callback();
+    [1, 3, 5].forEach((time) => {
+      window.setTimeout(callback, time * 1e3);
+    });
   }
 }
 
@@ -1917,6 +1924,36 @@ class LinkParser {
   }
 }
 
+// apps/gitlab-plus/src/providers/query/widget.ts
+const labelsWidgetFragment = `
+fragment LabelsWidgetFragment on WorkItemWidgetLabels {
+  labels {
+    nodes {
+      ...LabelFragment
+    }
+  }
+}
+`;
+const hierarchyWidgetFragment = `
+fragment HierarchyWidgetFragment on WorkItemWidgetHierarchy {
+    hasChildren
+    children(first: 100) {
+      count
+      nodes {
+        id
+        iid
+        title
+        state
+        webUrl
+        widgets {
+          type
+          ...LabelsWidgetFragment
+        }
+      }
+    }
+  }
+`;
+
 // apps/gitlab-plus/src/providers/query/epic.ts
 const epicQuery = `query namespaceWorkItem($fullPath: ID!, $iid: String!) {
   workspace: namespace(fullPath: $fullPath) {
@@ -1950,79 +1987,16 @@ fragment WorkItem on WorkItem {
     ...UserFragment
   }
   widgets {
-    ...WorkItemWidgets
+    type
+  ...LabelsWidgetFragment
+  ...HierarchyWidgetFragment
   }
 }
 
-fragment WorkItemWidgets on WorkItemWidget {
-  type
-    ... on WorkItemWidgetHierarchy {
-    hasChildren
-    children(first: 100) {
-      count
-      nodes {
-        id
-        iid
-        title
-        state
-        webUrl
-        widgets {
-          type
-          ...LabelsWidget
-        }
-      }
-    }
-  }
-  ... on WorkItemWidgetAssignees {
-    assignees {
-      nodes {
-        ...UserFragment
-      }
-    }
-  }
-  ... on WorkItemWidgetLabels {
-    labels {
-      nodes {
-        ...LabelFragment
-      }
-    }
-  }
-  ... on WorkItemWidgetIteration {
-    iteration {
-      ...IterationFragment
-    }
-  }
-  ... on WorkItemWidgetMilestone {
-    milestone {
-      ...MilestoneFragment
-    }
-  }
-  ... on WorkItemWidgetColor {
-    color
-    textColor
-  }
-  ... on WorkItemWidgetLinkedItems {
-    linkedItems {
-      nodes {
-        linkId
-        linkType
-      }
-    }
-  }
-}
-
-fragment LabelsWidget on WorkItemWidgetLabels {
-  labels {
-    nodes {
-      ...LabelFragment
-    }
-  }
-}
-
+${labelsWidgetFragment}
+${hierarchyWidgetFragment}
 ${labelFragment}
 ${userFragment}
-${iterationFragment}
-${milestoneFragment}
 `;
 const epicSetLabelsMutation = `
 mutation workItemUpdate($input: WorkItemUpdateInput!) {
@@ -2131,7 +2105,7 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
             title
             widgets {
               type
-              ...LabelsWidget
+              ...LabelsWidgetFragment
             }
           }
         }
@@ -2140,15 +2114,8 @@ const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
   }
 }
 
-fragment LabelsWidget on WorkItemWidgetLabels {
-  labels {
-    nodes {
-      ...LabelFragment
-    }
-  }
-}
-
 ${labelFragment}
+${labelsWidgetFragment}
 ${userFragment}
 ${iterationFragment}
 `;
@@ -2162,7 +2129,7 @@ const issueWithRelatedIssuesLabelsQuery = `query issueEE($projectPath: ID!, $iid
             iid
             widgets {
               type
-              ...LabelsWidget
+              ...LabelsWidgetFragment
             }
           }
         }
@@ -2171,14 +2138,7 @@ const issueWithRelatedIssuesLabelsQuery = `query issueEE($projectPath: ID!, $iid
   }
 }
 
-fragment LabelsWidget on WorkItemWidgetLabels {
-  labels {
-    nodes {
-      ...LabelFragment
-    }
-  }
-}
-
+${labelsWidgetFragment}
 ${labelFragment}
 `;
 const issuesQuery = `query groupWorkItems($searchTerm: String, $fullPath: ID!, $types: [IssueType!], $in: [IssuableSearchableField!], $includeAncestors: Boolean = false, $includeDescendants: Boolean = false, $iid: String = null, $searchByIid: Boolean = false, $searchByText: Boolean = true, $searchEmpty: Boolean = true) {
@@ -2727,9 +2687,7 @@ class CreateChildIssue extends BaseService {
   }
 
   init() {
-    this.mount();
-    setTimeout(this.mount.bind(this), 1e3);
-    setTimeout(this.mount.bind(this), 3e3);
+    this.runInit(this.mount.bind(this));
   }
 
   mount() {
@@ -2778,9 +2736,7 @@ class CreateRelatedIssue extends BaseService {
   }
 
   init() {
-    this.mount();
-    setTimeout(this.mount.bind(this), 1e3);
-    setTimeout(this.mount.bind(this), 3e3);
+    this.runInit(this.mount.bind(this));
   }
 
   mount() {
@@ -4308,10 +4264,7 @@ class RelatedIssueAutocomplete extends BaseService {
   }
 
   init() {
-    this.initObserver();
-    window.setTimeout(this.initObserver.bind(this), 1e3);
-    window.setTimeout(this.initObserver.bind(this), 3e3);
-    window.setTimeout(this.initObserver.bind(this), 5e3);
+    this.runInit(this.initObserver.bind(this));
   }
 
   initAutocomplete(section) {
@@ -4360,10 +4313,7 @@ class RelatedIssuesLabelStatus extends BaseService {
   }
 
   init() {
-    this.initIssuesList();
-    window.setTimeout(this.initIssuesList.bind(this), 1e3);
-    window.setTimeout(this.initIssuesList.bind(this), 3e3);
-    window.setTimeout(this.initIssuesList.bind(this), 5e3);
+    this.runInit(this.initIssuesList.bind(this));
   }
 
   initIssuesList() {
@@ -4913,10 +4863,7 @@ class UserSettings extends BaseService {
   }
 
   init() {
-    this.initUserSettings();
-    window.setTimeout(this.initUserSettings.bind(this), 1e3);
-    window.setTimeout(this.initUserSettings.bind(this), 3e3);
-    window.setTimeout(this.initUserSettings.bind(this), 5e3);
+    this.runInit(this.initUserSettings.bind(this));
   }
 
   getMenuItem() {
