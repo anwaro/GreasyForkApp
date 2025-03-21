@@ -5,7 +5,7 @@ import { BaseService } from './BaseService';
 import { ServiceName } from './ServiceName';
 
 export class EpicPreview extends BaseService {
-  name = ServiceName.EpicPreview;
+  public name = ServiceName.EpicPreview;
 
   public init() {
     render(<EpicPreviewModal />, this.rootBody('glp-epic-preview-root'));

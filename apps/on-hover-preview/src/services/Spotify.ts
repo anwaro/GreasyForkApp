@@ -1,42 +1,21 @@
-import { BaseService } from './BaseService';
+import { ServiceFactory } from './base/ServiceFactory';
 
-export class Spotify extends BaseService {
-  public styles = {
-    width: '600px',
-    borderRadius: '12px',
-    height: '152px',
-  };
-  private regExp =
-    /spotify\.com\/(.+\/)?(?<type>track|album|playlist|show)\/(?<id>[\w-]+)/;
-
-  public async embeddedVideoUrl({ href }: HTMLAnchorElement): Promise<string> {
-    const props = this.match(href, this.regExp);
-
-    if (!props) {
-      return undefined;
-    }
-
-    this.setStyle(props.type);
-    const suffix = props.type === 'show' ? '/video' : '';
-
-    return `https://open.spotify.com/embed/${props.type}/${props.id}${suffix}`;
-  }
-
-  isValidUrl(url: string): boolean {
-    return this.regExp.test(url);
-  }
-
-  private setStyle(type: string) {
-    if (type === 'track') {
-      this.styles.height = '152px';
-    } else if (type === 'album') {
-      this.styles.height = '352px';
-    } else if (type === 'playlist') {
-      this.styles.height = '352px';
-    } else if (type === 'show') {
-      this.styles.height = '352px';
-    } else {
-      this.styles.height = '300px';
-    }
+export class Spotify extends ServiceFactory {
+  constructor() {
+    super(
+      {
+        embedUrl: 'https://open.spotify.com/embed/:type/:id',
+        pattern:
+          /spotify\.com\/(.+\/)?(?<type>track|album|playlist|episode|artist|show)\/(?<id>[\w-]+)/,
+        typeHeight: { track: '152px' },
+        urlFunction: ({ type, url }) =>
+          ['episode', 'show'].includes(type) ? `${url}/video` : url,
+      },
+      {
+        width: '600px',
+        borderRadius: '12px',
+        height: '352px',
+      }
+    );
   }
 }

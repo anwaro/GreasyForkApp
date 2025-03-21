@@ -1,6 +1,6 @@
-import { Label } from './Label';
-import { ApiResponseWorkspace, Nodes } from './response';
+import { ApiResponseWorkspace } from './response';
 import { User } from './User';
+import { HierarchyWidget, LabelWidget, WidgetOrUnknownWidget } from './Widget';
 
 export type EpicResponse = ApiResponseWorkspace<{ workItem: Epic }>;
 
@@ -44,39 +44,7 @@ export interface Namespace {
   fullPath: string;
 }
 
-export type EpicWidget = HierarchyWidget | LabelWidget | BaseWidget;
-
-export type LabelWidget = {
-  labels: Nodes<Label>;
-  type: WidgetType.label;
-};
-
-export type HierarchyWidget = {
-  children: {
-    count: number;
-  } & Nodes<{
-    id: string;
-    iid: string;
-    widgets: (LabelWidget | BaseWidget)[];
-    state: string;
-    title: string;
-    webUrl: string;
-  }>;
-  hasChildren: boolean;
-  type: WidgetType.hierarchy;
-};
-
-export type BaseWidget = {
-  type: WidgetType;
-};
-
-export type WidgetOrUnknownWidget<T extends BaseWidget> = T | BaseWidget;
-
-export interface WorkItemType {
-  id: string;
-  name: string;
-  iconName: string;
-}
+export type EpicWidget = WidgetOrUnknownWidget<LabelWidget | HierarchyWidget>;
 
 export interface UserPermissions {
   adminParentLink: boolean;
@@ -87,16 +55,4 @@ export interface UserPermissions {
   reportSpam: boolean;
   setWorkItemMetadata: boolean;
   updateWorkItem: boolean;
-}
-
-export interface Labels {
-  nodes: Node[];
-}
-
-export interface Node {
-  id: string;
-  color: string;
-  description: string;
-  textColor: string;
-  title: string;
 }

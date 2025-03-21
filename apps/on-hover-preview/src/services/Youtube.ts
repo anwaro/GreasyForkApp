@@ -1,62 +1,73 @@
-import { BaseService } from './BaseService';
+import { ServiceFactory } from './base/ServiceFactory';
 
-export class Youtube extends BaseService {
-  static ShortSize = {
-    width: '256px',
-    height: '454px',
-  };
-  static VideoSize = {
-    width: '500px',
-    height: '300px',
-  };
-  public styles = Youtube.VideoSize;
-
-  public async embeddedVideoUrl({
-    href,
-    search,
-  }: HTMLAnchorElement): Promise<string> {
-    this.styles = Youtube.VideoSize;
-    const urlParams = new URLSearchParams(search);
-    let id = urlParams.get('v') || '';
-    let start = urlParams.get('t') || '0';
-
-    if (href.includes('youtu.be')) {
-      id = this.extractId(href, /\.be\/(?<id>[^?/]+).*$/);
-    } else if (href.includes('youtube.com/shorts')) {
-      this.styles = Youtube.ShortSize;
-      id = this.extractId(href, /youtube\.com\/shorts\/(?<id>[^?/]+).*$/);
-    } else if (href.includes('youtube.com/attribution_link')) {
-      const url = decodeURIComponent(urlParams.get('u') || `/watch?v=${id}`);
-      const attrUrl = new URL(`https://youtube.com${url}`);
-      const attrParams = new URLSearchParams(attrUrl.search);
-      id = attrParams.get('v') || id;
-      start = attrParams.get('t') || start;
-    }
-    if (/(?:(\d+)h)?(?:(\d+)m)?(\d+)s/.test(start)) {
-      const [hour = '0', minutes = '0', seconds = '-1'] = start.match(
-        /(?:(\d+)h)?(?:(\d+)m)?(\d+)s/
-      );
-      if (seconds !== '-1') {
-        start = `${(Number(hour) * 60 + Number(minutes)) * 60 + seconds}`;
-      }
-    }
-
-    const params = this.params({
-      autoplay: 1,
-      enablejsapi: 1,
-      fs: 1,
-      start: start,
-    });
-
-    return `https://www.youtube.com/embed/${id}?${params}`;
+class YoutubeHelper {
+  static getId(search: string) {
+    return new URLSearchParams(search).get('v') || '';
   }
 
-  isValidUrl(url: string): boolean {
-    return (
-      url.includes('youtube.com/attribution_link') ||
-      url.includes('youtube.com/watch') ||
-      url.includes('youtube.com/shorts') ||
-      url.includes('youtu.be/')
+  static getStartTime(search: string) {
+    const start = new URLSearchParams(search).get('t') || '0s';
+    const result = start.match(/(?:(?<h>\d+)h)?(?:(?<m>\d+)m)?(?<s>\d+)s/);
+    if (result && result.groups) {
+      return (
+        Number(result.groups.h || '0') * 3600 +
+        Number(result.groups.m || '0') * 60 +
+        Number(result.groups.s || '0')
+      );
+    }
+    return 0;
+  }
+}
+
+export class Youtube extends ServiceFactory {
+  constructor() {
+    super({
+      embedUrl: 'https://www.youtube.com/embed/:id',
+      pattern: /youtube\.com\/watch/,
+      queryParams: {
+        autoplay: 1,
+        start: ':start',
+      },
+      urlFunction: ({ search, url }) =>
+        this.bindParams(url, {
+          id: YoutubeHelper.getId(search),
+          start: YoutubeHelper.getStartTime(search),
+        }),
+    });
+  }
+}
+
+export class YoutubeShortcut extends ServiceFactory {
+  constructor() {
+    super({
+      embedUrl: 'https://www.youtube.com/embed/:id',
+      pattern: /youtu\.be\/(?<id>[^?/]+)/,
+      queryParams: {
+        autoplay: 1,
+        start: ':start',
+      },
+      urlFunction: ({ search, url }) =>
+        this.bindParams(url, {
+          start: YoutubeHelper.getStartTime(search),
+        }),
+    });
+  }
+}
+
+export class YoutubeShorts extends ServiceFactory {
+  constructor() {
+    super(
+      {
+        embedUrl: 'https://www.youtube.com/embed/:id',
+        pattern: /youtube\.com\/shorts\/(?<id>[^?/]+).*$/,
+        queryParams: {
+          autoplay: 1,
+        },
+      },
+      {
+        width: '256px',
+        height: '454px',
+      }
     );
   }
 }

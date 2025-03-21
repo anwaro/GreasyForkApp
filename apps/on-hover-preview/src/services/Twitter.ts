@@ -1,24 +1,22 @@
-import { BaseService } from './BaseService';
+import { ServiceFactory } from './base/ServiceFactory';
 
-export class Twitter extends BaseService {
-  public styles = {
-    width: '480px',
-    height: '300px',
-  };
-
-  public async embeddedVideoUrl({ href }: HTMLAnchorElement) {
-    const id = this.extractId(href, /status\/(?<id>[^/?]+)[/?]?/);
-    const platform = href.includes('twitter.com') ? 'twitter' : 'x';
-
-    const params = this.params({
-      id,
-      maxWidth: '480',
-    });
-
-    return `https://platform.${platform}.com/embed/Tweet.html?${params}`;
-  }
-
-  isValidUrl(url: string): boolean {
-    return /https:\/\/(twitter|x)\.com\/.+\/status\/\d+/.test(url);
+export class Twitter extends ServiceFactory {
+  constructor() {
+    super(
+      {
+        embedUrl: 'https://platform.:platform.com/embed/Tweet.html',
+        pattern: /(?<platform>twitter|x)\.com\/.+\/status\/(?<id>\d+)\/video/,
+        queryParams: {
+          id: ':id',
+          maxWidth: 480,
+          width: 480,
+          theme: ':theme',
+        },
+      },
+      {
+        width: '500px',
+        height: '300px',
+      }
+    );
   }
 }

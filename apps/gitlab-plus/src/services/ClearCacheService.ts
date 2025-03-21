@@ -4,7 +4,7 @@ import { BaseService } from './BaseService';
 import { ServiceName } from './ServiceName';
 
 export class ClearCacheService extends BaseService {
-  name = ServiceName.ClearCacheService;
+  public name = ServiceName.ClearCacheService;
 
   private cache = new Cache('glp-');
 

@@ -1,6 +1,7 @@
 import { iterationFragment } from './iteration';
 import { labelFragment } from './label';
 import { userFragment } from './user';
+import { labelsWidgetFragment } from './widget';
 
 export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
   project(fullPath: $projectPath) {
@@ -71,7 +72,7 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
             title
             widgets {
               type
-              ...LabelsWidget
+              ...LabelsWidgetFragment
             }
           }
         }
@@ -80,15 +81,8 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
   }
 }
 
-fragment LabelsWidget on WorkItemWidgetLabels {
-  labels {
-    nodes {
-      ...LabelFragment
-    }
-  }
-}
-
 ${labelFragment}
+${labelsWidgetFragment}
 ${userFragment}
 ${iterationFragment}
 `;
@@ -103,7 +97,7 @@ export const issueWithRelatedIssuesLabelsQuery = `query issueEE($projectPath: ID
             iid
             widgets {
               type
-              ...LabelsWidget
+              ...LabelsWidgetFragment
             }
           }
         }
@@ -112,14 +106,7 @@ export const issueWithRelatedIssuesLabelsQuery = `query issueEE($projectPath: ID
   }
 }
 
-fragment LabelsWidget on WorkItemWidgetLabels {
-  labels {
-    nodes {
-      ...LabelFragment
-    }
-  }
-}
-
+${labelsWidgetFragment}
 ${labelFragment}
 `;
 

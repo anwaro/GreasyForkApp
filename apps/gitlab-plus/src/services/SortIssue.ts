@@ -23,7 +23,7 @@ const sortWeight: Record<ChildType, number> = {
 };
 
 export class SortIssue extends BaseService {
-  name = ServiceName.SortIssue;
+  public name = ServiceName.SortIssue;
 
   public init() {
     const observer = new Observer();

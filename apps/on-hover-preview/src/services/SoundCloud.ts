@@ -1,26 +1,25 @@
-import { BaseService } from './BaseService';
+import { ServiceFactory } from './base/ServiceFactory';
 
-export class SoundCloud extends BaseService {
-  public styles = {
-    width: '600px',
-    height: '166px',
-  };
-
-  public async embeddedVideoUrl({ href }: HTMLAnchorElement): Promise<string> {
-    const params = this.params({
-      hide_related: 'true',
-      auto_play: 'true',
-      show_artwork: 'true',
-      show_comments: 'false',
-      show_teaser: 'false',
-      url: encodeURIComponent(href),
-      visual: 'false',
-    });
-
-    return `https://w.soundcloud.com/player?${params}`;
-  }
-
-  isValidUrl(url: string): boolean {
-    return /soundcloud\.com\/[^/]+\/[^/?]+/.test(url);
+export class SoundCloud extends ServiceFactory {
+  constructor() {
+    super(
+      {
+        embedUrl: 'https://w.soundcloud.com/player',
+        pattern: /soundcloud\.com\/[^/]+\/[^/?]+/,
+        queryParams: {
+          hide_related: 'true',
+          auto_play: 'true',
+          show_artwork: 'true',
+          show_comments: 'false',
+          show_teaser: 'false',
+          url: ':href',
+          visual: 'false',
+        },
+      },
+      {
+        width: '600px',
+        height: '166px',
+      }
+    );
   }
 }

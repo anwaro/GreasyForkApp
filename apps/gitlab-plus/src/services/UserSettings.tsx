@@ -6,14 +6,11 @@ import { BaseService } from './BaseService';
 import { ServiceName } from './ServiceName';
 
 export class UserSettings extends BaseService {
-  name = ServiceName.UserSettings;
+  public name = ServiceName.UserSettings;
   private ready = false;
 
   public init() {
-    this.initUserSettings();
-    window.setTimeout(this.initUserSettings.bind(this), 1000);
-    window.setTimeout(this.initUserSettings.bind(this), 3000);
-    window.setTimeout(this.initUserSettings.bind(this), 5000);
+    this.runInit(this.initUserSettings.bind(this));
   }
 
   private getMenuItem() {

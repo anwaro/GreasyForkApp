@@ -1,18 +1,20 @@
-import { BaseService } from './BaseService';
+import { ServiceFactory } from './base/ServiceFactory';
 
-export class Tiktok extends BaseService {
-  public styles = {
-    width: '338px',
-    height: '575px',
-  };
-
-  public async embeddedVideoUrl({ href }: HTMLAnchorElement): Promise<string> {
-    const id = this.extractId(href, /video\/(?<id>\d+)/);
-
-    return `https://www.tiktok.com/embed/v2/${id}`;
-  }
-
-  isValidUrl(url: string): boolean {
-    return url.includes('tiktok.com') && /video\/\d+/.test(url);
+export class Tiktok extends ServiceFactory {
+  constructor() {
+    super(
+      {
+        embedUrl: 'https://www.tiktok.com/player/v1/:id',
+        pattern: /tiktok\.com\/.+\/video\/(?<id>\d+)/,
+        queryParams: {
+          autoplay: 1,
+          rel: 0,
+        },
+      },
+      {
+        width: '338px',
+        height: '575px',
+      }
+    );
   }
 }

@@ -9,14 +9,11 @@ import { BaseService } from './BaseService';
 import { ServiceName } from './ServiceName';
 
 export class RelatedIssuesLabelStatus extends BaseService {
-  name = ServiceName.RelatedIssuesLabelStatus;
+  public name = ServiceName.RelatedIssuesLabelStatus;
   private ready = false;
 
   public init() {
-    this.initIssuesList();
-    window.setTimeout(this.initIssuesList.bind(this), 1000);
-    window.setTimeout(this.initIssuesList.bind(this), 3000);
-    window.setTimeout(this.initIssuesList.bind(this), 5000);
+    this.runInit(this.initIssuesList.bind(this));
   }
 
   private initIssuesList() {

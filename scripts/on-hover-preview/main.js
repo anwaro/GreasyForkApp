@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Play video on hover
 // @namespace    https://lukaszmical.pl/
-// @version      0.5.0
-// @description  Facebook, Vimeo, Youtube, Streamable, Tiktok, Instagram, Twitter, X, Dailymotion, Coub, Spotify, Tableau, SoundCloud, Apple Music, Deezer, Tidal - play on hover
+// @version      0.6.0
+// @description  Facebook, Vimeo, Youtube, Streamable, Tiktok, Instagram, Twitter, X, Dailymotion, Coub, Spotify, SoundCloud, Apple Podcasts, Amazon Music, Deezer, Tidal, Ted, Pbs, Odysee, Playeur, Bitchute, Rss - play on hover
 // @author       Łukasz Micał
 // @match        *://*/*
 // @icon         https://static-00.iconduck.com/assets.00/cursor-hover-icon-512x439-vou7bdac.png
@@ -303,14 +303,26 @@ const LinkHover = class {
   }
 };
 
-// apps/on-hover-preview/src/services/BaseService.ts
+// apps/on-hover-preview/src/services/base/BaseService.ts
+const defaultServiceStyle = {
+  width: '500px',
+  height: '282px',
+};
 const BaseService = class {
-  extractId(url, match) {
-    const result = url.match(match);
-    if (result) {
-      return result.groups?.id || '';
+  createUrl(url, params) {
+    if (params) {
+      return `${url}?${this.params(params)}`;
     }
-    return '';
+    return url;
+  }
+
+  extractId(url, match) {
+    const result = this.match(url, match);
+    return result?.id || '';
+  }
+
+  isDarkmode() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
   match(url, match) {
@@ -334,458 +346,486 @@ const BaseService = class {
   }
 };
 
-// apps/on-hover-preview/src/services/AppleMusic.ts
-const AppleMusic = class extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      borderRadius: '12px',
-      height: '450px',
-    };
-    this.regExp = /music\.apple\.com\/.{2}\/(?<id>music-video|artist|album)/;
+// apps/on-hover-preview/src/services/base/ServiceFactory.ts
+const ServiceFactory = class extends BaseService {
+  constructor(config, styles = defaultServiceStyle) {
+    super();
+    this.config = config;
+    this.styles = styles;
+    this.initialStyles = styles;
   }
 
-  async embeddedVideoUrl({ href, pathname }) {
-    this.setStyle(href);
-    return `https://embed.music.apple.com${pathname}`;
+  bindParams(url, params) {
+    return Object.entries(params).reduce(
+      (acc, [key, value]) =>
+        acc.replace(`:${key}`, value !== void 0 ? `${value}` : ''),
+      url
+    );
+  }
+
+  async embeddedVideoUrl(element) {
+    const isDarkMode = this.isDarkmode();
+    const patternParams = this.match(element.href, this.config.pattern) || {};
+    const urlParams = {
+      ...patternParams,
+      ...this.urlParams(element),
+      theme: isDarkMode ? 'dark' : 'light',
+    };
+    this.styles = {
+      ...this.initialStyles,
+      height: this.getHeight(urlParams),
+    };
+    const embedUrl = this.bindParams(
+      this.createUrl(this.config.embedUrl, this.config.queryParams),
+      urlParams
+    );
+    if (this.config.urlFunction) {
+      return this.config.urlFunction({
+        ...urlParams,
+        url: embedUrl,
+      });
+    }
+    return embedUrl;
   }
 
   isValidUrl(url) {
-    return this.regExp.test(url);
+    return this.config.pattern.test(url);
   }
 
-  setStyle(href) {
-    const type = this.extractId(href, this.regExp);
-    if (type === 'music-video') {
-      this.styles.height = '281px';
-    } else {
-      this.styles.height = '450px';
+  getHeight(urlParams) {
+    if (this.config.heightFunction) {
+      return this.config.heightFunction(urlParams);
     }
+    if (this.config.typeHeight && urlParams.type in this.config.typeHeight) {
+      return this.config.typeHeight[urlParams.type];
+    }
+    return this.initialStyles.height;
+  }
+
+  urlParams(element) {
+    return {
+      href: element.href,
+      pathname: element.pathname,
+      search: element.search,
+    };
+  }
+};
+
+// apps/on-hover-preview/src/services/AmazonMusic.ts
+const AmazonMusic = class extends ServiceFactory {
+  constructor() {
+    super(
+      {
+        embedUrl: 'https://music.amazon.com/embed/:id',
+        pattern:
+          /music\.amazon\.com\/(?<type>albums|tracks|artists|playlists)\/(?<id>[^/?]+)/,
+        typeHeight: { tracks: '250px' },
+      },
+      {
+        width: '500px',
+        borderRadius: '12px',
+        height: '372px',
+      }
+    );
+  }
+};
+
+// apps/on-hover-preview/src/services/AppleMusic.ts
+const AppleMusic = class extends ServiceFactory {
+  constructor() {
+    super(
+      {
+        embedUrl: 'https://embed.:service.apple.com:pathname',
+        pattern:
+          /(?<service>music|podcasts)\.apple\.com\/.{2}\/(?<type>song|music-video|artist|album|podcast)/,
+        typeHeight: {
+          'music-video': '281px',
+          song: '175px',
+        },
+      },
+      {
+        width: '500px',
+        borderRadius: '12px',
+        height: '450px',
+      }
+    );
+  }
+};
+
+// apps/on-hover-preview/src/services/Bitchute.ts
+const Bitchute = class extends ServiceFactory {
+  constructor() {
+    super({
+      embedUrl: 'https://bitchute.com/embed/:id',
+      pattern: /bitchute\.com\/video\/(?<id>[^/?]+)\/?/,
+    });
   }
 };
 
 // apps/on-hover-preview/src/services/Coub.ts
-const Coub = class extends BaseService {
+const Coub = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      height: '290px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /view\/(?<id>[^/]+)\/?/);
-    const params = this.params({
-      autostart: 'true',
-      muted: 'false',
-      originalSize: 'false',
-      startWithHD: 'true',
+    super({
+      embedUrl: 'https://coub.com/embed/:id',
+      pattern: /coub\.com\/view\/(?<id>[^/]+)\/?/,
+      queryParams: {
+        autostart: 'true',
+        muted: 'false',
+        originalSize: 'false',
+        startWithHD: 'true',
+      },
     });
-    return `https://coub.com/embed/${id}?${params}`;
-  }
-
-  isValidUrl(url) {
-    return url.includes('coub.com/view');
   }
 };
 
 // apps/on-hover-preview/src/services/Dailymotion.ts
-const Dailymotion = class extends BaseService {
+const Dailymotion = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      height: '280px',
-    };
-  }
-
-  async embeddedVideoUrl(element) {
-    const id = this.extractId(element.href, /video\/(?<id>[^/?]+)[/?]?/);
-    return `https://geo.dailymotion.com/player.html?video=${id}`;
-  }
-
-  isValidUrl(url) {
-    return url.includes('dailymotion.com/video');
+    super({
+      embedUrl: 'https://geo.dailymotion.com/player.html?video=:id',
+      pattern: /dailymotion\.com\/video\/(?<id>[^/?]+)/,
+    });
   }
 };
 
 // apps/on-hover-preview/src/services/Deezer.ts
-const Deezer = class extends BaseService {
+const Deezer = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      borderRadius: '10px',
-      height: '300px',
-    };
-    this.regExp =
-      /deezer\.com\/.{2}\/(?<type>album|playlist|track|artist|podcast|episode)\/(?<id>\d+)/;
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const theme = this.theme('light', 'dark');
-    const props = this.match(href, this.regExp);
-    const params = this.params({
-      autoplay: 'true',
-      radius: 'true',
-      tracklist: 'false',
-    });
-    if (!props) {
-      return void 0;
-    }
-    return `https://widget.deezer.com/widget/${theme}/${props.type}/${props.id}?${params}`;
-  }
-
-  isValidUrl(url) {
-    return this.regExp.test(url);
+    super(
+      {
+        embedUrl: 'https://widget.deezer.com/widget/:theme/:type/:id',
+        pattern:
+          /deezer\.com\/.{2}\/(?<type>album|playlist|track|artist|show|episode)\/(?<id>\d+)/,
+        queryParams: {
+          autoplay: 'true',
+          radius: 'true',
+          tracklist: 'false',
+        },
+      },
+      {
+        width: '500px',
+        borderRadius: '10px',
+        height: '300px',
+      }
+    );
   }
 };
 
 // apps/on-hover-preview/src/services/Facebook.ts
-const Facebook = class extends BaseService {
+const Facebook = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      height: '282px',
-    };
-  }
-
-  async embeddedVideoUrl(element) {
-    const params = this.params({
-      width: '500',
-      autoplay: 'true',
-      href: element.href,
-      show_text: 'false',
+    super({
+      embedUrl: 'https://www.facebook.com/plugins/video.php',
+      pattern: /https:\/\/(www\.|m\.)?facebook\.com\/[\w\-_]+\/videos\//,
+      queryParams: {
+        width: '500',
+        autoplay: 'true',
+        href: ':href',
+        show_text: 'false',
+      },
     });
-    return `https://www.facebook.com/plugins/video.php?${params}`;
-  }
-
-  isValidUrl(url) {
-    return /https:\/\/(www\.|m\.)?facebook\.com\/[\w\-_]+\/videos\//.test(url);
   }
 };
 
 // apps/on-hover-preview/src/services/Instagram.ts
-const Instagram = class extends BaseService {
+const Instagram = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '300px',
-      height: '500px',
-    };
+    super(
+      {
+        embedUrl: 'https://www.instagram.com/p/:id/embed/',
+        pattern: /instagram\.com\/(.+\/)?reel\/(?<id>[^/?]+)/,
+      },
+      {
+        width: '300px',
+        height: '500px',
+      }
+    );
   }
+};
 
-  async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /reel\/(?<id>[^/]+)\//);
-    return `https://www.instagram.com/p/${id}/embed/`;
+// apps/on-hover-preview/src/services/Odysee.ts
+const Odysee = class extends ServiceFactory {
+  constructor() {
+    super({
+      embedUrl: 'https://odysee.com/$/embed:pathname',
+      pattern: /odysee\.com\/@/,
+      queryParams: {
+        autoplay: 'true',
+      },
+    });
   }
+};
 
-  isValidUrl(url) {
-    return /instagram\.com\/([a-zA-Z0-9._]{1,30}\/)?reel/.test(url);
+// apps/on-hover-preview/src/services/Pbs.ts
+const Pbs = class extends ServiceFactory {
+  constructor() {
+    super({
+      embedUrl: 'https://player.pbs.org/portalplayer/:id',
+      pattern: /pbs\.org\/video\/(?<id>.+)?/,
+    });
+  }
+};
+
+// apps/on-hover-preview/src/services/Playeur.ts
+const Playeur = class extends ServiceFactory {
+  constructor() {
+    super({
+      embedUrl: 'https://playeur.com/embed/:id',
+      pattern: /playeur\.com\/(v|embed)\/(?<id>[^/]+)\/?/,
+    });
+  }
+};
+
+// apps/on-hover-preview/src/services/Podbean.ts
+const Podbean = class extends ServiceFactory {
+  constructor() {
+    super(
+      {
+        embedUrl: 'https://www.podbean.com/player-v2',
+        pattern: /podbean\.com\/.+\/(?<type>dir|pb)-(?<id>[^/?]+)\/?/,
+        queryParams: {
+          i: ':id-:type',
+        },
+      },
+      {
+        width: '500px',
+        height: '150px',
+      }
+    );
+  }
+};
+
+// apps/on-hover-preview/src/services/Rss.ts
+const Rss = class extends ServiceFactory {
+  constructor() {
+    super(
+      {
+        embedUrl: 'https://player.rss.com/:show/:id',
+        heightFunction: ({ id }) => (id ? '152px' : '320px'),
+        pattern: /rss\.com\/podcasts\/(?<show>[^/]+)\/(?<id>\d*)/,
+        queryParams: {
+          theme: ':theme',
+        },
+      },
+      {
+        width: '500px',
+        borderRadius: '8px',
+        height: '152px',
+      }
+    );
   }
 };
 
 // apps/on-hover-preview/src/services/SoundCloud.ts
-const SoundCloud = class extends BaseService {
+const SoundCloud = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '600px',
-      height: '166px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const params = this.params({
-      hide_related: 'true',
-      auto_play: 'true',
-      show_artwork: 'true',
-      show_comments: 'false',
-      show_teaser: 'false',
-      url: encodeURIComponent(href),
-      visual: 'false',
-    });
-    return `https://w.soundcloud.com/player?${params}`;
-  }
-
-  isValidUrl(url) {
-    return /soundcloud\.com\/[^/]+\/[^/?]+/.test(url);
+    super(
+      {
+        embedUrl: 'https://w.soundcloud.com/player',
+        pattern: /soundcloud\.com\/[^/]+\/[^/?]+/,
+        queryParams: {
+          hide_related: 'true',
+          auto_play: 'true',
+          show_artwork: 'true',
+          show_comments: 'false',
+          show_teaser: 'false',
+          url: ':href',
+          visual: 'false',
+        },
+      },
+      {
+        width: '600px',
+        height: '166px',
+      }
+    );
   }
 };
 
 // apps/on-hover-preview/src/services/Spotify.ts
-const Spotify = class extends BaseService {
+const Spotify = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '600px',
-      borderRadius: '12px',
-      height: '152px',
-    };
-    this.regExp =
-      /spotify\.com\/(.+\/)?(?<type>track|album|playlist|show)\/(?<id>[\w-]+)/;
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const props = this.match(href, this.regExp);
-    if (!props) {
-      return void 0;
-    }
-    this.setStyle(props.type);
-    const suffix = props.type === 'show' ? '/video' : '';
-    return `https://open.spotify.com/embed/${props.type}/${props.id}${suffix}`;
-  }
-
-  isValidUrl(url) {
-    return this.regExp.test(url);
-  }
-
-  setStyle(type) {
-    if (type === 'track') {
-      this.styles.height = '152px';
-    } else if (type === 'album') {
-      this.styles.height = '352px';
-    } else if (type === 'playlist') {
-      this.styles.height = '352px';
-    } else if (type === 'show') {
-      this.styles.height = '352px';
-    } else {
-      this.styles.height = '300px';
-    }
+    super(
+      {
+        embedUrl: 'https://open.spotify.com/embed/:type/:id',
+        pattern:
+          /spotify\.com\/(.+\/)?(?<type>track|album|playlist|episode|artist|show)\/(?<id>[\w-]+)/,
+        typeHeight: { track: '152px' },
+        urlFunction: ({ type, url }) =>
+          ['episode', 'show'].includes(type) ? `${url}/video` : url,
+      },
+      {
+        width: '600px',
+        borderRadius: '12px',
+        height: '352px',
+      }
+    );
   }
 };
 
 // apps/on-hover-preview/src/services/Streamable.ts
-const Streamable = class extends BaseService {
+const Streamable = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      height: '300px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /\.com\/([s|o]\/)?(?<id>[^?/]+).*$/);
-    return `https://streamable.com/o/${id}?autoplay=1`;
-  }
-
-  isValidUrl(url) {
-    return url.includes('streamable.com');
+    super({
+      embedUrl: 'https://streamable.com/o/:id',
+      pattern: /streamable\.com\/([s|o]\/)?(?<id>[^?/]+).*$/,
+      queryParams: {
+        autoplay: '1',
+      },
+    });
   }
 };
 
-// apps/on-hover-preview/src/services/Tableau.ts
-const Tableau = class extends BaseService {
+// apps/on-hover-preview/src/services/Ted.ts
+const Ted = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '850px',
-      height: '528px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /views\/(?<id>[^/]+)\/?/);
-    const params = this.params({
-      ':animate_transition': 'yes',
-      ':display_count': 'yes',
-      ':display_overlay': 'yes',
-      ':display_spinner': 'yes',
-      ':display_static_image': 'no',
-      ':embed': 'y',
-      ':embed_code_version': '3',
-      ':host_url': 'https%3A%2F%2Fpublic.tableau.com%2F',
-      ':language': 'en-US',
-      ':loadOrderID': '0',
-      ':showVizHome': 'no',
-      ':tabs': 'yes',
-      ':toolbar': 'yes',
+    super({
+      embedUrl: 'https://embed.ted.com/talks/:id',
+      pattern: /ted\.com\/talks\/(?<id>[^/]+)\/?/,
     });
-    return `https://public.tableau.com/views/${id}/Video?${params}`;
-  }
-
-  isValidUrl(url) {
-    return url.includes('public.tableau.com/views');
   }
 };
 
 // apps/on-hover-preview/src/services/Tidal.ts
-const Tidal = class extends BaseService {
+const Tidal = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      borderRadius: '10px',
-      height: '300px',
-    };
-    this.regExp =
-      /tidal\.com\/(.+\/)?(?<type>track|album|video|playlist)\/(?<id>\d+|[\w-]+)/;
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const props = this.match(href, this.regExp);
-    if (!props) {
-      return void 0;
-    }
-    this.setStyle(props.type);
-    return `https://embed.tidal.com/${props.type}s/${props.id}`;
-  }
-
-  isValidUrl(url) {
-    return this.regExp.test(url);
-  }
-
-  setStyle(type) {
-    if (type === 'track') {
-      this.styles.height = '120px';
-    } else if (type === 'playlist') {
-      this.styles.height = '400px';
-    } else if (type === 'video') {
-      this.styles.height = '281px';
-    } else {
-      this.styles.height = '300px';
-    }
+    super(
+      {
+        embedUrl: 'https://embed.tidal.com/:types/:id',
+        pattern:
+          /tidal\.com\/(.+\/)?(?<type>track|album|video|playlist)\/(?<id>\d+|[\w-]+)/,
+        typeHeight: {
+          video: '281px',
+          playlist: '400px',
+          track: '120px',
+        },
+      },
+      {
+        width: '500px',
+        borderRadius: '10px',
+        height: '300px',
+      }
+    );
   }
 };
 
 // apps/on-hover-preview/src/services/Tiktok.ts
-const Tiktok = class extends BaseService {
+const Tiktok = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '338px',
-      height: '575px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /video\/(?<id>\d+)/);
-    return `https://www.tiktok.com/embed/v2/${id}`;
-  }
-
-  isValidUrl(url) {
-    return url.includes('tiktok.com') && /video\/\d+/.test(url);
+    super(
+      {
+        embedUrl: 'https://www.tiktok.com/player/v1/:id',
+        pattern: /tiktok\.com\/.+\/video\/(?<id>\d+)/,
+        queryParams: {
+          autoplay: 1,
+          rel: 0,
+        },
+      },
+      {
+        width: '338px',
+        height: '575px',
+      }
+    );
   }
 };
 
 // apps/on-hover-preview/src/services/Twitter.ts
-const Twitter = class extends BaseService {
+const Twitter = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '480px',
-      height: '300px',
-    };
-  }
-
-  async embeddedVideoUrl({ href }) {
-    const id = this.extractId(href, /status\/(?<id>[^/?]+)[/?]?/);
-    const platform = href.includes('twitter.com') ? 'twitter' : 'x';
-    const params = this.params({
-      id,
-      maxWidth: '480',
-    });
-    return `https://platform.${platform}.com/embed/Tweet.html?${params}`;
-  }
-
-  isValidUrl(url) {
-    return /https:\/\/(twitter|x)\.com\/.+\/status\/\d+/.test(url);
+    super(
+      {
+        embedUrl: 'https://platform.:platform.com/embed/Tweet.html',
+        pattern: /(?<platform>twitter|x)\.com\/.+\/status\/(?<id>\d+)\/video/,
+        queryParams: {
+          id: ':id',
+          maxWidth: 480,
+          width: 480,
+          theme: ':theme',
+        },
+      },
+      {
+        width: '500px',
+        height: '300px',
+      }
+    );
   }
 };
 
 // apps/on-hover-preview/src/services/Vimeo.ts
-const Vimeo = class extends BaseService {
+const Vimeo = class extends ServiceFactory {
   constructor() {
-    super(...arguments);
-    this.styles = {
-      width: '500px',
-      height: '285px',
-    };
-  }
-
-  async embeddedVideoUrl(element) {
-    let id = '';
-    if (/\/\d+(\/.*)?$/.test(element.pathname)) {
-      id = element.pathname.replace(/\D+/g, '');
-    } else {
-      const response = await fetch(
-        `https://vimeo.com/api/oembed.json?url=${element.href}`
-      );
-      const data = await response.json();
-      id = data.video_id;
-    }
-    return `https://player.vimeo.com/video/${id}?autoplay=1`;
-  }
-
-  isValidUrl(url) {
-    return url.includes('vimeo.com');
+    super({
+      embedUrl: 'https://player.vimeo.com/video/:id',
+      pattern: /vimeo\.com(.+)*\/(?<id>\d+)\/?$/,
+    });
   }
 };
 
 // apps/on-hover-preview/src/services/Youtube.ts
-const Youtube = class _Youtube extends BaseService {
-  constructor() {
-    super(...arguments);
-    this.styles = _Youtube.VideoSize;
+const YoutubeHelper = class {
+  static getId(search) {
+    return new URLSearchParams(search).get('v') || '';
   }
 
-  static {
-    this.ShortSize = {
-      width: '256px',
-      height: '454px',
-    };
-  }
-  static {
-    this.VideoSize = {
-      width: '500px',
-      height: '300px',
-    };
-  }
-
-  async embeddedVideoUrl({ href, search }) {
-    this.styles = _Youtube.VideoSize;
-    const urlParams = new URLSearchParams(search);
-    let id = urlParams.get('v') || '';
-    let start = urlParams.get('t') || '0';
-    if (href.includes('youtu.be')) {
-      id = this.extractId(href, /\.be\/(?<id>[^?/]+).*$/);
-    } else if (href.includes('youtube.com/shorts')) {
-      this.styles = _Youtube.ShortSize;
-      id = this.extractId(href, /youtube\.com\/shorts\/(?<id>[^?/]+).*$/);
-    } else if (href.includes('youtube.com/attribution_link')) {
-      const url = decodeURIComponent(urlParams.get('u') || `/watch?v=${id}`);
-      const attrUrl = new URL(`https://youtube.com${url}`);
-      const attrParams = new URLSearchParams(attrUrl.search);
-      id = attrParams.get('v') || id;
-      start = attrParams.get('t') || start;
-    }
-    if (/(?:(\d+)h)?(?:(\d+)m)?(\d+)s/.test(start)) {
-      const [hour = '0', minutes = '0', seconds = '-1'] = start.match(
-        /(?:(\d+)h)?(?:(\d+)m)?(\d+)s/
+  static getStartTime(search) {
+    const start = new URLSearchParams(search).get('t') || '0s';
+    const result = start.match(/(?:(?<h>\d+)h)?(?:(?<m>\d+)m)?(?<s>\d+)s/);
+    if (result && result.groups) {
+      return (
+        Number(result.groups.h || '0') * 3600 +
+        Number(result.groups.m || '0') * 60 +
+        Number(result.groups.s || '0')
       );
-      if (seconds !== '-1') {
-        start = `${(Number(hour) * 60 + Number(minutes)) * 60 + seconds}`;
-      }
     }
-    const params = this.params({
-      autoplay: 1,
-      enablejsapi: 1,
-      fs: 1,
-      start,
-    });
-    return `https://www.youtube.com/embed/${id}?${params}`;
+    return 0;
   }
-
-  isValidUrl(url) {
-    return (
-      url.includes('youtube.com/attribution_link') ||
-      url.includes('youtube.com/watch') ||
-      url.includes('youtube.com/shorts') ||
-      url.includes('youtu.be/')
+};
+const Youtube = class extends ServiceFactory {
+  constructor() {
+    super({
+      embedUrl: 'https://www.youtube.com/embed/:id',
+      pattern: /youtube\.com\/watch/,
+      queryParams: {
+        autoplay: 1,
+        start: ':start',
+      },
+      urlFunction: ({ search, url }) =>
+        this.bindParams(url, {
+          id: YoutubeHelper.getId(search),
+          start: YoutubeHelper.getStartTime(search),
+        }),
+    });
+  }
+};
+const YoutubeShortcut = class extends ServiceFactory {
+  constructor() {
+    super({
+      embedUrl: 'https://www.youtube.com/embed/:id',
+      pattern: /youtu\.be\/(?<id>[^?/]+)/,
+      queryParams: {
+        autoplay: 1,
+        start: ':start',
+      },
+      urlFunction: ({ search, url }) =>
+        this.bindParams(url, {
+          start: YoutubeHelper.getStartTime(search),
+        }),
+    });
+  }
+};
+const YoutubeShorts = class extends ServiceFactory {
+  constructor() {
+    super(
+      {
+        embedUrl: 'https://www.youtube.com/embed/:id',
+        pattern: /youtube\.com\/shorts\/(?<id>[^?/]+).*$/,
+        queryParams: {
+          autoplay: 1,
+        },
+      },
+      {
+        width: '256px',
+        height: '454px',
+      }
     );
   }
 };
@@ -794,6 +834,8 @@ const Youtube = class _Youtube extends BaseService {
 function run() {
   const services = [
     Youtube,
+    YoutubeShortcut,
+    YoutubeShorts,
     Vimeo,
     Streamable,
     Facebook,
@@ -804,12 +846,18 @@ function run() {
     Dailymotion,
     Coub,
     Spotify,
-    Tableau,
     SoundCloud,
     AppleMusic,
     Deezer,
     Tidal,
-    // Odysee,
+    Ted,
+    Pbs,
+    Odysee,
+    Playeur,
+    Bitchute,
+    Podbean,
+    Rss,
+    AmazonMusic,
     // Rumble,
   ].map((Service) => new Service());
   const previewPopup = new PreviewPopup();

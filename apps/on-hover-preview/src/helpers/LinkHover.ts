@@ -1,6 +1,6 @@
 import { Events } from '@ui/Events';
 
-import { BaseService } from '../services/BaseService';
+import { BaseService } from '../services/base/BaseService';
 
 export class LinkHover {
   constructor(

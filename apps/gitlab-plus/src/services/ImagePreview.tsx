@@ -5,7 +5,7 @@ import { BaseService } from './BaseService';
 import { ServiceName } from './ServiceName';
 
 export class ImagePreview extends BaseService {
-  name = ServiceName.ImagePreview;
+  public name = ServiceName.ImagePreview;
 
   public init() {
     render(<ImagePreviewModal />, this.rootBody('glp-image-preview-root'));

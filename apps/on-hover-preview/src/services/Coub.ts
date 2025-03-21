@@ -1,25 +1,16 @@
-import { BaseService } from './BaseService';
+import { ServiceFactory } from './base/ServiceFactory';
 
-export class Coub extends BaseService {
-  public styles = {
-    width: '500px',
-    height: '290px',
-  };
-
-  public async embeddedVideoUrl({ href }: HTMLAnchorElement): Promise<string> {
-    const id = this.extractId(href, /view\/(?<id>[^/]+)\/?/);
-
-    const params = this.params({
-      autostart: 'true',
-      muted: 'false',
-      originalSize: 'false',
-      startWithHD: 'true',
+export class Coub extends ServiceFactory {
+  constructor() {
+    super({
+      embedUrl: 'https://coub.com/embed/:id',
+      pattern: /coub\.com\/view\/(?<id>[^/]+)\/?/,
+      queryParams: {
+        autostart: 'true',
+        muted: 'false',
+        originalSize: 'false',
+        startWithHD: 'true',
+      },
     });
-
-    return `https://coub.com/embed/${id}?${params}`;
-  }
-
-  isValidUrl(url: string): boolean {
-    return url.includes('coub.com/view');
   }
 }

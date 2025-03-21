@@ -17,4 +17,11 @@ export abstract class BaseService {
   rootBody(className: string) {
     return this.root(className, document.body);
   }
+
+  runInit(callback: VoidFunction) {
+    callback();
+    [1, 3, 5].forEach((time) => {
+      window.setTimeout(callback, time * 1000);
+    });
+  }
 }

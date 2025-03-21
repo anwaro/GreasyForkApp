@@ -1,7 +1,8 @@
 import { UserConfig } from '../components/user-settings/UserConfig';
 import { userSettingsStore } from '../components/user-settings/UserSettingsStore';
-import { LabelWidget, WidgetOrUnknownWidget, WidgetType } from '../types/Epic';
+import { WidgetType } from '../types/Epic';
 import { Label } from '../types/Label';
+import { LabelWidget, WidgetOrUnknownWidget } from '../types/Widget';
 import { WidgetHelper } from './WidgetHelper';
 
 export class LabelHelper {

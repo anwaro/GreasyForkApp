@@ -1,7 +1,7 @@
 import { Component } from '@ui/Component';
 import { Dom } from '@ui/Dom';
 
-import { BaseService } from '../services/BaseService';
+import { BaseService } from '../services/base/BaseService';
 
 export class PreviewPopup extends Component<'div'> {
   static ID = 'play-on-hover-popup';

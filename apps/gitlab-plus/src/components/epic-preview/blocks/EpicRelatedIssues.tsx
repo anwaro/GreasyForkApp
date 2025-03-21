@@ -2,7 +2,8 @@ import { useMemo } from 'preact/hooks';
 
 import { LabelHelper } from '../../../helpers/LabelHelper';
 import { WidgetHelper } from '../../../helpers/WidgetHelper';
-import { Epic, HierarchyWidget, WidgetType } from '../../../types/Epic';
+import { Epic, WidgetType } from '../../../types/Epic';
+import { HierarchyWidget } from '../../../types/Widget';
 import { Link } from '../../common/base/Link';
 import { ListBlock } from '../../common/block/ListBlock';
 import { StatusIndicator } from '../../common/StatusIndicator';

@@ -1,4 +1,5 @@
-import { BaseWidget, WidgetOrUnknownWidget, WidgetType } from '../types/Epic';
+import { WidgetType } from '../types/Epic';
+import { BaseWidget, WidgetOrUnknownWidget } from '../types/Widget';
 
 export class WidgetHelper {
   static getWidget<T extends BaseWidget>(

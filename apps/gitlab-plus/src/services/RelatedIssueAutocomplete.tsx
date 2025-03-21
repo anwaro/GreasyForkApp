@@ -6,15 +6,12 @@ import { BaseService } from './BaseService';
 import { ServiceName } from './ServiceName';
 
 export class RelatedIssueAutocomplete extends BaseService {
-  name = ServiceName.RelatedIssueAutocomplete;
+  public name = ServiceName.RelatedIssueAutocomplete;
   private ready = false;
   private readyClass = 'glp-input-ready';
 
   public init() {
-    this.initObserver();
-    window.setTimeout(this.initObserver.bind(this), 1000);
-    window.setTimeout(this.initObserver.bind(this), 3000);
-    window.setTimeout(this.initObserver.bind(this), 5000);
+    this.runInit(this.initObserver.bind(this));
   }
 
   private initAutocomplete(section: HTMLElement) {

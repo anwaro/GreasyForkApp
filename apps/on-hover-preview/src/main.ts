@@ -1,27 +1,34 @@
 import { PreviewPopup } from './components/PreviewPopup';
 import { LinkHover } from './helpers/LinkHover';
+import { AmazonMusic } from './services/AmazonMusic';
 import { AppleMusic } from './services/AppleMusic';
-import { BaseService } from './services/BaseService';
+import { BaseService } from './services/base/BaseService';
+import { Bitchute } from './services/Bitchute';
 import { Coub } from './services/Coub';
 import { Dailymotion } from './services/Dailymotion';
 import { Deezer } from './services/Deezer';
 import { Facebook } from './services/Facebook';
 import { Instagram } from './services/Instagram';
+import { Odysee } from './services/Odysee';
+import { Pbs } from './services/Pbs';
+import { Playeur } from './services/Playeur';
+import { Podbean } from './services/Podbean';
+import { Rss } from './services/Rss';
 import { SoundCloud } from './services/SoundCloud';
 import { Spotify } from './services/Spotify';
 import { Streamable } from './services/Streamable';
-import { Tableau } from './services/Tableau';
+import { Ted } from './services/Ted';
 import { Tidal } from './services/Tidal';
 import { Tiktok } from './services/Tiktok';
 import { Twitter } from './services/Twitter';
 import { Vimeo } from './services/Vimeo';
-import { Youtube } from './services/Youtube';
-// import { Odysee } from './services/Odysee';
-// import { Rumble } from './services/Rumble';
+import { Youtube, YoutubeShortcut, YoutubeShorts } from './services/Youtube';
 
 function run() {
   const services: BaseService[] = [
     Youtube,
+    YoutubeShortcut,
+    YoutubeShorts,
     Vimeo,
     Streamable,
     Facebook,
@@ -32,12 +39,18 @@ function run() {
     Dailymotion,
     Coub,
     Spotify,
-    Tableau,
     SoundCloud,
     AppleMusic,
     Deezer,
     Tidal,
-    // Odysee,
+    Ted,
+    Pbs,
+    Odysee,
+    Playeur,
+    Bitchute,
+    Podbean,
+    Rss,
+    AmazonMusic,
     // Rumble,
   ].map((Service) => new Service());
 

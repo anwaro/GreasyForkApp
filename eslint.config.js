@@ -52,7 +52,7 @@ module.exports = [
             {
               groupName: 'top',
               selector: 'property',
-              elementNamePattern: '^(?:id|iid|tag|name)$',
+              elementNamePattern: '^(id|iid|tag|name)$',
             },
           ],
         },

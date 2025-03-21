@@ -8,13 +8,11 @@ import { BaseService } from './BaseService';
 import { ServiceName } from './ServiceName';
 
 export class CreateChildIssue extends BaseService {
-  name = ServiceName.CreateChildIssue;
+  public name = ServiceName.CreateChildIssue;
   private isMounted = false;
 
   public init() {
-    this.mount();
-    setTimeout(this.mount.bind(this), 1000);
-    setTimeout(this.mount.bind(this), 3000);
+    this.runInit(this.mount.bind(this));
   }
 
   mount() {

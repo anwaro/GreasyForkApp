@@ -2,6 +2,7 @@ import { iterationFragment } from './iteration';
 import { labelFragment } from './label';
 import { milestoneFragment } from './milestone';
 import { userFragment } from './user';
+import { hierarchyWidgetFragment, labelsWidgetFragment } from './widget';
 
 export const epicQuery = `query namespaceWorkItem($fullPath: ID!, $iid: String!) {
   workspace: namespace(fullPath: $fullPath) {
@@ -35,75 +36,14 @@ fragment WorkItem on WorkItem {
     ...UserFragment
   }
   widgets {
-    ...WorkItemWidgets
+    type
+  ...LabelsWidgetFragment
+  ...HierarchyWidgetFragment
   }
 }
 
-fragment WorkItemWidgets on WorkItemWidget {
-  type
-    ... on WorkItemWidgetHierarchy {
-    hasChildren
-    children(first: 100) {
-      count
-      nodes {
-        id
-        iid
-        title
-        state
-        webUrl
-        widgets {
-          type
-          ...LabelsWidget
-        }
-      }
-    }
-  }
-  ... on WorkItemWidgetAssignees {
-    assignees {
-      nodes {
-        ...UserFragment
-      }
-    }
-  }
-  ... on WorkItemWidgetLabels {
-    labels {
-      nodes {
-        ...LabelFragment
-      }
-    }
-  }
-  ... on WorkItemWidgetIteration {
-    iteration {
-      ...IterationFragment
-    }
-  }
-  ... on WorkItemWidgetMilestone {
-    milestone {
-      ...MilestoneFragment
-    }
-  }
-  ... on WorkItemWidgetColor {
-    color
-    textColor
-  }
-  ... on WorkItemWidgetLinkedItems {
-    linkedItems {
-      nodes {
-        linkId
-        linkType
-      }
-    }
-  }
-}
-
-fragment LabelsWidget on WorkItemWidgetLabels {
-  labels {
-    nodes {
-      ...LabelFragment
-    }
-  }
-}
-
+${labelsWidgetFragment}
+${hierarchyWidgetFragment}
 ${labelFragment}
 ${userFragment}
 ${iterationFragment}

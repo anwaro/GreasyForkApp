@@ -1,8 +1,8 @@
-import { BaseWidget, LabelWidget } from './Epic';
 import { Iteration } from './Iteration';
 import { Label } from './Label';
 import { ApiResponseProject, Nodes } from './response';
 import { User } from './User';
+import { LabelWidget, WidgetOrUnknownWidget } from './Widget';
 
 export type IssueRelation = 'blocks' | 'is_blocked_by' | 'relates_to';
 
@@ -64,14 +64,6 @@ export interface CreatedIssue {
   id: string;
   iid: string;
   projectId: string;
-}
-
-export interface Assignees {
-  nodes: User[];
-}
-
-export interface Labels {
-  nodes: Label[];
 }
 
 export type IssueResponse = ApiResponseProject<{ issue: Issue }>;
@@ -162,7 +154,7 @@ export type RelatedIssue = {
   workItem: {
     id: string;
     iid: string;
-    widgets: (LabelWidget | BaseWidget)[];
+    widgets: WidgetOrUnknownWidget<LabelWidget>[];
     title: string;
     webUrl: string;
   };
@@ -173,6 +165,6 @@ export type RelatedIssueWithLabels = {
   workItem: {
     id: string;
     iid: string;
-    widgets: (LabelWidget | BaseWidget)[];
+    widgets: WidgetOrUnknownWidget<LabelWidget>[];
   };
 };
