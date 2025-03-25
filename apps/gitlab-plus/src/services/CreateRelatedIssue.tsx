@@ -3,9 +3,10 @@ import { render } from 'preact';
 import { GitlabButton } from '../components/common/GitlabButton';
 import { CreateRelatedIssueModal } from '../components/create-issue/CreateRelatedIssueModal';
 import { ShowRelatedIssueModalEvent } from '../components/create-issue/events';
+import { ServiceName } from '../consts/ServiceName';
+import { GitlabHtmlElements } from '../helpers/GitlabHtmlElements';
 import { LinkParser } from '../helpers/LinkParser';
 import { BaseService } from './BaseService';
-import { ServiceName } from './ServiceName';
 
 export class CreateRelatedIssue extends BaseService {
   public name = ServiceName.CreateRelatedIssue;
@@ -20,8 +21,9 @@ export class CreateRelatedIssue extends BaseService {
       return;
     }
     const link = LinkParser.parseIssueLink(window.location.href);
-    const parent = document.querySelector<HTMLDivElement>(
-      '#related-issues [data-testid="crud-actions"]'
+    const parent = GitlabHtmlElements.crudActionElement(
+      '#related-issues',
+      '#linkeditems'
     );
 
     if (!link || !parent) {
@@ -35,7 +37,7 @@ export class CreateRelatedIssue extends BaseService {
       >
         Create related issue
       </GitlabButton>,
-      this.root('glp-related-issue-button', parent)
+      this.root('glp-related-issue-button', parent, true)
     );
     render(
       <CreateRelatedIssueModal link={link} />,

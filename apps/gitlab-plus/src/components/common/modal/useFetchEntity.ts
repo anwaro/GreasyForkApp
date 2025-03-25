@@ -38,6 +38,11 @@ export function useFetchEntity<Entity, EntityLink>(
     fetch,
     isLoading,
     isRefreshing,
+    onRefresh: async () => {
+      if (entityData) {
+        await fetch(entityData.link, true);
+      }
+    },
     reset,
   };
 }

@@ -9,7 +9,7 @@ export type LinkParserFunction<LinkType> = (
 ) => LinkType | undefined;
 export type LinkValidatorFunction = (link?: string) => boolean;
 
-export const modalZIndex = 1000;
+export const modalZIndex = 5000;
 
 export function useOnLinkHover<LinkType>(
   parser: LinkParserFunction<LinkType>,

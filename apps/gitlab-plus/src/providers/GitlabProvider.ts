@@ -1,8 +1,10 @@
 import { Cache } from '@store/Cache';
 import { camelizeKeys } from '@utils/camelizeKeys';
 
+import { AppConfig } from '../consts/AppConfig';
+
 export class GitlabProvider {
-  private cache = new Cache('glp-');
+  private cache = new Cache(AppConfig.CachePrefix);
   private graphqlApi = 'https://gitlab.com/api/graphql';
   private url = 'https://gitlab.com/api/v4/';
 

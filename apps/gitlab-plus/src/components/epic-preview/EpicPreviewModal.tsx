@@ -1,5 +1,5 @@
 import { LinkParser } from '../../helpers/LinkParser';
-import { PreviewModal } from '../common/PreviewModal';
+import { PreviewModal } from '../common/modal/PreviewModal';
 import { EpicHeader } from './blocks/EpicHeading';
 import { EpicLabels } from './blocks/EpicLabels';
 import { EpicRelatedIssues } from './blocks/EpicRelatedIssues';

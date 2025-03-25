@@ -1,6 +1,7 @@
 import { ApiResponseWorkspace } from './response';
 
 export type UsersResponse = ApiResponseWorkspace<{ users: User[] }>;
+export type CurrentUsersResponse = { data: { currentUser: User } };
 
 export interface User {
   id: string;

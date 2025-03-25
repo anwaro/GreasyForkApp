@@ -1,4 +1,4 @@
-import { ServiceName } from './ServiceName';
+import { ServiceName } from '../consts/ServiceName';
 
 export abstract class BaseService {
   abstract readonly name: ServiceName;

@@ -3,9 +3,10 @@ import { render } from 'preact';
 import { GitlabButton } from '../components/common/GitlabButton';
 import { CreateChildIssueModal } from '../components/create-issue/CreateChildIssueModal';
 import { ShowChildIssueModalEvent } from '../components/create-issue/events';
+import { ServiceName } from '../consts/ServiceName';
+import { GitlabHtmlElements } from '../helpers/GitlabHtmlElements';
 import { LinkParser } from '../helpers/LinkParser';
 import { BaseService } from './BaseService';
-import { ServiceName } from './ServiceName';
 
 export class CreateChildIssue extends BaseService {
   public name = ServiceName.CreateChildIssue;
@@ -20,10 +21,7 @@ export class CreateChildIssue extends BaseService {
       return;
     }
     const link = LinkParser.parseEpicLink(window.location.href);
-    const parent = document.querySelector<HTMLDivElement>(
-      '#childitems [data-testid="crud-actions"]'
-    );
-
+    const parent = GitlabHtmlElements.crudActionElement('#childitems');
     if (!link || !parent) {
       return;
     }
@@ -33,7 +31,7 @@ export class CreateChildIssue extends BaseService {
       <GitlabButton
         onClick={() => document.dispatchEvent(ShowChildIssueModalEvent)}
       >
-        Create child item
+        Create child issue
       </GitlabButton>,
       this.root('glp-child-issue-button', parent, true)
     );

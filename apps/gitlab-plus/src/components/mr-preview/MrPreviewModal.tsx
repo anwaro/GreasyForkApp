@@ -1,5 +1,5 @@
 import { GitlabMrLink, LinkParser } from '../../helpers/LinkParser';
-import { PreviewModal } from '../common/PreviewModal';
+import { PreviewModal } from '../common/modal/PreviewModal';
 import { MrApprovedBy } from './blocks/MrApprovedBy';
 import { MrAssignee } from './blocks/MrAssignee';
 import { MrBranch } from './blocks/MrBranch';

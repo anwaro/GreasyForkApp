@@ -2,8 +2,8 @@ import { render } from 'preact';
 
 import { UserSettingsButton } from '../components/user-settings/UserSettingsButton';
 import { UserSettingModal } from '../components/user-settings/UserSettingsModal';
+import { ServiceName } from '../consts/ServiceName';
 import { BaseService } from './BaseService';
-import { ServiceName } from './ServiceName';
 
 export class UserSettings extends BaseService {
   public name = ServiceName.UserSettings;

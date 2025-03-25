@@ -10,9 +10,9 @@ type Props = {
 };
 
 export function IssueLabels({ issue, link, refetch }: Props) {
-  const { labels, updateStatus } = useIssueLabels(issue, link, refetch);
+  const { labels, updateStatus } = useIssueLabels({ issue, link, refetch });
 
-  if (!labels.length) {
+  if (!labels.length && !updateStatus) {
     return null;
   }
 

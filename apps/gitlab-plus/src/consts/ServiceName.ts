@@ -34,7 +34,7 @@ export const servicesConfig: Record<ServiceName, ServiceConfig> = {
     label: 'Related issue autocomplete in related issues input',
   },
   [ServiceName.RelatedIssuesLabelStatus]: {
-    label: 'Label status in related issues list items',
+    label: 'Label status in related issues list items (old design)',
   },
   [ServiceName.SortIssue]: {
     experimental: true,

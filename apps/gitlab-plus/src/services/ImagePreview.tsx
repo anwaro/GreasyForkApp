@@ -1,8 +1,8 @@
 import { render } from 'preact';
 
 import { ImagePreviewModal } from '../components/image-preview/ImagePreviewModal';
+import { ServiceName } from '../consts/ServiceName';
 import { BaseService } from './BaseService';
-import { ServiceName } from './ServiceName';
 
 export class ImagePreview extends BaseService {
   public name = ServiceName.ImagePreview;

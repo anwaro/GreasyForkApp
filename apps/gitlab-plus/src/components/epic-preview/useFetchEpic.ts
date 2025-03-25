@@ -1,6 +1,6 @@
 import { GitlabEpicLink } from '../../helpers/LinkParser';
 import { EpicProvider } from '../../providers/EpicProvider';
-import { useFetchEntity } from '../common/useFetchEntity';
+import { useFetchEntity } from '../common/modal/useFetchEntity';
 
 export function useFetchEpic() {
   return useFetchEntity(async (link: GitlabEpicLink, force = false) => {

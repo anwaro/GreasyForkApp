@@ -175,7 +175,7 @@ fragment CreatedIssue on Issue {
 
 export const issueSetEpicMutation = `
 mutation projectIssueUpdateParent($input: WorkItemUpdateInput!) {
-  issuableSetAttribute: workItemUpdate(input: $input) {
+  workItemUpdate(input: $input) {
     errors
   }
 }
@@ -183,7 +183,15 @@ mutation projectIssueUpdateParent($input: WorkItemUpdateInput!) {
 
 export const issueSetLabelsMutation = `
 mutation issueSetLabels($input: UpdateIssueInput!) {
-  updateIssuableLabels: updateIssue(input: $input) {
+  updateIssue(input: $input) {
+    errors
+  }
+}
+`;
+
+export const issueSetAssigneesMutation = `
+mutation issueSetAssignees($input: IssueSetAssigneesInput!) {
+  issueSetAssignees(input: $input) {
     errors
   }
 }

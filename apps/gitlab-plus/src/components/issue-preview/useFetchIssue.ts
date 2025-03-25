@@ -1,6 +1,6 @@
 import { GitlabIssueLink } from '../../helpers/LinkParser';
 import { IssueProvider } from '../../providers/IssueProvider';
-import { useFetchEntity } from '../common/useFetchEntity';
+import { useFetchEntity } from '../common/modal/useFetchEntity';
 
 export function useFetchIssue() {
   return useFetchEntity(async (link: GitlabIssueLink, force = false) => {

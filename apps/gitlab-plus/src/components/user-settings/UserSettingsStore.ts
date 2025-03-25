@@ -1,13 +1,16 @@
-import { Store } from '@store/Store';
+import { Cache } from '@store/Cache';
 
-import { ServiceName, servicesConfig } from '../../services/ServiceName';
+import { AppConfig } from '../../consts/AppConfig';
+import { ServiceName, servicesConfig } from '../../consts/ServiceName';
 import { defaultUserConfig, UserConfig, UserConfigType } from './UserConfig';
 
 type ActiveStatusType = Partial<Record<ServiceName, boolean>>;
 
+type ConfigValue = ActiveStatusType & UserConfigType;
+
 class UserSettingsStore {
-  private activeStatusStore = new Store<ActiveStatusType>('glp-settings');
-  private configStore = new Store<UserConfigType>('glp-config');
+  static ConfigKey = 'app-config';
+  private store = new Cache(AppConfig.CachePrefix);
 
   getConfig(name: UserConfig) {
     return this.getConfigItem(name);
@@ -22,10 +25,10 @@ class UserSettingsStore {
     }
 
     if (servicesConfig[name].experimental) {
-      return this.getActiveStatusItem(name, false);
+      return this.getConfigItem(name, false);
     }
 
-    return this.getActiveStatusItem(name, true);
+    return this.getConfigItem(name, true);
   }
 
   setConfig(name: UserConfig, value: string) {
@@ -33,55 +36,40 @@ class UserSettingsStore {
   }
 
   setIsActive(name: ServiceName, value: boolean) {
-    this.setActiveStatusItem(name, value);
+    this.setConfigItem(name, value);
   }
 
-  private getActiveStatusItem<Key extends keyof ActiveStatusType>(
+  private getConfigItem<Key extends keyof ConfigValue>(
     key: Key,
-    defaultValue?: ActiveStatusType[Key]
-  ): ActiveStatusType[Key] {
-    const items = this.getActiveStatusItems();
+    defaultValue?: ConfigValue[Key]
+  ): ConfigValue[Key] {
+    const items = this.getConfigItems();
     if (items[key] === undefined) {
-      return defaultValue;
+      return defaultValue as ConfigValue[Key];
     }
     return items[key];
   }
 
-  private getActiveStatusItems() {
-    return this.activeStatusStore.get() || {};
+  private getConfigItems(): ConfigValue {
+    return {
+      ...defaultUserConfig,
+      ...this.store.get(UserSettingsStore.ConfigKey, {}),
+    };
   }
 
-  private getConfigItem<Key extends keyof UserConfigType>(
-    key: Key
-  ): UserConfigType[Key] {
-    const items = this.getConfigItems();
-    return items[key];
-  }
-
-  private getConfigItems(): UserConfigType {
-    return { ...defaultUserConfig, ...(this.configStore.get() || {}) };
-  }
-
-  private setActiveStatusItem<Key extends keyof ActiveStatusType>(
+  private setConfigItem<Key extends keyof ConfigValue>(
     key: Key,
-    value: ActiveStatusType[Key]
-  ) {
-    const items = this.getActiveStatusItems();
-    this.activeStatusStore.set({
-      ...items,
-      [key]: value,
-    });
-  }
-
-  private setConfigItem<Key extends keyof UserConfigType>(
-    key: Key,
-    value: UserConfigType[Key]
+    value: ConfigValue[Key]
   ) {
     const items = this.getConfigItems();
-    this.configStore.set({
-      ...items,
-      [key]: value,
-    });
+    this.store.set(
+      UserSettingsStore.ConfigKey,
+      {
+        ...items,
+        [key]: value,
+      },
+      'lifetime'
+    );
   }
 }
 

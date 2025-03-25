@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab plus
 // @namespace    https://lukaszmical.pl/
-// @version      2025-03-21
+// @version      2025-03-25
 // @description  Gitlab utils
 // @author       Łukasz Micał
 // @match        https://gitlab.com/*
@@ -44,10 +44,10 @@ class GlobalStyle {
   }
 }
 
-const style1 =
-  '.glp-modal {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 99999;\n  display: none;\n  background: rgba(0, 0, 0, 0.6);\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-modal.glp-modal-visible {\n  display: flex;\n}\n\n.glp-modal .glp-modal-content {\n  width: 700px;\n  max-width: 95vw;\n}\n\n.gl-new-dropdown-item.glp-active .gl-new-dropdown-item-content {\n  box-shadow: inset 0 0 0 2px var(--gl-focus-ring-outer-color), inset 0 0 0 3px var(--gl-focus-ring-inner-color), inset 0 0 0 1px var(--gl-focus-ring-inner-color);\n  background-color: var(--gl-dropdown-option-background-color-unselected-hover);\n  outline: none;\n}\n\n';
 const style2 =
   '.glp-image-preview-modal {\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.6);\n  visibility: hidden;\n  opacity: 0;\n  pointer-events: none;\n  z-index: 99999;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-image-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n  pointer-events: auto;\n}\n\n.glp-image-preview-modal .glp-modal-close {\n  position: absolute;\n  z-index: 2;\n  top: 5px;\n  right: 5px;\n  color: black;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background: white;\n  border-radius: 15px;\n  cursor: pointer;\n}\n\n';
+const style1 =
+  '.glp-modal {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 99999;\n  display: none;\n  background: rgba(0, 0, 0, 0.6);\n  justify-content: center;\n  align-items: center;\n}\n\n.glp-modal.glp-modal-visible {\n  display: flex;\n}\n\n.glp-modal .glp-modal-content {\n  width: 700px;\n  max-width: 95vw;\n}\n\n.gl-new-dropdown-item.glp-active .gl-new-dropdown-item-content {\n  box-shadow: inset 0 0 0 2px var(--gl-focus-ring-outer-color), inset 0 0 0 3px var(--gl-focus-ring-inner-color), inset 0 0 0 1px var(--gl-focus-ring-inner-color);\n  background-color: var(--gl-dropdown-option-background-color-unselected-hover);\n  outline: none;\n}\n\n';
 const style3 =
   '.glp-preview-modal {\n  position: fixed;\n  border-radius: .25rem;\n  max-width: 350px;\n  width: 350px;\n  min-height: 200px;\n  visibility: hidden;\n  opacity: 0;\n  transition: all .2s ease-out;\n  transition-property: visibility, opacity, transform;\n\n}\n\n.glp-preview-modal.glp-modal-visible {\n  visibility: visible;\n  opacity: 1;\n}\n\n.glp-preview-modal ::-webkit-scrollbar {\n  width: 5px;\n}\n\n.glp-preview-modal ::-webkit-scrollbar-track {\n  background: var(--gl-background-color-overlap);\n}\n\n\n.glp-preview-modal ::-webkit-scrollbar-thumb {\n  background: #888;\n  border-radius: 5px;\n}\n\n\n.glp-preview-modal ::-webkit-scrollbar-thumb:hover {\n  background: #555;\n}\n\n.glp-preview-modal * {\n  max-width: 100%;\n}\n';
 
@@ -60,14 +60,6 @@ class Store {
     this.key = key;
   }
 
-  decode(val) {
-    return JSON.parse(val);
-  }
-
-  encode(val) {
-    return JSON.stringify(val);
-  }
-
   get(defaultValue = void 0) {
     try {
       const data = localStorage.getItem(this.key);
@@ -75,7 +67,7 @@ class Store {
         return this.decode(data);
       }
       return defaultValue;
-    } catch (e) {
+    } catch (_e) {
       return defaultValue;
     }
   }
@@ -87,11 +79,92 @@ class Store {
   set(value) {
     try {
       localStorage.setItem(this.key, this.encode(value));
-    } catch (e) {}
+    } catch (_e) {}
+  }
+
+  decode(val) {
+    return JSON.parse(val);
+  }
+
+  encode(val) {
+    return JSON.stringify(val);
   }
 }
 
-// apps/gitlab-plus/src/services/ServiceName.ts
+// libs/share/src/store/CacheHelper.ts
+class CacheHelper {
+  static clearInvalid(prefix) {
+    for (const key in localStorage) {
+      if (!key.startsWith(prefix)) {
+        continue;
+      }
+      const item = new Store(key).get();
+      if (!this.isCacheEntity(item)) {
+        continue;
+      }
+      if (!this.isValid(item)) {
+        new Store(key).remove();
+      }
+    }
+  }
+
+  static expirationDate(minutes) {
+    if (typeof minutes === 'string') {
+      return minutes;
+    }
+    const time = new Date();
+    time.setMinutes(time.getMinutes() + minutes);
+    return time;
+  }
+
+  static isCacheEntity(item) {
+    return !!item && typeof item === 'object' && 'expirationDate' in item;
+  }
+
+  static isValid(item) {
+    if (item) {
+      return (
+        item.expirationDate === 'lifetime' ||
+        new Date(item.expirationDate) > new Date()
+      );
+    }
+    return false;
+  }
+}
+
+// libs/share/src/store/Cache.ts
+class Cache {
+  constructor(prefix) {
+    this.prefix = prefix;
+  }
+
+  get(key, defaultValue) {
+    const data = new Store(this.createKey(key)).get();
+    if (CacheHelper.isValid(data)) {
+      return data.value;
+    }
+    return defaultValue;
+  }
+
+  set(key, value, minutes) {
+    new Store(this.createKey(key)).set({
+      expirationDate: CacheHelper.expirationDate(minutes),
+      value,
+    });
+  }
+
+  createKey(key) {
+    return `${this.prefix}${key}`;
+  }
+}
+
+// apps/gitlab-plus/src/consts/AppConfig.ts
+var AppConfig = ((AppConfig2) => {
+  AppConfig2['CachePrefix'] = 'glp-';
+  return AppConfig2;
+})(AppConfig || {});
+
+// apps/gitlab-plus/src/consts/ServiceName.ts
 var ServiceName = ((ServiceName2) => {
   ServiceName2['ClearCacheService'] = 'ClearCacheService';
   ServiceName2['CreateChildIssue'] = 'CreateChildIssue';
@@ -122,7 +195,7 @@ const servicesConfig = {
     label: 'Related issue autocomplete in related issues input',
   },
   ['RelatedIssuesLabelStatus']: {
-    label: 'Label status in related issues list items',
+    label: 'Label status in related issues list items (old design)',
   },
   ['SortIssue']: {
     experimental: true,
@@ -144,10 +217,9 @@ const defaultUserConfig = {
 };
 
 // apps/gitlab-plus/src/components/user-settings/UserSettingsStore.ts
-class UserSettingsStore {
+const _UserSettingsStore = class _UserSettingsStore {
   constructor() {
-    __publicField(this, 'activeStatusStore', new Store('glp-settings'));
-    __publicField(this, 'configStore', new Store('glp-config'));
+    __publicField(this, 'store', new Cache(AppConfig.CachePrefix));
   }
 
   getConfig(name2) {
@@ -162,9 +234,9 @@ class UserSettingsStore {
       return true;
     }
     if (servicesConfig[name2].experimental) {
-      return this.getActiveStatusItem(name2, false);
+      return this.getConfigItem(name2, false);
     }
-    return this.getActiveStatusItem(name2, true);
+    return this.getConfigItem(name2, true);
   }
 
   setConfig(name2, value) {
@@ -172,116 +244,39 @@ class UserSettingsStore {
   }
 
   setIsActive(name2, value) {
-    this.setActiveStatusItem(name2, value);
+    this.setConfigItem(name2, value);
   }
 
-  getActiveStatusItem(key, defaultValue) {
-    const items = this.getActiveStatusItems();
+  getConfigItem(key, defaultValue) {
+    const items = this.getConfigItems();
     if (items[key] === void 0) {
       return defaultValue;
     }
     return items[key];
   }
 
-  getActiveStatusItems() {
-    return this.activeStatusStore.get() || {};
-  }
-
-  getConfigItem(key) {
-    const items = this.getConfigItems();
-    return items[key];
-  }
-
   getConfigItems() {
-    return { ...defaultUserConfig, ...(this.configStore.get() || {}) };
-  }
-
-  setActiveStatusItem(key, value) {
-    const items = this.getActiveStatusItems();
-    this.activeStatusStore.set({
-      ...items,
-      [key]: value,
-    });
+    return {
+      ...defaultUserConfig,
+      ...this.store.get(_UserSettingsStore.ConfigKey, {}),
+    };
   }
 
   setConfigItem(key, value) {
     const items = this.getConfigItems();
-    this.configStore.set({
-      ...items,
-      [key]: value,
-    });
-  }
-}
-
-const userSettingsStore = new UserSettingsStore();
-
-// libs/share/src/store/Cache.ts
-class Cache {
-  constructor(prefix) {
-    this.prefix = prefix;
-  }
-
-  clearInvalid() {
-    for (const key in localStorage) {
-      if (key.startsWith(this.prefix) && !this.isValid(this.getItem(key))) {
-        localStorage.removeItem(key);
-      }
-    }
-  }
-
-  expirationDate(minutes) {
-    if (typeof minutes === 'string') {
-      return minutes;
-    }
-    const time = new Date();
-    time.setMinutes(time.getMinutes() + minutes);
-    return time;
-  }
-
-  get(key) {
-    try {
-      const data = this.getItem(this.key(key));
-      if (this.isValid(data)) {
-        return data.value;
-      }
-    } catch (e) {
-      return void 0;
-    }
-    return void 0;
-  }
-
-  key(key) {
-    return `${this.prefix}${key}`;
-  }
-
-  set(key, value, minutes) {
-    localStorage.setItem(
-      this.key(key),
-      JSON.stringify({
-        expirationDate: this.expirationDate(minutes),
-        value,
-      })
+    this.store.set(
+      _UserSettingsStore.ConfigKey,
+      {
+        ...items,
+        [key]: value,
+      },
+      'lifetime'
     );
   }
-
-  getItem(key) {
-    try {
-      return JSON.parse(localStorage.getItem(key) || '');
-    } catch (e) {
-      return void 0;
-    }
-  }
-
-  isValid(item) {
-    if (item) {
-      return (
-        item.expirationDate === 'lifetime' ||
-        new Date(item.expirationDate) > new Date()
-      );
-    }
-    return false;
-  }
-}
+};
+__publicField(_UserSettingsStore, 'ConfigKey', 'app-config');
+const UserSettingsStore = _UserSettingsStore;
+const userSettingsStore = new UserSettingsStore();
 
 // apps/gitlab-plus/src/services/BaseService.ts
 class BaseService {
@@ -311,12 +306,15 @@ class ClearCacheService extends BaseService {
   constructor() {
     super(...arguments);
     __publicField(this, 'name', ServiceName.ClearCacheService);
-    __publicField(this, 'cache', new Cache('glp-'));
   }
 
   init() {
-    this.cache.clearInvalid();
-    window.setInterval(this.cache.clearInvalid.bind(this.cache), 60 * 1e3);
+    this.invalidateCache();
+    window.setInterval(this.invalidateCache.bind(this), 60 * 1e3);
+  }
+
+  invalidateCache() {
+    CacheHelper.clearInvalid(AppConfig.CachePrefix);
   }
 }
 
@@ -570,7 +568,7 @@ function camelizeKeys(data) {
 // apps/gitlab-plus/src/providers/GitlabProvider.ts
 class GitlabProvider {
   constructor(force = false) {
-    __publicField(this, 'cache', new Cache('glp-'));
+    __publicField(this, 'cache', new Cache(AppConfig.CachePrefix));
     __publicField(this, 'graphqlApi', 'https://gitlab.com/api/graphql');
     __publicField(this, 'url', 'https://gitlab.com/api/v4/');
     this.force = force;
@@ -665,9 +663,22 @@ query workspaceAutocompleteUsersSearch($search: String!, $fullPath: ID!) {
 
 ${userFragment}
 `;
+const currentUserQuery = `
+query currentUser {
+  currentUser  {
+    ...UserFragment
+  }
+}
+
+${userFragment}
+`;
 
 // apps/gitlab-plus/src/providers/UsersProvider.ts
 class UsersProvider extends GitlabProvider {
+  async getCurrentUser() {
+    return this.queryCached('gitlab-current-user', currentUserQuery, {}, 60);
+  }
+
   async getUsers(projectId, search = '') {
     return this.queryCached(
       `users-${projectId}-${search}`,
@@ -1010,7 +1021,7 @@ function useAsyncAutocompleteOptions(searchTerm, getValues) {
 // apps/gitlab-plus/src/providers/RecentlyProvider.ts
 class RecentlyProvider {
   constructor(key) {
-    __publicField(this, 'cache', new Cache('glp-'));
+    __publicField(this, 'cache', new Cache(AppConfig.CachePrefix));
     __publicField(this, 'key');
     __publicField(this, 'eventName');
     this.key = `recently-${key}`;
@@ -1806,8 +1817,8 @@ function TitleField({ error, onChange, value }) {
 
 // apps/gitlab-plus/src/types/Epic.ts
 var WidgetType = ((WidgetType2) => {
-  WidgetType2['label'] = 'LABELS';
   WidgetType2['hierarchy'] = 'HIERARCHY';
+  WidgetType2['label'] = 'LABELS';
   return WidgetType2;
 })(WidgetType || {});
 
@@ -2204,14 +2215,21 @@ fragment CreatedIssue on Issue {
 `;
 const issueSetEpicMutation = `
 mutation projectIssueUpdateParent($input: WorkItemUpdateInput!) {
-  issuableSetAttribute: workItemUpdate(input: $input) {
+  workItemUpdate(input: $input) {
     errors
   }
 }
 `;
 const issueSetLabelsMutation = `
 mutation issueSetLabels($input: UpdateIssueInput!) {
-  updateIssuableLabels: updateIssue(input: $input) {
+  updateIssue(input: $input) {
+    errors
+  }
+}
+`;
+const issueSetAssigneesMutation = `
+mutation issueSetAssignees($input: IssueSetAssigneesInput!) {
+  issueSetAssignees(input: $input) {
     errors
   }
 }
@@ -2280,6 +2298,10 @@ class IssueProvider extends GitlabProvider {
     );
   }
 
+  async issueSetAssignees(input) {
+    return await this.query(issueSetAssigneesMutation, { input });
+  }
+
   async issueSetEpic(issueId, epicId) {
     return await this.query(issueSetEpicMutation, {
       input: {
@@ -2292,9 +2314,7 @@ class IssueProvider extends GitlabProvider {
   }
 
   async issueSetLabels(input) {
-    return await this.query(issueSetLabelsMutation, {
-      input,
-    });
+    return await this.query(issueSetLabelsMutation, { input });
   }
 }
 
@@ -2678,6 +2698,16 @@ function CreateChildIssueModal({ link }) {
   });
 }
 
+// apps/gitlab-plus/src/helpers/GitlabHtmlElements.ts
+class GitlabHtmlElements {
+  static crudActionElement(...ids) {
+    const selector = ids
+      .map((s) => `${s} [data-testid="crud-actions"]`)
+      .join(', ');
+    return document.querySelector(selector);
+  }
+}
+
 // apps/gitlab-plus/src/services/CreateChildIssue.tsx
 class CreateChildIssue extends BaseService {
   constructor() {
@@ -2695,9 +2725,7 @@ class CreateChildIssue extends BaseService {
       return;
     }
     const link = LinkParser.parseEpicLink(window.location.href);
-    const parent = document.querySelector(
-      '#childitems [data-testid="crud-actions"]'
-    );
+    const parent = GitlabHtmlElements.crudActionElement('#childitems');
     if (!link || !parent) {
       return;
     }
@@ -2705,7 +2733,7 @@ class CreateChildIssue extends BaseService {
     render(
       jsx(GitlabButton, {
         onClick: () => document.dispatchEvent(ShowChildIssueModalEvent),
-        children: 'Create child item',
+        children: 'Create child issue',
       }),
       this.root('glp-child-issue-button', parent, true)
     );
@@ -2744,8 +2772,9 @@ class CreateRelatedIssue extends BaseService {
       return;
     }
     const link = LinkParser.parseIssueLink(window.location.href);
-    const parent = document.querySelector(
-      '#related-issues [data-testid="crud-actions"]'
+    const parent = GitlabHtmlElements.crudActionElement(
+      '#related-issues',
+      '#linkeditems'
     );
     if (!link || !parent) {
       return;
@@ -2756,7 +2785,7 @@ class CreateRelatedIssue extends BaseService {
         onClick: () => document.dispatchEvent(ShowRelatedIssueModalEvent),
         children: 'Create related issue',
       }),
-      this.root('glp-related-issue-button', parent)
+      this.root('glp-related-issue-button', parent, true)
     );
     render(
       jsx(CreateRelatedIssueModal, { link }),
@@ -2796,8 +2825,8 @@ class Events {
   }
 }
 
-// apps/gitlab-plus/src/components/common/useOnLinkHover.ts
-const modalZIndex = 1e3;
+// apps/gitlab-plus/src/components/common/modal/useOnLinkHover.ts
+const modalZIndex = 5e3;
 
 function useOnLinkHover(parser, validator) {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
@@ -2845,7 +2874,7 @@ function useOnLinkHover(parser, validator) {
   };
 }
 
-// apps/gitlab-plus/src/components/common/usePreviewModal.ts
+// apps/gitlab-plus/src/components/common/modal/usePreviewModal.ts
 function usePreviewModal(link, fetch2, reset, isLoading) {
   const [isVisible, setIsVisible] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -2884,7 +2913,7 @@ function usePreviewModal(link, fetch2, reset, isLoading) {
   };
 }
 
-// apps/gitlab-plus/src/components/common/PreviewModal.tsx
+// apps/gitlab-plus/src/components/common/modal/PreviewModal.tsx
 function PreviewModal({
   validator,
   children,
@@ -3345,7 +3374,7 @@ function EpicRelatedIssues({ epic }) {
   });
 }
 
-// apps/gitlab-plus/src/components/common/useFetchEntity.ts
+// apps/gitlab-plus/src/components/common/modal/useFetchEntity.ts
 function useFetchEntity(fetcher) {
   const [entityData, setEntityData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -3371,6 +3400,11 @@ function useFetchEntity(fetcher) {
     fetch: fetch2,
     isLoading,
     isRefreshing,
+    onRefresh: async () => {
+      if (entityData) {
+        await fetch2(entityData.link, true);
+      }
+    },
     reset,
   };
 }
@@ -3538,9 +3572,28 @@ class ImagePreview extends BaseService {
 }
 
 // apps/gitlab-plus/src/components/common/block/UsersBlock.tsx
-function UsersBlock({ icon, label, pluralIcon, pluralLabel, users }) {
-  if (!users || !users.length) {
+function UsersBlock({
+  assign,
+  icon,
+  label,
+  pluralIcon,
+  pluralLabel,
+  users = [],
+}) {
+  if (!users.length && !assign) {
     return null;
+  }
+  if (!users.length && assign) {
+    return jsx(InfoBlock, {
+      icon: icon || 'user',
+      title: `${label}:`,
+      rightTitle: assign.isLoading
+        ? jsx(GitlabLoader, {})
+        : jsx(GitlabButton, {
+            onClick: assign.onUpdate,
+            children: 'Assign yourself',
+          }),
+    });
   }
   if (users.length === 1) {
     return jsx(InfoBlock, {
@@ -3559,9 +3612,31 @@ function UsersBlock({ icon, label, pluralIcon, pluralLabel, users }) {
   });
 }
 
-// apps/gitlab-plus/src/components/issue-preview/blocks/IssueAssignee.tsx
-function IssueAssignee({ issue }) {
+// apps/gitlab-plus/src/components/issue-preview/blocks/useIssueAssignees.ts
+function useIssueAssignees({ issue, link, refetch }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const onUpdate = useCallback(async () => {
+    setIsLoading(true);
+    const user = await new UsersProvider().getCurrentUser();
+    await new IssueProvider().issueSetAssignees({
+      iid: issue.iid,
+      assigneeUsernames: [user.data.currentUser.username],
+      projectPath: link.projectPath,
+    });
+    setIsLoading(false);
+    refetch == null ? void 0 : refetch();
+  }, []);
+  return {
+    isLoading,
+    onUpdate,
+  };
+}
+
+// apps/gitlab-plus/src/components/issue-preview/blocks/IssueAssignees.tsx
+function IssueAssignees({ issue, link, refetch }) {
+  const { isLoading, onUpdate } = useIssueAssignees({ issue, link, refetch });
   return jsx(UsersBlock, {
+    assign: { isLoading, onUpdate },
     icon: 'assignee',
     label: 'Assignee',
     users: issue.assignees.nodes,
@@ -3637,7 +3712,7 @@ function IssueIteration({ issue }) {
 }
 
 // apps/gitlab-plus/src/components/issue-preview/blocks/useIssueLabels.ts
-function useIssueLabels(issue, link, refetch) {
+function useIssueLabels({ issue, link, refetch }) {
   const [statusLabels, setStatusLabels] = useState([]);
   const onStatusChange = useCallback(
     async (label) => {
@@ -3678,12 +3753,12 @@ function useIssueLabels(issue, link, refetch) {
 
 // apps/gitlab-plus/src/components/issue-preview/blocks/IssueLabels.tsx
 function IssueLabels({ issue, link, refetch }) {
-  const { labels: labels2, updateStatus } = useIssueLabels(
+  const { labels: labels2, updateStatus } = useIssueLabels({
     issue,
     link,
-    refetch
-  );
-  if (!labels2.length) {
+    refetch,
+  });
+  if (!labels2.length && !updateStatus) {
     return null;
   }
   return jsx(LabelsBlock, { labels: labels2, updateStatus });
@@ -3726,10 +3801,7 @@ function GitlabMergeRequest({ mr }) {
         gap: 2,
         children: [
           jsx(MrStatus, { state: mr.state, withIcon: true, withLabel: true }),
-          jsxs(Text, {
-            variant: 'secondary',
-            children: ['!', mr.iid],
-          }),
+          jsxs(Text, { variant: 'secondary', children: ['!', mr.iid] }),
           jsx(GitlabUser, { size: 16, user: mr.author, withLink: true }),
         ],
       }),
@@ -3834,6 +3906,7 @@ function IssuePreviewModal() {
     fetch: fetch2,
     isLoading,
     isRefreshing,
+    onRefresh,
     reset,
   } = useFetchIssue();
   return jsx(PreviewModal, {
@@ -3848,15 +3921,16 @@ function IssuePreviewModal() {
       entityData &&
       jsxs(Fragment, {
         children: [
-          jsx(IssueHeader, {
+          jsx(IssueHeader, { issue: entityData.entity, onRefresh }),
+          jsx(IssueAssignees, {
             issue: entityData.entity,
-            onRefresh: () => fetch2(entityData.link, true),
+            link: entityData.link,
+            refetch: onRefresh,
           }),
-          jsx(IssueAssignee, { issue: entityData.entity }),
           jsx(IssueLabels, {
             issue: entityData.entity,
             link: entityData.link,
-            refetch: () => fetch2(entityData.link, true),
+            refetch: onRefresh,
           }),
           jsx(IssueEpic, { issue: entityData.entity }),
           jsx(IssueMilestone, { issue: entityData.entity }),
@@ -4549,19 +4623,14 @@ class SortIssue extends BaseService {
   constructor() {
     super(...arguments);
     __publicField(this, 'name', ServiceName.SortIssue);
+    __publicField(this, 'userName', '');
   }
 
   init() {
-    const observer = new Observer();
-    const userName = this.userName();
-    const board = document.querySelector('.boards-list');
-    if (!userName || !board) {
-      return;
-    }
-    observer.start(board, () => this.run(userName));
+    this.setup();
   }
 
-  childType(child, userName) {
+  childType(child) {
     if (child instanceof HTMLDivElement) {
       return 'label';
     }
@@ -4570,7 +4639,7 @@ class SortIssue extends BaseService {
       return 'unknown';
     }
     const isOwn = [...child.querySelectorAll('.gl-avatar-link img')].some(
-      (img) => img.alt.includes(userName)
+      (img) => img.alt.includes(this.userName)
     );
     const isUserStory = [...child.querySelectorAll('.gl-label')].some((span) =>
       span.innerText.includes('User Story')
@@ -4587,18 +4656,28 @@ class SortIssue extends BaseService {
     return 'issue';
   }
 
-  initBoard(board, userName) {
+  initBoard(board) {
     Dom.applyClass(board, 'glp-ready');
     const observer = new Observer();
-    observer.start(board, () => this.sortBoard(board, userName), {
+    observer.start(board, () => this.sortBoard(board), {
       childList: true,
     });
   }
 
-  run(userName) {
+  run() {
     [...document.querySelectorAll('.board-list:not(.glp-ready)')].forEach(
-      (board) => this.initBoard(board, userName)
+      (board) => this.initBoard(board)
     );
+  }
+
+  async setup() {
+    const response = await new UsersProvider().getCurrentUser();
+    this.userName = response.data.currentUser.username;
+    const observer = new Observer();
+    const board = document.querySelector('.boards-list');
+    if (board) {
+      observer.start(board, () => this.run());
+    }
   }
 
   shouldSort(items) {
@@ -4607,14 +4686,14 @@ class SortIssue extends BaseService {
     });
   }
 
-  sortBoard(board, userName) {
+  sortBoard(board) {
     Dom.applyStyles(board, {
       display: 'flex',
       flexDirection: 'column',
     });
     const children = [...board.children].map((element) => ({
       element,
-      type: this.childType(element, userName),
+      type: this.childType(element),
     }));
     if (!this.shouldSort(children)) {
       return;
@@ -4630,17 +4709,6 @@ class SortIssue extends BaseService {
     return items.toSorted((a, b) => {
       return Math.sign(sortWeight[b.type] - sortWeight[a.type]);
     });
-  }
-
-  userName() {
-    const element = document.querySelector(
-      '.user-bar-dropdown-toggle .gl-button-text .gl-sr-only'
-    );
-    const testText = ' user’s menu';
-    if (element && element.innerText.includes(testText)) {
-      return element.innerText.replace(testText, '');
-    }
-    return void 0;
   }
 }
 

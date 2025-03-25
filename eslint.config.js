@@ -47,7 +47,7 @@ module.exports = [
         {
           type: 'natural',
           order: 'asc',
-          groups: ['top', 'unknown', ['optional-multiline-member', 'bottom']],
+          groups: ['top', 'unknown', ['optional-multiline-member']],
           customGroups: [
             {
               groupName: 'top',
@@ -154,7 +154,14 @@ module.exports = [
       ],
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_' },
+        {
+          argsIgnorePattern: '^_',
+          caughtErrors: 'none',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
       ],
     },
   },

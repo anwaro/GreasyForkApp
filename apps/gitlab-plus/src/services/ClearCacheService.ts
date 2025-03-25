@@ -1,15 +1,18 @@
-import { Cache } from '@store/Cache';
+import { CacheHelper } from '@store/CacheHelper';
 
+import { AppConfig } from '../consts/AppConfig';
+import { ServiceName } from '../consts/ServiceName';
 import { BaseService } from './BaseService';
-import { ServiceName } from './ServiceName';
 
 export class ClearCacheService extends BaseService {
   public name = ServiceName.ClearCacheService;
 
-  private cache = new Cache('glp-');
-
   public init() {
-    this.cache.clearInvalid();
-    window.setInterval(this.cache.clearInvalid.bind(this.cache), 60 * 1000);
+    this.invalidateCache();
+    window.setInterval(this.invalidateCache.bind(this), 60 * 1000);
+  }
+
+  private invalidateCache(): void {
+    CacheHelper.clearInvalid(AppConfig.CachePrefix);
   }
 }

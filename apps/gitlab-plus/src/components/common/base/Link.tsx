@@ -4,7 +4,7 @@ import type { ComponentChildren } from 'preact';
 
 import { clsx } from '@utils/clsx';
 
-import { modalZIndex } from '../useOnLinkHover';
+import { modalZIndex } from '../modal/useOnLinkHover';
 
 type Props = {
   blockHover?: boolean;

@@ -1,6 +1,6 @@
 import { GitlabIssueLink, LinkParser } from '../../helpers/LinkParser';
-import { PreviewModal } from '../common/PreviewModal';
-import { IssueAssignee } from './blocks/IssueAssignee';
+import { PreviewModal } from '../common/modal/PreviewModal';
+import { IssueAssignees } from './blocks/IssueAssignees';
 import { IssueEpic } from './blocks/IssueEpic';
 import { IssueHeader } from './blocks/IssueHeading';
 import { IssueIteration } from './blocks/IssueIteration';
@@ -11,7 +11,8 @@ import { IssueRelatedIssue } from './blocks/IssueRelatedIssue';
 import { useFetchIssue } from './useFetchIssue';
 
 export function IssuePreviewModal() {
-  const { entityData, fetch, isLoading, isRefreshing, reset } = useFetchIssue();
+  const { entityData, fetch, isLoading, isRefreshing, onRefresh, reset } =
+    useFetchIssue();
 
   return (
     <PreviewModal<GitlabIssueLink>
@@ -25,15 +26,16 @@ export function IssuePreviewModal() {
     >
       {entityData && (
         <>
-          <IssueHeader
+          <IssueHeader issue={entityData.entity} onRefresh={onRefresh} />
+          <IssueAssignees
             issue={entityData.entity}
-            onRefresh={() => fetch(entityData.link, true)}
+            link={entityData.link}
+            refetch={onRefresh}
           />
-          <IssueAssignee issue={entityData.entity} />
           <IssueLabels
             issue={entityData.entity}
             link={entityData.link}
-            refetch={() => fetch(entityData.link, true)}
+            refetch={onRefresh}
           />
           <IssueEpic issue={entityData.entity} />
           <IssueMilestone issue={entityData.entity} />

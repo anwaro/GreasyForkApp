@@ -1,11 +1,13 @@
 import { Cache } from '@store/Cache';
 
+import { AppConfig } from '../consts/AppConfig';
+
 type Item = {
   id: number | string;
 };
 
 export class RecentlyProvider<T extends Item> {
-  cache = new Cache('glp-');
+  cache = new Cache(AppConfig.CachePrefix);
   readonly key: string;
   private readonly eventName: string;
 

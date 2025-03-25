@@ -1,8 +1,17 @@
-import { UsersResponse } from '../types/User';
+import { CurrentUsersResponse, UsersResponse } from '../types/User';
 import { GitlabProvider } from './GitlabProvider';
-import { userQuery } from './query/user';
+import { currentUserQuery, userQuery } from './query/user';
 
 export class UsersProvider extends GitlabProvider {
+  async getCurrentUser() {
+    return this.queryCached<CurrentUsersResponse>(
+      'gitlab-current-user',
+      currentUserQuery,
+      {},
+      60
+    );
+  }
+
   async getUsers(projectId: string, search = '') {
     return this.queryCached<UsersResponse>(
       `users-${projectId}-${search}`,

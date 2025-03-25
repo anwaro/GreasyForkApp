@@ -39,6 +39,14 @@ export type IssueSetLabelsInput = {
   };
 };
 
+export type IssueSetAssigneesInput = {
+  input: {
+    iid: string;
+    assigneeUsernames: string[];
+    projectPath: string;
+  };
+};
+
 export type CreateIssueLinkInput = {
   targetIssueIid: string;
   issueId: number | string;
@@ -108,9 +116,9 @@ export interface Milestone {
 export interface IssueEpic {
   id: string;
   iid: string;
+  labels: Nodes<Label>;
   title: string;
   webUrl: string;
-  labels: Nodes<Label>;
 }
 
 export interface MergeRequest {

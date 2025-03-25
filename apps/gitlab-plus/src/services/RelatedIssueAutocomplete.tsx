@@ -1,9 +1,9 @@
 import { render } from 'preact';
 
 import { RelatedIssuesAutocompleteModal } from '../components/related-issue-autocomplete/RelatedIssuesAutocompleteModal';
+import { ServiceName } from '../consts/ServiceName';
 import { LinkParser } from '../helpers/LinkParser';
 import { BaseService } from './BaseService';
-import { ServiceName } from './ServiceName';
 
 export class RelatedIssueAutocomplete extends BaseService {
   public name = ServiceName.RelatedIssueAutocomplete;

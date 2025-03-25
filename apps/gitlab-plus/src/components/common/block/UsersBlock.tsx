@@ -1,10 +1,18 @@
 import { User } from '../../../types/User';
+import { GitlabButton } from '../GitlabButton';
 import { GitlabIconNames } from '../GitlabIcon';
+import { GitlabLoader } from '../GitlabLoader';
 import { GitlabUser } from '../GitlabUser';
 import { InfoBlock } from './InfoBlock';
 import { ListBlock } from './ListBlock';
 
+type Assign = {
+  isLoading: boolean;
+  onUpdate: () => void;
+};
+
 type Props = {
+  assign?: Assign;
   icon?: GitlabIconNames;
   label: string;
   pluralIcon?: GitlabIconNames;
@@ -13,14 +21,33 @@ type Props = {
 };
 
 export function UsersBlock({
+  assign,
   icon,
   label,
   pluralIcon,
   pluralLabel,
-  users,
+  users = [],
 }: Props) {
-  if (!users || !users.length) {
+  if (!users.length && !assign) {
     return null;
+  }
+
+  if (!users.length && assign) {
+    return (
+      <InfoBlock
+        icon={icon || 'user'}
+        title={`${label}:`}
+        rightTitle={
+          assign.isLoading ? (
+            <GitlabLoader />
+          ) : (
+            <GitlabButton onClick={assign.onUpdate}>
+              Assign yourself
+            </GitlabButton>
+          )
+        }
+      />
+    );
   }
 
   if (users.length === 1) {

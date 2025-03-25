@@ -4,8 +4,8 @@ import type { ComponentChild } from 'preact';
 
 import { clsx } from '@utils/clsx';
 
-import { Row } from './base/Row';
-import { GitlabLoader } from './GitlabLoader';
+import { Row } from '../base/Row';
+import { GitlabLoader } from '../GitlabLoader';
 import {
   LinkParserFunction,
   LinkValidatorFunction,

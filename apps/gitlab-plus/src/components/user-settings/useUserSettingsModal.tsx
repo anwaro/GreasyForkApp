@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'preact/hooks';
 
-import { ServiceName, servicesConfig } from '../../services/ServiceName';
+import { ServiceName, servicesConfig } from '../../consts/ServiceName';
 import { configLabels, UserConfig } from './UserConfig';
 import { userSettingsStore } from './UserSettingsStore';
 

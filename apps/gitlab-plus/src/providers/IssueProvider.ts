@@ -3,6 +3,7 @@ import {
   CreateIssueLinkInput,
   CreateIssueResponse,
   IssueResponse,
+  IssueSetAssigneesInput,
   IssueSetEpicInput,
   IssueSetLabelsInput,
   IssuesResponse,
@@ -12,6 +13,7 @@ import { GitlabProvider } from './GitlabProvider';
 import {
   issueMutation,
   issueQuery,
+  issueSetAssigneesMutation,
   issueSetEpicMutation,
   issueSetLabelsMutation,
   issuesQuery,
@@ -82,6 +84,10 @@ export class IssueProvider extends GitlabProvider {
     );
   }
 
+  async issueSetAssignees(input: IssueSetAssigneesInput['input']) {
+    return await this.query(issueSetAssigneesMutation, { input });
+  }
+
   async issueSetEpic(issueId: string, epicId: string) {
     return await this.query(issueSetEpicMutation, {
       input: {
@@ -94,8 +100,6 @@ export class IssueProvider extends GitlabProvider {
   }
 
   async issueSetLabels(input: IssueSetLabelsInput['input']) {
-    return await this.query(issueSetLabelsMutation, {
-      input,
-    } satisfies IssueSetLabelsInput);
+    return await this.query(issueSetLabelsMutation, { input });
   }
 }

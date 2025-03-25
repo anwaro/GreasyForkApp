@@ -1,12 +1,12 @@
 import { render } from 'preact';
 
 import { GitlabLabel } from '../components/common/GitlabLabel';
+import { ServiceName } from '../consts/ServiceName';
 import { LabelHelper } from '../helpers/LabelHelper';
 import { GitlabIssueLink, LinkParser } from '../helpers/LinkParser';
 import { IssueProvider } from '../providers/IssueProvider';
 import { Label } from '../types/Label';
 import { BaseService } from './BaseService';
-import { ServiceName } from './ServiceName';
 
 export class RelatedIssuesLabelStatus extends BaseService {
   public name = ServiceName.RelatedIssuesLabelStatus;

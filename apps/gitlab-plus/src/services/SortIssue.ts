@@ -1,8 +1,9 @@
 import { Dom } from '@ui/Dom';
 import { Observer } from '@ui/Observer';
 
+import { ServiceName } from '../consts/ServiceName';
+import { UsersProvider } from '../providers/UsersProvider';
 import { BaseService } from './BaseService';
-import { ServiceName } from './ServiceName';
 
 enum ChildType {
   issue = 'issue',
@@ -24,18 +25,13 @@ const sortWeight: Record<ChildType, number> = {
 
 export class SortIssue extends BaseService {
   public name = ServiceName.SortIssue;
+  private userName = '';
 
   public init() {
-    const observer = new Observer();
-    const userName = this.userName();
-    const board = document.querySelector<HTMLDivElement>('.boards-list');
-    if (!userName || !board) {
-      return;
-    }
-    observer.start(board, () => this.run(userName));
+    this.setup();
   }
 
-  private childType(child: HTMLElement, userName: string): ChildType {
+  private childType(child: HTMLElement): ChildType {
     if (child instanceof HTMLDivElement) {
       return ChildType.label;
     }
@@ -46,7 +42,7 @@ export class SortIssue extends BaseService {
 
     const isOwn = [
       ...child.querySelectorAll<HTMLImageElement>('.gl-avatar-link img'),
-    ].some((img) => img.alt.includes(userName));
+    ].some((img) => img.alt.includes(this.userName));
 
     const isUserStory = [
       ...child.querySelectorAll<HTMLSpanElement>('.gl-label'),
@@ -64,19 +60,29 @@ export class SortIssue extends BaseService {
     return ChildType.issue;
   }
 
-  private initBoard(board: HTMLDivElement, userName: string) {
+  private initBoard(board: HTMLDivElement) {
     Dom.applyClass(board, 'glp-ready');
 
     const observer = new Observer();
-    observer.start(board, () => this.sortBoard(board, userName), {
+    observer.start(board, () => this.sortBoard(board), {
       childList: true,
     });
   }
 
-  private run(userName: string) {
+  private run() {
     [...document.querySelectorAll('.board-list:not(.glp-ready)')].forEach(
-      (board) => this.initBoard(board as HTMLDivElement, userName)
+      (board) => this.initBoard(board as HTMLDivElement)
     );
+  }
+
+  private async setup() {
+    const response = await new UsersProvider().getCurrentUser();
+    this.userName = response.data.currentUser.username;
+    const observer = new Observer();
+    const board = document.querySelector<HTMLDivElement>('.boards-list');
+    if (board) {
+      observer.start(board, () => this.run());
+    }
   }
 
   private shouldSort(items: { element: HTMLElement; type: ChildType }[]) {
@@ -85,14 +91,14 @@ export class SortIssue extends BaseService {
     });
   }
 
-  private sortBoard(board: HTMLDivElement, userName: string) {
+  private sortBoard(board: HTMLDivElement) {
     Dom.applyStyles(board, {
       display: 'flex',
       flexDirection: 'column',
     });
     const children = [...board.children].map((element) => ({
       element: element as HTMLElement,
-      type: this.childType(element as HTMLElement, userName),
+      type: this.childType(element as HTMLElement),
     }));
 
     if (!this.shouldSort(children)) {
@@ -110,16 +116,5 @@ export class SortIssue extends BaseService {
     return items.toSorted((a, b) => {
       return Math.sign(sortWeight[b.type] - sortWeight[a.type]);
     });
-  }
-
-  private userName() {
-    const element = document.querySelector<HTMLSpanElement>(
-      '.user-bar-dropdown-toggle .gl-button-text .gl-sr-only'
-    );
-    const testText = ' user’s menu';
-    if (element && element.innerText.includes(testText)) {
-      return element.innerText.replace(testText, '');
-    }
-    return undefined;
   }
 }

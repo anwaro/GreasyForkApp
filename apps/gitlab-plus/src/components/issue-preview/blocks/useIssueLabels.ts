@@ -8,11 +8,13 @@ import { Issue } from '../../../types/Issue';
 import { Label } from '../../../types/Label';
 import { UpdateStatus } from '../../common/block/useLabelBlock';
 
-export function useIssueLabels(
-  issue: Issue,
-  link: GitlabIssueLink,
-  refetch?: () => Promise<void>
-) {
+type Props = {
+  issue: Issue;
+  link: GitlabIssueLink;
+  refetch?: () => Promise<void>;
+};
+
+export function useIssueLabels({ issue, link, refetch }: Props) {
   const [statusLabels, setStatusLabels] = useState<Label[]>([]);
 
   const onStatusChange = useCallback(

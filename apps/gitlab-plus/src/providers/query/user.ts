@@ -21,3 +21,13 @@ query workspaceAutocompleteUsersSearch($search: String!, $fullPath: ID!) {
 
 ${userFragment}
 `;
+
+export const currentUserQuery = `
+query currentUser {
+  currentUser  {
+    ...UserFragment
+  }
+}
+
+${userFragment}
+`;

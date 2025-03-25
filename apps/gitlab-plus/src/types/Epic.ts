@@ -5,8 +5,8 @@ import { HierarchyWidget, LabelWidget, WidgetOrUnknownWidget } from './Widget';
 export type EpicResponse = ApiResponseWorkspace<{ workItem: Epic }>;
 
 export enum WidgetType {
-  label = 'LABELS',
   hierarchy = 'HIERARCHY',
+  label = 'LABELS',
 }
 
 export interface Epic {
@@ -44,7 +44,7 @@ export interface Namespace {
   fullPath: string;
 }
 
-export type EpicWidget = WidgetOrUnknownWidget<LabelWidget | HierarchyWidget>;
+export type EpicWidget = WidgetOrUnknownWidget<HierarchyWidget | LabelWidget>;
 
 export interface UserPermissions {
   adminParentLink: boolean;
