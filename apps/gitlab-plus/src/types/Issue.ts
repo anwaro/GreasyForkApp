@@ -95,6 +95,7 @@ export interface Issue {
   state: string;
   title: string;
   type: string;
+  webUrl: string;
   weight: null | number;
 }
 

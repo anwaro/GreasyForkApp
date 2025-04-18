@@ -32,7 +32,10 @@ export function CreateIssueForm({ isVisible, link, onClose }: Props) {
   } = useCreateIssueForm({ isVisible, link, onClose });
 
   return (
-    <form class={'crud-body add-tree-form gl-mx-5 gl-my-4 gl-rounded-b-form'}>
+    <form
+      class={'crud-body add-tree-form gl-mx-5 gl-my-4 gl-rounded-b-form'}
+      onSubmit={actions.onSubmit}
+    >
       <FormField
         error={form.title.errors}
         hint={'Maximum of 255 characters'}
@@ -48,6 +51,11 @@ export function CreateIssueForm({ isVisible, link, onClose }: Props) {
             icon={'title'}
             onClick={form.title.copy}
             title={'Copy from parent title'}
+          />
+          <GitlabButton
+            icon={'insert'}
+            onClick={actions.fillForm}
+            title={'Fill form with parent and last used data'}
           />
         </div>
       </FormField>

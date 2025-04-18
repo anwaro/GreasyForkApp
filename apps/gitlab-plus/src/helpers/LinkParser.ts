@@ -19,6 +19,10 @@ export type GitlabMrLink = GitlabLink & {
 type GlLink = GitlabEpicLink | GitlabIssueLink | GitlabLink | GitlabMrLink;
 
 export class LinkParser {
+  static epicPattern(strict = false) {
+    return LinkParser.patternGroup('epic', 'epics', strict);
+  }
+
   static isEpicLink(link: GlLink): link is GitlabEpicLink {
     return (link as GitlabEpicLink).epic !== undefined;
   }
@@ -31,61 +35,76 @@ export class LinkParser {
     return (link as GitlabMrLink).mr !== undefined;
   }
 
-  static parseEpicLink(link: string): GitlabEpicLink | undefined {
-    if (LinkParser.validateEpicLink(link)) {
-      return LinkParser.parseGitlabLink(
-        link,
-        /\/groups\/(?<workspacePath>.+)\/-\/epics\/(?<epic>\d+)/
-      );
+  static issuePattern(strict = false) {
+    return LinkParser.patternProject('issue', 'issues', strict);
+  }
+
+  static mrPattern(strict = false) {
+    return LinkParser.patternProject('mr', 'merge_requests', strict);
+  }
+
+  static parseEpicLink(
+    link: string,
+    strict = false
+  ): GitlabEpicLink | undefined {
+    if (LinkParser.validateEpicLink(link, strict)) {
+      return LinkParser.parseGitlabLink(link, LinkParser.epicPattern(strict));
     }
     return undefined;
   }
 
   static parseGitlabLink<T>(link: string, pattern: RegExp): T | undefined {
-    const url = new URL(link);
-    const result = url.pathname.match(pattern);
+    const result = new URL(link).pathname.match(pattern);
     if (result && result.groups) {
       return result.groups as T;
     }
     return undefined;
   }
 
-  static parseIssueLink(link: string): GitlabIssueLink | undefined {
+  static parseIssueLink(
+    link: string,
+    strict = false
+  ): GitlabIssueLink | undefined {
     if (LinkParser.validateIssueLink(link)) {
-      return LinkParser.parseGitlabLink(
-        link,
-        /\/(?<projectPath>(?<workspacePath>.+)\/[^/]+)\/-\/issues\/(?<issue>\d+)/
-      );
+      return LinkParser.parseGitlabLink(link, LinkParser.issuePattern(strict));
     }
     return undefined;
   }
 
-  static parseMrLink(link: string): GitlabMrLink | undefined {
+  static parseMrLink(link: string, strict = false): GitlabMrLink | undefined {
     if (LinkParser.validateMrLink(link)) {
-      return LinkParser.parseGitlabLink(
-        link,
-        /\/(?<projectPath>(?<workspacePath>.+)\/[^/]+)\/-\/merge_requests\/(?<mr>\d+)\/?$/
-      );
+      return LinkParser.parseGitlabLink(link, LinkParser.mrPattern(strict));
     }
     return undefined;
   }
 
-  static validateEpicLink(link?: string) {
-    return LinkParser.validateGitlabLink(link, 'epics');
+  static patternGroup(name: string, entity: string, strict: boolean) {
+    const end = !strict ? '([?#]{1}.*)?' : '';
+    return new RegExp(
+      `\\/groups\\/(?<workspacePath>.+)\\/-\\/${entity}\\/(?<${name}>\\d+)\\/?${end}$`
+    );
   }
 
-  static validateGitlabLink(
-    link: string | undefined,
-    type: 'epics' | 'issues' | 'merge_requests'
-  ) {
-    return Boolean(typeof link === 'string' && link.includes(`/-/${type}/`));
+  static patternProject(name: string, entity: string, strict: boolean) {
+    const end = !strict ? '([?#]{1}.*)?' : '';
+    return new RegExp(
+      `\\/(?<projectPath>(?<workspacePath>.+)\\/[^/]+)\\/-\\/${entity}\\/(?<${name}>\\d+)\\/?${end}$`
+    );
   }
 
-  static validateIssueLink(link?: string) {
-    return LinkParser.validateGitlabLink(link, 'issues');
+  static validateEpicLink(link?: string, strict = false) {
+    return LinkParser.validateGitlabLink(link, LinkParser.epicPattern(strict));
   }
 
-  static validateMrLink(link?: string) {
-    return LinkParser.validateGitlabLink(link, 'merge_requests');
+  static validateGitlabLink(link: string | undefined, pattern: RegExp) {
+    return Boolean(typeof link === 'string' && pattern.test(link));
+  }
+
+  static validateIssueLink(link?: string, strict = false) {
+    return LinkParser.validateGitlabLink(link, LinkParser.issuePattern(strict));
+  }
+
+  static validateMrLink(link?: string, strict = false) {
+    return LinkParser.validateGitlabLink(link, LinkParser.mrPattern(strict));
   }
 }

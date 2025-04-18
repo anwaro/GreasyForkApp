@@ -1,17 +1,15 @@
-import { render } from 'preact';
-
 import { RelatedIssuesAutocompleteModal } from '../components/related-issue-autocomplete/RelatedIssuesAutocompleteModal';
 import { ServiceName } from '../consts/ServiceName';
 import { LinkParser } from '../helpers/LinkParser';
+import { RendererHelper } from '../helpers/RendererHelper';
 import { BaseService } from './BaseService';
 
 export class RelatedIssueAutocomplete extends BaseService {
   public name = ServiceName.RelatedIssueAutocomplete;
-  private ready = false;
   private readyClass = 'glp-input-ready';
 
   public init() {
-    this.runInit(this.initObserver.bind(this));
+    this.setup(this.initObserver.bind(this), LinkParser.validateIssueLink);
   }
 
   private initAutocomplete(section: HTMLElement) {
@@ -31,9 +29,12 @@ export class RelatedIssueAutocomplete extends BaseService {
     if (!container || document.querySelector('.related-issues-autocomplete')) {
       return;
     }
-    const root = this.root('related-issues-autocomplete', container);
 
-    render(<RelatedIssuesAutocompleteModal input={input} link={link} />, root);
+    RendererHelper.render(
+      'related-issues-autocomplete',
+      container,
+      <RelatedIssuesAutocompleteModal input={input} link={link} />
+    );
   }
 
   private initObserver() {

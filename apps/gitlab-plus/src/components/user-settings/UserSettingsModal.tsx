@@ -3,14 +3,14 @@ import { Row } from '../common/base/Row';
 import { Text } from '../common/base/Text';
 import { GitlabBadge } from '../common/GitlabBadge';
 import { GitlabSwitch } from '../common/GitlabSwitch';
+import { ModalEvents } from '../common/modal/events';
 import { GlpModal } from '../common/modal/GlpModal';
 import { useGlpModal } from '../common/modal/useGlpModal';
-import { showUserSettingsModal } from './events';
 import { UserConfigForm } from './UserConfigForm';
 import { useUserSettingsModal } from './useUserSettingsModal';
 
 export function UserSettingModal() {
-  const { isVisible, onClose } = useGlpModal(showUserSettingsModal);
+  const { isVisible, onClose } = useGlpModal(ModalEvents.showUserSettingsModal);
   const { configs, services, setConfig, setServiceState } =
     useUserSettingsModal();
 

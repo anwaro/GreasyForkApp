@@ -1,25 +1,20 @@
-import { render } from 'preact';
-
 import { GitlabLabel } from '../components/common/GitlabLabel';
 import { ServiceName } from '../consts/ServiceName';
 import { LabelHelper } from '../helpers/LabelHelper';
 import { GitlabIssueLink, LinkParser } from '../helpers/LinkParser';
+import { RendererHelper } from '../helpers/RendererHelper';
 import { IssueProvider } from '../providers/IssueProvider';
 import { Label } from '../types/Label';
 import { BaseService } from './BaseService';
 
 export class RelatedIssuesLabelStatus extends BaseService {
   public name = ServiceName.RelatedIssuesLabelStatus;
-  private ready = false;
 
   public init() {
-    this.runInit(this.initIssuesList.bind(this));
+    this.setup(this.initIssuesList.bind(this), LinkParser.validateIssueLink);
   }
 
   private initIssuesList() {
-    if (this.ready) {
-      return;
-    }
     const lists = document.querySelectorAll<HTMLUListElement>(
       '#related-issues .related-items-list'
     );
@@ -66,9 +61,11 @@ export class RelatedIssuesLabelStatus extends BaseService {
       );
 
       if (infoArea && statusLabel) {
-        render(
+        RendererHelper.render(
+          'glp-status-label',
+          infoArea,
           <GitlabLabel label={statusLabel} />,
-          this.root('glp-status-label', infoArea, true)
+          'prepend'
         );
       }
     });

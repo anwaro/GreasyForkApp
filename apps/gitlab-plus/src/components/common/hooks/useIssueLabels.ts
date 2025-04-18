@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useCallback, useMemo } from 'preact/hooks';
 
 import { LabelHelper } from '../../../helpers/LabelHelper';
 import { GitlabIssueLink } from '../../../helpers/LinkParser';
@@ -6,28 +6,36 @@ import { IssueProvider } from '../../../providers/IssueProvider';
 import { LabelsProvider } from '../../../providers/LabelsProvider';
 import { Issue } from '../../../types/Issue';
 import { Label } from '../../../types/Label';
-import { UpdateStatus } from '../../common/block/useLabelBlock';
+import { UpdateLabelStatus } from '../block/LabelsBlock';
 
 type Props = {
-  issue: Issue;
+  issue?: Issue;
   link: GitlabIssueLink;
   refetch?: () => Promise<void>;
 };
 
 export function useIssueLabels({ issue, link, refetch }: Props) {
-  const [statusLabels, setStatusLabels] = useState<Label[]>([]);
+  const { labels, statusLabel } = useMemo(() => {
+    const labels = issue?.labels.nodes || [];
+    return {
+      labels,
+      statusLabel: LabelHelper.getStatusLabel(labels),
+    };
+  }, [issue]);
 
   const onStatusChange = useCallback(
     async (label: Label) => {
-      const oldStatusLabel = LabelHelper.getStatusLabel(issue.labels.nodes);
+      const updatedLabels = [
+        ...labels.filter((label) => label.id !== statusLabel?.id),
+        label,
+      ];
 
-      const labels = [...issue.labels.nodes, label].filter(
-        (label) => label.id !== oldStatusLabel?.id
-      );
-
+      if (!issue) {
+        return;
+      }
       await new IssueProvider().issueSetLabels({
         iid: issue.iid,
-        labelIds: labels.map((l) => l.id),
+        labelIds: updatedLabels.map((l) => l.id),
         projectPath: link.projectPath,
       });
 
@@ -35,26 +43,23 @@ export function useIssueLabels({ issue, link, refetch }: Props) {
         await refetch();
       }
     },
-    [issue]
+    [issue, labels, statusLabel]
   );
 
-  const fetchLabels = useCallback(async (projectPath: string) => {
+  const fetchStatusLabels = useCallback(async () => {
     const response = await new LabelsProvider().getProjectLabels(
-      projectPath,
+      link.projectPath,
       LabelHelper.getStatusPrefix()
     );
-    setStatusLabels(response.data.workspace.labels.nodes);
-  }, []);
-
-  useEffect(() => {
-    fetchLabels(link.projectPath);
+    return response.data.workspace.labels.nodes;
   }, []);
 
   return {
-    labels: issue.labels.nodes,
+    labels,
     updateStatus: {
-      labels: statusLabels,
-      update: onStatusChange,
-    } satisfies UpdateStatus,
+      getStatusLabels: fetchStatusLabels,
+      onStausLabelUpdate: onStatusChange,
+      statusLabel: LabelHelper.getStatusLabel(labels),
+    } satisfies UpdateLabelStatus,
   };
 }

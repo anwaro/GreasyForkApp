@@ -15,6 +15,7 @@ export function IssueHeader({ issue, onRefresh }: Props) {
       createdAt={issue.createdAt}
       entityId={`#${issue.iid}`}
       icon={'issue-type-issue'}
+      link={issue.webUrl}
       onRefresh={onRefresh}
       title={issue.title}
     />

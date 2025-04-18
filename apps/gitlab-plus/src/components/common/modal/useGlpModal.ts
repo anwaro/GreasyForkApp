@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'preact/hooks';
 
-export function useGlpModal(eventName: string) {
+import { ModalEvents } from './events';
+
+export function useGlpModal(eventName: ModalEvents) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

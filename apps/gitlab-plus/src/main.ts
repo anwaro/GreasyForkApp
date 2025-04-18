@@ -4,8 +4,10 @@ import { ClearCacheService } from './services/ClearCacheService';
 import { CreateChildIssue } from './services/CreateChildIssue';
 import { CreateRelatedIssue } from './services/CreateRelatedIssue';
 import { EpicPreview } from './services/EpicPreview';
+import { EpicStatus } from './services/EpicStatus';
 import { ImagePreview } from './services/ImagePreview';
 import { IssuePreview } from './services/IssuePreview';
+import { IssueStatus } from './services/IssueStatus';
 import { MrPreview } from './services/MrPreview';
 import { RelatedIssueAutocomplete } from './services/RelatedIssueAutocomplete';
 import { RelatedIssuesLabelStatus } from './services/RelatedIssuesLabelStatus';
@@ -24,6 +26,8 @@ import { UserSettings } from './services/UserSettings';
   RelatedIssuesLabelStatus,
   SortIssue,
   UserSettings,
+  IssueStatus,
+  EpicStatus,
 ].forEach((Service) => {
   const service = new Service();
 

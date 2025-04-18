@@ -1,16 +1,14 @@
-import { render } from 'preact';
-
 import { UserSettingsButton } from '../components/user-settings/UserSettingsButton';
 import { UserSettingModal } from '../components/user-settings/UserSettingsModal';
 import { ServiceName } from '../consts/ServiceName';
+import { RendererHelper } from '../helpers/RendererHelper';
 import { BaseService } from './BaseService';
 
 export class UserSettings extends BaseService {
   public name = ServiceName.UserSettings;
-  private ready = false;
 
   public init() {
-    this.runInit(this.initUserSettings.bind(this));
+    this.setup(this.initUserSettings.bind(this));
   }
 
   private getMenuItem() {
@@ -30,10 +28,6 @@ export class UserSettings extends BaseService {
   }
 
   private initUserSettings() {
-    if (this.ready) {
-      return;
-    }
-
     const userMenu = this.getMenuItem();
 
     if (!userMenu) {
@@ -41,8 +35,7 @@ export class UserSettings extends BaseService {
     }
 
     this.ready = true;
-
-    render(<UserSettingsButton />, userMenu);
-    render(<UserSettingModal />, this.rootBody('glp-user-settings-root'));
+    RendererHelper.renderInNode(userMenu, <UserSettingsButton />);
+    RendererHelper.renderInBody('glp-user-settings-root', <UserSettingModal />);
   }
 }

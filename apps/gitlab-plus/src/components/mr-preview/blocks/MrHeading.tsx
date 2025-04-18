@@ -33,6 +33,7 @@ export function MrHeader({ mr, onRefresh }: Props) {
       createdAt={mr.createdAt}
       entityId={`!${mr.iid}`}
       icon={'merge-request'}
+      link={mr.webUrl}
       onRefresh={onRefresh}
       title={title}
       badge={

@@ -68,14 +68,16 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const reset = () => {
+  const reset = (resetParent = false) => {
     setIsLoading(false);
     setValues(initialState());
     setErrors(initialError());
     setMessage('');
     setError('');
-    setParentIssue(null);
-    setParentEpic(null);
+    if (resetParent) {
+      setParentIssue(null);
+      setParentEpic(null);
+    }
   };
 
   const createPayload = () => {
@@ -206,17 +208,53 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
     }
   };
 
+  const getParentTitle = () => {
+    return parentIssue?.title || parentEpic?.title || '';
+  };
+
+  const getParentLabels = () => {
+    if (parentEpic) {
+      return LabelHelper.getLabelsFromWidgets(parentEpic.widgets);
+    }
+    if (parentIssue) {
+      return parentIssue.labels.nodes;
+    }
+    return [];
+  };
+
+  const fillForm = () => {
+    const assignees = new RecentlyProvider<User>('assignees').get();
+    const iterations = new RecentlyProvider<IterationNamed>('iterations').get();
+    const milestones = new RecentlyProvider<Milestone>('milestones').get();
+    const projects = new RecentlyProvider<Project>('projects').get();
+
+    setValues({
+      ...values,
+      assignees: assignees.length ? [assignees[0]] : values.assignees,
+      iteration: iterations.length ? iterations[0] : values.iteration,
+      labels: getParentLabels(),
+      milestone: milestones.length ? milestones[0] : values.milestone,
+      project: projects.length ? projects[0] : values.project,
+      title: getParentTitle(),
+    });
+  };
+
   useEffect(() => {
     if (isVisible) {
       fetchParent();
     } else {
-      reset();
+      reset(true);
     }
   }, [isVisible]);
 
   return {
     actions: {
-      reset,
+      fillForm,
+      onSubmit: (e: Event) => {
+        e.preventDefault();
+        submit();
+      },
+      reset: () => reset(false),
       submit,
     },
     error,
@@ -233,17 +271,7 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
         value: values.iteration ? [values.iteration] : [],
       },
       labels: {
-        copy: () => {
-          if (parentEpic) {
-            setValues({
-              ...values,
-              labels: LabelHelper.getLabelsFromWidgets(parentEpic.widgets),
-            });
-          }
-          if (parentIssue) {
-            setValues({ ...values, labels: parentIssue.labels.nodes });
-          }
-        },
+        copy: () => setValues({ ...values, labels: getParentLabels() }),
         errors: errors.labels,
         onChange: (labels: Label[]) => setValues({ ...values, labels }),
         value: values.labels,
@@ -267,16 +295,7 @@ export function useCreateIssueForm({ isVisible, link, onClose }: Props) {
         value: values.relation,
       },
       title: {
-        copy: () => {
-          const parentTitle = parentIssue?.title || parentEpic?.title;
-
-          if (parentTitle) {
-            setValues({
-              ...values,
-              title: parentTitle,
-            });
-          }
-        },
+        copy: () => setValues({ ...values, title: getParentTitle() }),
         errors: errors.title,
         onChange: (title: string) => setValues({ ...values, title }),
         value: values.title,

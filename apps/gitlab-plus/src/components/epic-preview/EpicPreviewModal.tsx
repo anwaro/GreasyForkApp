@@ -26,6 +26,7 @@ export function EpicPreviewModal() {
           />
           <EpicLabels
             epic={entityData.entity}
+            link={entityData.link}
             refresh={() => fetch(entityData.link, true)}
           />
           <EpicRelatedIssues epic={entityData.entity} />

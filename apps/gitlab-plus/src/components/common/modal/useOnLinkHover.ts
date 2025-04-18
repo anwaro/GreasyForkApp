@@ -7,7 +7,11 @@ import { Position } from './PreviewModal';
 export type LinkParserFunction<LinkType> = (
   link: string
 ) => LinkType | undefined;
-export type LinkValidatorFunction = (link?: string) => boolean;
+
+export type LinkValidatorFunction = (
+  link?: string,
+  strict?: boolean
+) => boolean;
 
 export const modalZIndex = 5000;
 
@@ -39,7 +43,7 @@ export function useOnLinkHover<LinkType>(
 
   useEffect(() => {
     Events.intendHover<HTMLAnchorElement>(
-      (element) => validator((element as HTMLAnchorElement).href),
+      (element) => validator((element as HTMLAnchorElement).href, true),
       onHover,
       () => {
         setTimeout(() => {

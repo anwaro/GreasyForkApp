@@ -4,6 +4,7 @@ import type { ComponentChild } from 'preact';
 
 import { clsx } from '@utils/clsx';
 
+import { Link } from '../base/Link';
 import { Row } from '../base/Row';
 import { GitlabIcon, GitlabIconNames } from '../GitlabIcon';
 
@@ -12,6 +13,7 @@ type Props = {
   className?: string;
   contentMaxHeight?: number | string;
   icon?: GitlabIconNames;
+  link?: string;
   rightTitle?: ComponentChild;
   title: ComponentChild;
   titleClassName?: string;
@@ -22,6 +24,7 @@ export function InfoBlock({
   className,
   contentMaxHeight,
   icon,
+  link,
   rightTitle,
   title,
   titleClassName,
@@ -44,7 +47,14 @@ export function InfoBlock({
       <Row className={'gl-px-3'} items={'center'} justify={'between'}>
         <Row gap={2} items={'center'}>
           {icon && <GitlabIcon icon={icon} size={16} />}
-          <h5 className={clsx('gl-my-0', titleClassName)}>{title}</h5>
+          <h5 className={clsx('gl-my-0', titleClassName)}>
+            {title}
+            {link && (
+              <Link className={'gl-ml-3'} href={link} blockHover inline>
+                <GitlabIcon icon={'symlink'} size={16} />
+              </Link>
+            )}
+          </h5>
         </Row>
         {rightTitle}
       </Row>

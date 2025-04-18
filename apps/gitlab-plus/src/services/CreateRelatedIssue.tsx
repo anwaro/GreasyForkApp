@@ -1,25 +1,20 @@
-import { render } from 'preact';
-
-import { GitlabButton } from '../components/common/GitlabButton';
+import { ModalEvents } from '../components/common/modal/events';
+import { CreateIssueButton } from '../components/create-issue/CreateIssueButton';
 import { CreateRelatedIssueModal } from '../components/create-issue/CreateRelatedIssueModal';
-import { ShowRelatedIssueModalEvent } from '../components/create-issue/events';
 import { ServiceName } from '../consts/ServiceName';
 import { GitlabHtmlElements } from '../helpers/GitlabHtmlElements';
 import { LinkParser } from '../helpers/LinkParser';
+import { RendererHelper } from '../helpers/RendererHelper';
 import { BaseService } from './BaseService';
 
 export class CreateRelatedIssue extends BaseService {
   public name = ServiceName.CreateRelatedIssue;
-  private isMounted = false;
 
   public init() {
-    this.runInit(this.mount.bind(this));
+    this.setup(this.mount.bind(this), LinkParser.validateIssueLink);
   }
 
   mount() {
-    if (this.isMounted) {
-      return;
-    }
     const link = LinkParser.parseIssueLink(window.location.href);
     const parent = GitlabHtmlElements.crudActionElement(
       '#related-issues',
@@ -29,19 +24,20 @@ export class CreateRelatedIssue extends BaseService {
     if (!link || !parent) {
       return;
     }
-    this.isMounted = true;
+    this.ready = true;
 
-    render(
-      <GitlabButton
-        onClick={() => document.dispatchEvent(ShowRelatedIssueModalEvent)}
-      >
-        Create related issue
-      </GitlabButton>,
-      this.root('glp-related-issue-button', parent, true)
+    RendererHelper.render(
+      'glp-related-issue-button',
+      parent,
+      <CreateIssueButton
+        eventName={ModalEvents.showRelatedIssueModal}
+        label={'Create related issue'}
+      />,
+      'prepend'
     );
-    render(
-      <CreateRelatedIssueModal link={link} />,
-      this.rootBody('glp-related-issue-modal')
+    RendererHelper.renderInBody(
+      'glp-related-issue-modal',
+      <CreateRelatedIssueModal link={link} />
     );
   }
 }

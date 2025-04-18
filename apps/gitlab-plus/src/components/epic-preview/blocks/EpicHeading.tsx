@@ -15,6 +15,7 @@ export function EpicHeader({ epic, onRefresh }: Props) {
       createdAt={epic.createdAt}
       entityId={`&${epic.iid}`}
       icon={'epic'}
+      link={epic.webUrl}
       onRefresh={onRefresh}
       title={epic.title}
     />

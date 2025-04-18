@@ -28,7 +28,7 @@ export class SortIssue extends BaseService {
   private userName = '';
 
   public init() {
-    this.setup();
+    this.start();
   }
 
   private childType(child: HTMLElement): ChildType {
@@ -75,16 +75,6 @@ export class SortIssue extends BaseService {
     );
   }
 
-  private async setup() {
-    const response = await new UsersProvider().getCurrentUser();
-    this.userName = response.data.currentUser.username;
-    const observer = new Observer();
-    const board = document.querySelector<HTMLDivElement>('.boards-list');
-    if (board) {
-      observer.start(board, () => this.run());
-    }
-  }
-
   private shouldSort(items: { element: HTMLElement; type: ChildType }[]) {
     return items.some((item) => {
       return [ChildType.ownIssue, ChildType.ownUserStory].includes(item.type);
@@ -116,5 +106,15 @@ export class SortIssue extends BaseService {
     return items.toSorted((a, b) => {
       return Math.sign(sortWeight[b.type] - sortWeight[a.type]);
     });
+  }
+
+  private async start() {
+    const response = await new UsersProvider().getCurrentUser();
+    this.userName = response.data.currentUser.username;
+    const observer = new Observer();
+    const board = document.querySelector<HTMLDivElement>('.boards-list');
+    if (board) {
+      observer.start(board, () => this.run());
+    }
   }
 }

@@ -1,13 +1,12 @@
-import { render } from 'preact';
-
 import { MrPreviewModal } from '../components/mr-preview/MrPreviewModal';
 import { ServiceName } from '../consts/ServiceName';
+import { RendererHelper } from '../helpers/RendererHelper';
 import { BaseService } from './BaseService';
 
 export class MrPreview extends BaseService {
   public name = ServiceName.MrPreview;
 
   public init() {
-    render(<MrPreviewModal />, this.rootBody('glp-mr-preview-root'));
+    RendererHelper.renderInBody('glp-mr-preview-root', <MrPreviewModal />);
   }
 }

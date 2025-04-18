@@ -13,6 +13,7 @@ type Props = {
   createdAt: string;
   entityId: string;
   icon: GitlabIconNames;
+  link?: string;
   onRefresh?: () => void;
   title: ComponentChildren;
 };
@@ -23,11 +24,13 @@ export function HeadingBlock({
   createdAt,
   entityId,
   icon,
+  link,
   onRefresh,
   title,
 }: Props) {
   return (
     <InfoBlock
+      link={link}
       title={title}
       titleClassName={'gl-pr-2'}
       rightTitle={

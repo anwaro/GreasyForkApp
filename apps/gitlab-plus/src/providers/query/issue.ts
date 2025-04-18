@@ -15,6 +15,9 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
       state
       dueDate
       projectId
+      webUrl
+      weight
+      type
       milestone {
         id
         title
@@ -59,8 +62,6 @@ export const issueQuery = `query issueEE($projectPath: ID!, $iid: String!) {
       author {
         ...UserFragment
       }
-      weight
-      type
       linkedWorkItems {
         nodes {
           linkType
